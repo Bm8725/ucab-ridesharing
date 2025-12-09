@@ -69,8 +69,9 @@ export default function InvestorsForm() {
           <FaCoins /> Investitori Strategici
         </h2>
         <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-          Alege nivelul de implicare și completează formularul pentru a susține proiectul. Proiectul ucab are potential economic mare si impact social pozitiv, contribuind la mobilitate urbana sustenabila. <strong>O evaluare se poate estima la 500 000 - 1 000 000 EUR in urmatorii 3-5 ani.</strong> 
-        </p>
+          Alege nivelul de implicare și completează formularul pentru a susține proiectul. Proiectul ucab are potential economic mare si impact social pozitiv, contribuind la mobilitate urbana sustenabila. Avem nevoie de sprijinul dvs pentru finantarea in faza initiala.  <strong>O evaluare se poate estima la 500 000 - 1 000 000 EUR in urmatorii 3-5 ani.</strong> 
+        
+         Investitia initiala se bazeaza pe multa munca si cod scris, astfel evealuarea initiala este evaluata la aprox <strong> 18000 de Euro</strong>. </p>
       </div>
 
       {/* Investment Tiers */}
@@ -80,7 +81,7 @@ export default function InvestorsForm() {
             key={tier.id}
             onClick={() => setSelectedTier(tier.id)}
             className={`p-6 rounded-2xl cursor-pointer border-2 transition hover:scale-105 shadow-md ${
-              selectedTier === tier.id ? "border-green-500 bg-green-50" : "border-gray-300 bg-white dark:bg-gray-800"
+              selectedTier === tier.id ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-white dark:bg-gray-800"
             }`}
           >
             <h4 className="text-xl font-semibold mb-2">{tier.label}</h4>
@@ -107,27 +108,27 @@ export default function InvestorsForm() {
             placeholder="Nume complet"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="email"
             placeholder="Email"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="number"
             placeholder="Sumă investiție (€)"
             value={formData.amount}
             onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
           />
           <textarea
             placeholder="Mesaj / observații"
             value={formData.message}
             onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
           />
 
           {/* Politica */}
@@ -136,7 +137,7 @@ export default function InvestorsForm() {
               type="checkbox"
               checked={formData.acceptedPolicy}
               onChange={() => setFormData({ ...formData, acceptedPolicy: !formData.acceptedPolicy })}
-              className="rounded border-gray-300 focus:ring-2 focus:ring-green-500"
+              className="rounded border-gray-300 focus:ring-2 focus:ring-gray-500"
             />
             Accept Politica de Confidențialitate și Termenii
           </label>
@@ -144,7 +145,7 @@ export default function InvestorsForm() {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-green-500 text-white hover:bg-green-600 transition font-semibold mt-2"
+            className="w-full py-3 rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition font-semibold mt-2"
           >
             {loading ? "Se trimite..." : "Trimite cererea"}
           </button>

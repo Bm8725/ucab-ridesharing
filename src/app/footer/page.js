@@ -129,7 +129,7 @@ export default function Footer() {
           </a>
         </div>
   <p className="text-sm text-gray-600 text-center sm:text-right">
-  © {new Date().getFullYear()} UCab.ro — All rights reserved powered by <span className="font-bold text-purple-600">BM</span>
+  © {new Date().getFullYear()} UCab.ro — All rights reserved powered by <span className="font-bold text-purple-600 animate-pulse">BM</span>
 </p>
 
       </div>
