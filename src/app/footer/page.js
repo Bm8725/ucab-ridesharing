@@ -128,9 +128,10 @@ export default function Footer() {
             <Instagram className="w-5 h-5" />
           </a>
         </div>
-        <p className="text-sm text-gray-600 text-center sm:text-right">
-          © 2025 UCab.ro — Toate drepturile rezervate by BM
-        </p>
+  <p className="text-sm text-gray-600 text-center sm:text-right">
+  © {new Date().getFullYear()} UCab.ro — All rights reserved powered by <span className="font-bold text-purple-600">BM</span>
+</p>
+
       </div>
     </footer>
   );
