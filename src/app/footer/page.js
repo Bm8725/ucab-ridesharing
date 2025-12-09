@@ -129,7 +129,7 @@ export default function Footer() {
           </a>
         </div>
         <p className="text-sm text-gray-600 text-center sm:text-right">
-          © 2025 UCab.ro — Toate drepturile rezervate.
+          © 2025 UCab.ro — Toate drepturile rezervate by BM
         </p>
       </div>
     </footer>
