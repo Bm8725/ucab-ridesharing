@@ -52,7 +52,7 @@ export default function Footer() {
         <div>
           <h3 className="text-white text-2xl font-bold tracking-tight mb-3">UCab.ro</h3>
           <p className="text-sm text-gray-400 leading-relaxed">
-            Platformă modernă de ride-sharing pentru transport rapid, sigur și eficient în orașele din România. Creat pentru companii locale de incredere.
+            Platformă modernă de ride-sharing pentru transport rapid, sigur și eficient în orașele din România. Creat pentru companii locale de incredere. 
           </p>
 
           {/* Contact + Locație */}
