@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Home, Users, Car, UserCircle, LogIn, ListRestart, Info } from "lucide-react";
+import { Home, Users, Car, UserCircle, LogIn, ListRestart, Info, Pizza, Badge } from "lucide-react";
 import Link from "next/link";
 import { FaCoins, FaHamburger, FaHandHolding, FaInvision, FaMotorcycle } from "react-icons/fa";
 
@@ -20,6 +20,12 @@ export default function Header() {
       icon: <Car size={24} />,
       href: "/cursa/",
     },
+        {
+      label: "Comanda mancare",
+      desc: "Comanda mâncarea ta preferată de la restaurante locale.",
+      icon: <Pizza size={24} />,
+      href: "/restaurante/",
+    },
     {
       label: "Devino restaurant partener",
       desc: "Devino partener pe livrari de mancare la comisioane sub 10%.",
@@ -35,7 +41,7 @@ export default function Header() {
     {
       label: "Promoții",
       desc: "Descoperă ofertele și reducerile curente.",
-      icon: <UserCircle size={24} />,
+      icon: <Badge size={24} />,
       href: "#",
     },
   ];
