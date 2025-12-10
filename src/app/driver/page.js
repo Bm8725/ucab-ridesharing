@@ -118,7 +118,7 @@ export default function RequestFormPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center">
-      <img src="/ucab2.jpg" alt="UCab Background" className="absolute inset-0 w-full h-full object-cover brightness-50" />
+      <img src="/ucab2.png" alt="UCab Background" className="absolute inset-0 w-full h-full object-cover brightness-50" />
       <div className="absolute inset-0 bg-black/40"></div>
 
       <div className="relative z-10 w-full max-w-5xl md:mx-12 bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 md:p-16 space-y-8 backdrop-blur-sm overflow-y-auto max-h-screen">
