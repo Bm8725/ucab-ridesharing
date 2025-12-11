@@ -43,64 +43,20 @@ export default function Footer() {
   return (
     <footer className="bg-black text-gray-300 border-t border-gray-800 pt-16 pb-10">
 
-{/* Butoane UCab App + UCab Food SUS */}
-<div className="max-w-7xl mx-auto px-6 mb-10">
-  <div className="flex flex-row justify-center gap-4 flex-nowrap">
-
-    {/* UCab App */}
-    <a
-      href="https://play.google.com/store/apps/details?id=com.ucab"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center justify-center gap-3 px-5 py-3 bg-gradient-to-r from-white/70 via-blue-400 to-blue-700 text-white rounded-2xl shadow-xl border-2 border-blue-300 transform transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-400/50 font-semibold text-sm sm:text-base"
-    >
-      <img src="/ucabapp.png" alt="UCab App Icon" className="w-9 h-9 sm:w-7 sm:h-7" />
-      UCab App
-    </a>
-
-    {/* UCab Food */}
-    <a
-      href="https://play.google.com/store/apps/details?id=com.ucabfood"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center justify-center gap-3 px-5 py-3 bg-gradient-to-r from-white/70 via-red-400 to-red-700 text-white rounded-2xl shadow-xl border-2 border-red-300 transform transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-red-400/50 font-semibold text-sm sm:text-base"
-    >
-      <img src="/ucabfood.png" alt="UCab Food Icon" className="w-9 h-9 sm:w-7 sm:h-7" />
-      UCab Food
-    </a>
-
-  </div>
-</div>
-
-
+      {/* Secțiuni Brand / Companie / Servicii / Legal */}
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 gap-y-8">
-        
         {/* Brand */}
         <div>
           <h3 className="text-white text-2xl font-bold tracking-tight mb-3">UCab.ro</h3>
           <p className="text-sm text-gray-400 leading-relaxed">
             Platformă modernă de ride-sharing pentru transport rapid, sigur și eficient în orașele din România. Creat pentru companii locale de incredere. 
           </p>
-
-          {/* Contact + Locație */}
           <div className="mt-6 space-y-2 text-sm">
-            <div className="flex items-center gap-2">
-              <Phone className="w-4 h-4 text-green-500" />
-              <span>+40 700 123 456</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Mail className="w-4 h-4 text-green-500" />
-              <span>support@ucab.ro</span>
-            </div>
+            <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-green-500" /> +40 700 x23 456</div>
+            <div className="flex items-center gap-2"><Mail className="w-4 h-4 text-green-500" /> support@ucab.ro</div>
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-green-500" />
-              <span
-                onClick={handlePreciseLocation}
-                className="cursor-pointer hover:text-green-400 transition"
-                title="Actualizează locația precisă"
-              >
-                {location}
-              </span>
+              <span onClick={handlePreciseLocation} className="cursor-pointer hover:text-green-400 transition">{location}</span>
             </div>
           </div>
         </div>
@@ -124,7 +80,7 @@ export default function Footer() {
             <li><Link href="/driver/" className="hover:text-green-500 transition">Înregistrează-te</Link></li>
             <li><Link href="/cerinte_auto/" className="hover:text-green-500 transition">Cerințe auto</Link></li>
             <li><Link href="/implementare/" className="hover:text-green-500 transition">Implementare</Link></li>
-            <li><Link href="/404" className="hover:text-green-500 transition">Plateste sigur</Link></li>
+            <li><Link href="/404" className="hover:text-green-500 transition">Plătește sigur</Link></li>
           </ul>
         </div>
 
@@ -141,21 +97,55 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Social + Copyright */}
-      <div className="max-w-7xl mx-auto px-6 mt-14 flex flex-col items-center sm:flex-row sm:justify-between gap-4">
-        <div className="flex items-center gap-5">
-          <a href="#" aria-label="Facebook UCab" className="hover:text-green-500 transition">
-            <Facebook className="w-5 h-5" />
-          </a>
-          <a href="#" aria-label="Instagram UCab" className="hover:text-green-500 transition">
-            <Instagram className="w-5 h-5" />
-          </a>
-        </div>
+     {/* Butoane UCab App + UCab Food jos */}
+<div className="max-w-7xl mx-auto px-6 mt-10 flex flex-col items-center gap-6">
+  
+  {/* Butoane App */}
+  <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto flex-wrap">
+    <a
+      href="https://play.google.com/store/apps/details?id=com.ucab"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-white/70 via-blue-400 to-blue-700 text-white rounded-2xl shadow-xl border-2 border-blue-300 transform transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-400/50 font-semibold text-sm sm:text-base"
+    >
+      <img src="/ucabapp.png" alt="UCab App Icon" className="w-9 h-9 sm:w-7 sm:h-7" />
+      UCab App
+    </a>
 
-        <p className="text-sm text-gray-600 text-center sm:text-right">
-          © {new Date().getFullYear()} UCab.ro — All rights reserved.
-        </p>
-      </div>
+    <a
+      href="https://play.google.com/store/apps/details?id=com.ucabfood"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-white/70 via-red-400 to-red-700 text-white rounded-2xl shadow-xl border-2 border-red-300 transform transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-red-400/50 font-semibold text-sm sm:text-base"
+    >
+      <img src="/ucabfood.png" alt="UCab Food Icon" className="w-9 h-9 sm:w-7 sm:h-7" />
+      UCab Food
+    </a>
+  </div>
+
+  {/* Badge-uri ANPC / Rezolvarea reclamațiilor */}
+  <div className="flex justify-center gap-6 mt-4 flex-wrap">
+    <a href="#" target="_blank" rel="noopener noreferrer">
+      <img src="/anpc.png" alt="ANPC" className="h-6 sm:h-8 object-contain" />
+    </a>
+    <a href="#" target="_blank" rel="noopener noreferrer">
+      <img src="/litigii.png" alt="Rezolvarea reclamațiilor" className="h-6 sm:h-8 object-contain" />
+    </a>
+  </div>
+
+  {/* Social + Copyright */}
+  <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 mt-6 w-full">
+    <div className="flex items-center gap-5">
+      <a href="#" aria-label="Facebook UCab" className="hover:text-green-500 transition"><Facebook className="w-5 h-5" /></a>
+      <a href="#" aria-label="Instagram UCab" className="hover:text-green-500 transition"><Instagram className="w-5 h-5" /></a>
+    </div>
+    <p className="text-sm text-gray-400 text-center sm:text-right">
+      © {new Date().getFullYear()} UCab.ro — Toate drepturile rezervate.
+    </p>
+  </div>
+</div>
+
+
     </footer>
   );
 }
