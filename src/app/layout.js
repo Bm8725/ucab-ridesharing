@@ -22,7 +22,7 @@ export const metadata = {
   metadataBase: new URL("https://ucab.ro"),
 
   title: {
-    default: "UCAB.ro – Ride-sharing local. Livrare locala si transport urban la comisioane mici de pana la 10%",
+    default: "UCAB.ro – Ridesharing local. Livrare locala si transport urban la comisioane mici de pana la 10%",
     template: "%s | UCAB",
   },
 
