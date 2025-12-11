@@ -38,13 +38,13 @@ export default function LandingPage() {
     },
     {
       title: "Tehnologie Modernă",
-      desc: "Platforma UCab folosește algoritmi de rutare bazat pe AI, GPS live și plăți digitale securizate pentru o experiență completă. Folosim servere de ultimă generație pentru a asigura performanță și fiabilitate de tipul ARM Cortex, consum redus de energie si prieteni cu natura",
+      desc: "Platforma UCab folosește algoritmi de rutare bazat pe AI, GPS live și plăți digitale securizate pentru o experiență completă. Folosim servere de ultimă generație pentru a asigura performanță și fiabilitate cu procesoare ARM, consum redus de energie si prieteni cu natura. In arhitectura noastra software includem cloud scaling, microservicii și baze de date NoSQL pentru a gestiona eficient traficul și datele utilizatorilor.",
       img: "./ucab2.png",
       reverse: true,
     },
     {
       title: "Flota Variată",
-      desc: "De la mașini compacte la premium, alegi vehiculul potrivit nevoilor tale. Totul pentru confortul tău.",
+      desc: "De la mașini compacte la premium, alegi vehiculul potrivit nevoilor tale. Totul pentru confortul si siguranta ta. Fiecare șofer este verificat și instruit pentru a oferi servicii de calitate superioară.",
       img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70",
       reverse: false,
     },
@@ -68,7 +68,7 @@ export default function LandingPage() {
           transition={{ duration: 0.8 }}
           className="text-4xl md:text-5xl font-extrabold text-white mb-4 text-center drop-shadow-lg"
         >
-          Bine ai venit la <span className="text-green-400">UCab</span> Rideshare
+          Bine ai venit la <span className="text-blue-400">UCab</span> Rideshare
         </motion.h1>
 
         <motion.p
@@ -116,7 +116,7 @@ export default function LandingPage() {
             whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(34,197,94,0.7)" }}
             whileTap={{ scale: 0.97 }}
             onClick={handleSearch}
-            className="w-full sm:w-auto px-8 py-3 bg-green-500 text-white rounded-2xl font-bold shadow-xl hover:bg-green-600 transition"
+            className="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white rounded-2xl font-bold shadow-xl hover:bg-blue-600 transition"
           >
             Caută
           </motion.button>
@@ -378,7 +378,7 @@ export default function LandingPage() {
     <ul className="space-y-6 text-lg md:text-xl text-gray-200">
       <li className="flex items-start gap-4">
         <span className="text-green-400 text-2xl font-bold">1.</span>
-        <span>Comisioane ultra-low – doar până la % pe cursă.</span>
+        <span>Comisioane ultra-low – doar până la 9.9% pe cursă.</span>
       </li>
       <li className="flex items-start gap-4">
         <span className="text-green-400 text-2xl font-bold">2.</span>
