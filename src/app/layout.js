@@ -22,7 +22,7 @@ export const metadata = {
   metadataBase: new URL("https://ucab.ro"),
 
   title: {
-    default: "UCAB – Ride-sharing local",
+    default: "UCAB.ro – Ride-sharing local. Livrare locala si transport urban la comisioane mici de pana la 10%",
     template: "%s | UCAB",
   },
 
@@ -30,18 +30,18 @@ export const metadata = {
     "UCAB – platformă de ride-sharing local, modernă, sigură și cu comision minim. Construită pentru comunitate și afaceri locale.",
 
   keywords: [
-    "ucab",
+    "ucab.ro",
     "ride sharing romania",
     "transport local",
     "ride-sharing",
-    "soferi locali",
+    "livrari locale ",
     "aplicatie transport",
-    "uber local",
+    "uber local, bolt local",
   ],
 
   authors: [{ name: "UCAB Team" }],
   creator: "UCAB",
-  publisher: "UCAB",
+  publisher: "UCAB.ro",
 
   robots: {
     index: true,
