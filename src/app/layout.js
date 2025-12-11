@@ -68,7 +68,7 @@ export const metadata = {
   },
 
 openGraph: {
-  title: "UCAB – Ride-sharing local",
+  title: "UCAB.ro – Ridesharing local",
   description:
     "Transport modern, sigur și cu comision minim. Platformă pentru comunitatea locală.",
   url: "https://ucab.ro",
