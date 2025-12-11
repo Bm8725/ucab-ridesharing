@@ -100,7 +100,7 @@ export default function FloatingContact() {
               <motion.div className="p-4 space-y-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 {[
                   { label: "Chat rapid", icon: <FaComments />, v: "chat" },
-                  { label: "Sună-ne", icon: <FaPhoneAlt />, v: "contact" },
+               
                   { label: "Lasă-ne un mesaj", icon: <FaEnvelope />, v: "form" }
                 ].map((btn, i) => (
                   <motion.button
@@ -116,15 +116,6 @@ export default function FloatingContact() {
               </motion.div>
             )}
 
-            {/* Contact Info */}
-            {view === "contact" && (
-              <motion.div className="p-4 space-y-2 text-blue-700" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <div className="font-bold text-lg">Contact direct</div>
-                <div className="font-medium">Comercial: +40 700 111 222</div>
-                <div className="font-medium">Tehnic: +40 700 555 666</div>
-                <button onClick={() => setView(null)} className="text-blue-600 underline mt-2">← Înapoi</button>
-              </motion.div>
-            )}
 
             {/* Chat */}
             {view === "chat" && (
