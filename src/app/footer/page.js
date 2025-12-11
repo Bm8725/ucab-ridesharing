@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Facebook, Instagram, Twitter, Phone, Mail, MapPin } from "lucide-react";
+import { Facebook, Instagram, Phone, Mail, MapPin } from "lucide-react";
 
 export default function Footer() {
   const [location, setLocation] = useState("București, România");
 
-  // 1️⃣ Detectare locație aproximativă după IP
   useEffect(() => {
     const fetchIPLocation = async () => {
       try {
@@ -16,14 +15,11 @@ export default function Footer() {
         if (data.city && data.country_name) {
           setLocation(`${data.city}, ${data.country_name}`);
         }
-      } catch {
-        // fallback: București, România
-      }
+      } catch {}
     };
     fetchIPLocation();
   }, []);
 
-  // 2️⃣ Funcție pentru locație precisă dacă utilizatorul permite
   const handlePreciseLocation = () => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -46,8 +42,34 @@ export default function Footer() {
 
   return (
     <footer className="bg-black text-gray-300 border-t border-gray-800 pt-16 pb-10">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 gap-y-8">
 
+      {/* Butoane App SUS */}
+      <div className="max-w-7xl mx-auto px-6 flex justify-center gap-4 mb-10 flex-wrap">
+        {/* Google Play */}
+        <a
+          href="https://play.google.com/store/apps/details?id=com.ucab"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-3 bg-black text-white border border-gray-600 rounded-lg hover:bg-gray-800 transition font-semibold text-sm"
+        >
+          <img src="/google-play-badge.png" alt="Google Play" className="w-6 h-6" />
+          Google Play
+        </a>
+
+        {/* App Store */}
+        <a
+          href="https://apps.apple.com/app/idXXXXXXXXX"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-3 bg-black text-white border border-gray-600 rounded-lg hover:bg-gray-800 transition font-semibold text-sm"
+        >
+          <img src="/app-store-badge.png" alt="App Store" className="w-6 h-6" />
+          App Store
+        </a>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 gap-y-8">
+        
         {/* Brand */}
         <div>
           <h3 className="text-white text-2xl font-bold tracking-tight mb-3">UCab.ro</h3>
@@ -101,18 +123,15 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Newsletter */}
+        {/* Legal */}
         <div>
           <h4 className="text-white text-lg font-semibold mb-4">Legal</h4>
-      
-
           <ul className="mt-6 space-y-2 text-sm">
             <li><Link href="/resource/terms/" className="hover:text-green-500 transition">Termeni și Condiții</Link></li>
             <li><Link href="/resource/policy/" className="hover:text-green-500 transition">Politica de Confidențialitate</Link></li>
             <li><Link href="/resource/safe/" className="hover:text-green-500 transition">Siguranță & Protecție</Link></li>
-             <li><Link href="/resource/cadru-legal/" className="hover:text-green-500 transition">Cadru legal</Link></li>
-              <li><Link href="/resource/contract/" className="hover:text-green-500 transition">Contract ucab</Link></li>
-           
+            <li><Link href="/resource/cadru-legal/" className="hover:text-green-500 transition">Cadru legal</Link></li>
+            <li><Link href="/resource/contract/" className="hover:text-green-500 transition">Contract ucab</Link></li>
           </ul>
         </div>
       </div>
@@ -123,15 +142,14 @@ export default function Footer() {
           <a href="#" aria-label="Facebook UCab" className="hover:text-green-500 transition">
             <Facebook className="w-5 h-5" />
           </a>
-       
           <a href="#" aria-label="Instagram UCab" className="hover:text-green-500 transition">
             <Instagram className="w-5 h-5" />
           </a>
         </div>
-  <p className="text-sm text-gray-600 text-center sm:text-right">
-  © {new Date().getFullYear()} UCab.ro — All rights reserved.
-</p>
 
+        <p className="text-sm text-gray-600 text-center sm:text-right">
+          © {new Date().getFullYear()} UCab.ro — All rights reserved.
+        </p>
       </div>
     </footer>
   );
