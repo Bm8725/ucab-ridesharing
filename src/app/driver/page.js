@@ -53,64 +53,67 @@ export default function RequestFormPage() {
   const handleNext = () => setStep(Math.min(step + 1, 5));
   const handlePrev = () => setStep(Math.max(step - 1, 1));
 
-  const handleSubmit = async () => {
-    if (!formData.acceptedPolicy) {
-      setMessage("Trebuie să accepți politica de confidențialitate.");
-      setIsError(true);
-      return;
-    }
-    setLoading(true);
-try {
-  const res = await fetch("https://api.doxer.ro/api/request_driver.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      role,
-      name: formData.name,
-      email: formData.email,
-      carBrand: role === "driver" ? formData.carBrand : "",
-      carModel: role === "driver" ? formData.carModel : "",
-      carType: role === "driver" ? formData.carType : "",
-      carYear: role === "driver" ? formData.carYear : "",
-      plateNumber: role === "driver" ? formData.plateNumber : "",
-      vehicle: role === "courier" ? formData.vehicle : "",
-    }),
-  });
+const handleSubmit = async () => {
+  if (!formData.acceptedPolicy) {
+    setMessage("Trebuie să accepți politica de confidențialitate.");
+    setIsError(true);
+    return;
+  }
 
-  const data = await res.json();
-  console.log("Răspuns server:", data);
-} catch (err) {
-  console.error("Eroare:", err);
-}
+  setLoading(true);
+  setMessage("");
+  setIsError(false);
 
-      const data = await res.json();
-      if (res.ok) {
-        setMessage(data.message || "Cererea a fost trimisă cu succes!");
-        setIsError(false);
-        setFormData({
-          name: "",
-          email: "",
-          carBrand: "",
-          carModel: "",
-          carType: "",
-          carYear: "",
-          plateNumber: "",
-          vehicle: "",
-          acceptedPolicy: false,
-        });
-        setStep(1);
-        setCompletedFields([]);
-      } else {
-        setMessage(data.error || "A apărut o eroare.");
-        setIsError(true);
-      }
-    } catch (err) {
-      console.error(err);
-      setMessage("Eroare de server.");
+  try {
+    const res = await fetch("https://api.doxer.ro/api/request_driver.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        role,
+        name: formData.name,
+        email: formData.email,
+        carBrand: role === "driver" ? formData.carBrand : "",
+        carModel: role === "driver" ? formData.carModel : "",
+        carType: role === "driver" ? formData.carType : "",
+        carYear: role === "driver" ? formData.carYear : "",
+        plateNumber: role === "driver" ? formData.plateNumber : "",
+        vehicle: role === "courier" ? formData.vehicle : "",
+      }),
+    });
+
+    const data = await res.json(); // DOAR O SINGURĂ DATĂ
+
+    if (!res.ok) {
+      setMessage(data.error || "A apărut o eroare la trimitere.");
       setIsError(true);
+    } else {
+      setMessage(data.message || "Cererea a fost trimisă cu succes!");
+      setIsError(false);
+
+      // reset form
+      setFormData({
+        name: "",
+        email: "",
+        carBrand: "",
+        carModel: "",
+        carType: "",
+        carYear: "",
+        plateNumber: "",
+        vehicle: "",
+        acceptedPolicy: false,
+      });
+
+      setStep(1);
+      setCompletedFields([]);
     }
-    setLoading(false);
-  };
+  } catch (err) {
+    console.error(err);
+    setMessage("Eroare de conexiune cu serverul.");
+    setIsError(true);
+  }
+
+  setLoading(false);
+};
 
   const inputClass =
     "w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white transition flex items-center gap-3";
