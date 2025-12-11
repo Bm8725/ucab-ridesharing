@@ -60,22 +60,29 @@ export default function RequestFormPage() {
       return;
     }
     setLoading(true);
-    try {
-      const res = await fetch("https://siteultau.ro/api/request.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          role,
-          name: formData.name,
-          email: formData.email,
-          carBrand: role === "driver" ? formData.carBrand : "",
-          carModel: role === "driver" ? formData.carModel : "",
-          carType: role === "driver" ? formData.carType : "",
-          carYear: role === "driver" ? formData.carYear : "",
-          plateNumber: role === "driver" ? formData.plateNumber : "",
-          vehicle: role === "courier" ? formData.vehicle : "",
-        }),
-      });
+try {
+  const res = await fetch("https://api.doxer.ro/api/request_driver.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      role,
+      name: formData.name,
+      email: formData.email,
+      carBrand: role === "driver" ? formData.carBrand : "",
+      carModel: role === "driver" ? formData.carModel : "",
+      carType: role === "driver" ? formData.carType : "",
+      carYear: role === "driver" ? formData.carYear : "",
+      plateNumber: role === "driver" ? formData.plateNumber : "",
+      vehicle: role === "courier" ? formData.vehicle : "",
+    }),
+  });
+
+  const data = await res.json();
+  console.log("Răspuns server:", data);
+} catch (err) {
+  console.error("Eroare:", err);
+}
+
       const data = await res.json();
       if (res.ok) {
         setMessage(data.message || "Cererea a fost trimisă cu succes!");
