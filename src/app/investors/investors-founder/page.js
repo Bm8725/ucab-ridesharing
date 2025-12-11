@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FaCoins, FaChartLine } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function InvestorsForm() {
   const [selectedTier, setSelectedTier] = useState(null);
@@ -41,21 +42,21 @@ export default function InvestorsForm() {
     setFeedback(null);
 
     try {
-      const res = await fetch("/api/investor-request", {
+      const res = await fetch("https://api.doxer.ro/api/investor_request.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tier: selectedTier, ...formData }),
       });
       const data = await res.json();
-      if (res.ok) {
+      if (res.ok && data.ok) {
         setFeedback({ type: "success", message: data.message || "Cererea ta a fost trimisă cu succes!" });
         setFormData({ name: "", email: "", amount: "", message: "", acceptedPolicy: false });
         setSelectedTier(null);
       } else {
-        setFeedback({ type: "error", message: data.error || "A apărut o eroare." });
+        setFeedback({ type: "error", message: data.message || "A apărut o eroare." });
       }
     } catch (err) {
-      setFeedback({ type: "error", message: "Eroare de server." });
+      setFeedback({ type: "error", message: "Eroare de conexiune cu serverul." });
     }
 
     setLoading(false);
@@ -69,9 +70,8 @@ export default function InvestorsForm() {
           <FaCoins /> Investitori Strategici
         </h2>
         <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-          Alege nivelul de implicare și completează formularul pentru a susține proiectul. Proiectul ucab are potential economic mare si impact social pozitiv, contribuind la mobilitate urbana sustenabila. Avem nevoie de sprijinul dvs pentru finantarea in faza initiala.  <strong>O evaluare se poate estima la 500 000 - 1 000 000 EUR in urmatorii 3-5 ani.</strong> 
-        
-         Investitia initiala se bazeaza pe multa munca si cod scris, astfel evealuarea initiala este evaluata la aprox <strong> 18000 de Euro</strong>. </p>
+          Alege nivelul de implicare și completează formularul pentru a susține proiectul.
+        </p>
       </div>
 
       {/* Investment Tiers */}
@@ -96,64 +96,78 @@ export default function InvestorsForm() {
       </div>
 
       {/* Form */}
-      {selectedTier && (
-        <div className="mt-6 space-y-4 text-left max-w-xl mx-auto">
-          {feedback && (
-            <div className={`p-3 rounded text-center ${feedback.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-              {feedback.message}
-            </div>
-          )}
-          <input
-            type="text"
-            placeholder="Nume complet"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            type="number"
-            placeholder="Sumă investiție (€)"
-            value={formData.amount}
-            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
-          />
-          <textarea
-            placeholder="Mesaj / observații"
-            value={formData.message}
-            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
-          />
-
-          {/* Politica */}
-          <label className="flex items-center gap-2 text-gray-700 mt-2">
-            <input
-              type="checkbox"
-              checked={formData.acceptedPolicy}
-              onChange={() => setFormData({ ...formData, acceptedPolicy: !formData.acceptedPolicy })}
-              className="rounded border-gray-300 focus:ring-2 focus:ring-gray-500"
-            />
-            Accept Politica de Confidențialitate și Termenii
-          </label>
-
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="w-full py-3 rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition font-semibold mt-2"
+      <AnimatePresence mode="wait">
+        {selectedTier && (
+          <motion.div
+            key="form"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="mt-6 space-y-4 text-left max-w-xl mx-auto"
           >
-            {loading ? "Se trimite..." : "Trimite cererea"}
-          </button>
-        </div>
-      )}
+            {feedback && (
+              <motion.div
+                key="feedback"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className={`p-3 rounded text-center ${feedback.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+              >
+                {feedback.message}
+              </motion.div>
+            )}
+            <input
+              type="text"
+              placeholder="Nume complet"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="number"
+              placeholder="Sumă investiție (€)"
+              value={formData.amount}
+              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+            />
+            <textarea
+              placeholder="Mesaj / observații"
+              value={formData.message}
+              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+            />
 
-      {/* Stats / Progress */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 md:p-12 shadow-lg text-center">
+            <label className="flex items-center gap-2 text-gray-700 mt-2">
+              <input
+                type="checkbox"
+                checked={formData.acceptedPolicy}
+                onChange={() => setFormData({ ...formData, acceptedPolicy: !formData.acceptedPolicy })}
+                className="rounded border-gray-300 focus:ring-2 focus:ring-gray-500"
+              />
+              Accept Politica de Confidențialitate și Termenii
+            </label>
+
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="w-full py-3 rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition font-semibold mt-2"
+            >
+              {loading ? "Se trimite..." : "Trimite cererea"}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Stats / Info */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 md:p-12 shadow-lg text-center mt-12">
         <h3 className="text-2xl font-bold flex items-center justify-center gap-2">
           <FaChartLine /> Statistici & Impact
         </h3>
