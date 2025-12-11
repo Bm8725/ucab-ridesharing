@@ -67,23 +67,24 @@ export const metadata = {
     apple: "/apple-touch-icon.png",
   },
 
-  openGraph: {
-    title: "UCAB.ro – Ride-sharing local",
-    description:
-      "Transport modern, sigur și cu comision minim. Platformă pentru comunitatea locală.",
-    url: "https://ucab.ro",
-    siteName: "UCAB",
-    images: [
-      {
-        url: "/share-ucab.png",
-        width: 1200,
-        height: 630,
-        alt: "UCAB Ride-sharing",
-      },
-    ],
-    type: "website",
-    locale: "ro_RO",
-  },
+openGraph: {
+  title: "UCAB – Ride-sharing local",
+  description:
+    "Transport modern, sigur și cu comision minim. Platformă pentru comunitatea locală.",
+  url: "https://ucab.ro",
+  siteName: "UCAB",
+  images: [
+    {
+      url: "https://ucab.ro/ucabapp.png",   // ← URL ABSOLUT
+      width: 1200,
+      height: 630,
+      alt: "UCAB Ride-sharing",
+    },
+  ],
+  type: "website",
+  locale: "ro_RO",
+},
+
 
   twitter: {
     card: "summary_large_image",
