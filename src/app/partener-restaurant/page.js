@@ -51,7 +51,7 @@ export default function RestaurantPartnerForm() {
     }
     setLoading(true);
     try {
-      const res = await fetch("https://siteultau.ro/api/partner.php", {
+      const res = await fetch("https://api.doxer.ro/api/partner_restaurant.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
