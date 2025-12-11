@@ -43,30 +43,35 @@ export default function Footer() {
   return (
     <footer className="bg-black text-gray-300 border-t border-gray-800 pt-16 pb-10">
 
-      {/* Butoane App SUS */}
-      <div className="max-w-7xl mx-auto px-6 flex justify-center gap-4 mb-10 flex-wrap">
-        {/* Google Play */}
-        <a
-          href="https://play.google.com/store/apps/details?id=com.ucab"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-3 bg-black text-white border border-gray-600 rounded-lg hover:bg-gray-800 transition font-semibold text-sm"
-        >
-          <img src="/google-play-badge.png" alt="Google Play" className="w-6 h-6" />
-          Google Play
-        </a>
+{/* Butoane UCab App + UCab Food SUS */}
+<div className="max-w-7xl mx-auto px-6 mb-10">
+  <div className="flex flex-row justify-center gap-4 flex-nowrap">
 
-        {/* App Store */}
-        <a
-          href="https://apps.apple.com/app/idXXXXXXXXX"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-3 bg-black text-white border border-gray-600 rounded-lg hover:bg-gray-800 transition font-semibold text-sm"
-        >
-          <img src="/app-store-badge.png" alt="App Store" className="w-6 h-6" />
-          App Store
-        </a>
-      </div>
+    {/* UCab App */}
+    <a
+      href="https://play.google.com/store/apps/details?id=com.ucab"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center justify-center gap-3 px-5 py-3 bg-gradient-to-r from-white/70 via-blue-400 to-blue-700 text-white rounded-2xl shadow-xl border-2 border-blue-300 transform transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-400/50 font-semibold text-sm sm:text-base"
+    >
+      <img src="/ucabapp.png" alt="UCab App Icon" className="w-9 h-9 sm:w-7 sm:h-7" />
+      UCab App
+    </a>
+
+    {/* UCab Food */}
+    <a
+      href="https://play.google.com/store/apps/details?id=com.ucabfood"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center justify-center gap-3 px-5 py-3 bg-gradient-to-r from-white/70 via-red-400 to-red-700 text-white rounded-2xl shadow-xl border-2 border-red-300 transform transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-red-400/50 font-semibold text-sm sm:text-base"
+    >
+      <img src="/ucabfood.png" alt="UCab Food Icon" className="w-9 h-9 sm:w-7 sm:h-7" />
+      UCab Food
+    </a>
+
+  </div>
+</div>
+
 
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 gap-y-8">
         
