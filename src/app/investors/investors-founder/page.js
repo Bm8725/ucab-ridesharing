@@ -70,9 +70,10 @@ export default function InvestorsForm() {
         <h2 className="text-4xl font-bold text-gray-900 flex items-center justify-center gap-2">
           <FaCoins /> Investitori Strategici
         </h2>
-        <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-          Alege nivelul de implicare și completează formularul pentru a susține proiectul.
-        </p>
+  <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+  Alege nivelul de implicare și completează formularul pentru a susține proiectul. Proiectul UCAB are potențial economic mare și impact social pozitiv, contribuind la mobilitate urbană sustenabilă. Avem nevoie de sprijinul tău pentru finanțarea în faza inițială. <strong>O evaluare se poate estima la 500.000 - 1.000.000 EUR în următorii 3-5 ani.</strong> Investiția inițială se bazează pe multă muncă și cod scris, astfel evaluarea inițială este estimată la aprox. <strong>18.000 de Euro</strong>.
+</p>
+
       </div>
 
       {/* Investment Tiers */}
