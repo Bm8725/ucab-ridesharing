@@ -37,6 +37,7 @@ export const metadata = {
     "livrari locale ",
     "aplicatie transport",
     "uber local, bolt local",
+    "glovo local, wolt local",
   ],
 
   authors: [{ name: "UCAB Team" }],
