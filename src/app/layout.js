@@ -5,6 +5,7 @@ import Header from "./header/page";
 import Footer from "./footer/page";
 import CookiesBanner from "./cookies/cookies";
 import OracleChat from "./chat/chat";
+import SEO from "./seo/seo";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,27 +23,22 @@ export const metadata = {
   metadataBase: new URL("https://ucab.ro"),
 
   title: {
-    default: "UCAB.ro – Ridesharing local. Livrare locala si transport urban la comisioane mici de pana la 10%",
+    default:
+      "UCAB.ro – Ridesharing local. Livrare locală și transport urban la comisioane mici",
     template: "%s | UCAB",
   },
 
   description:
-    "UCAB – platformă de ride-sharing local, modernă, sigură și cu comision minim. Construită pentru comunitate și afaceri locale.",
+    "UCAB – ride-sharing local modern, sigur și cu comision minim. Construit pentru comunitate și afaceri locale.",
 
   keywords: [
     "ucab.ro",
     "ride sharing romania",
     "transport local",
     "ride-sharing",
-    "livrari locale ",
+    "livrari locale",
     "aplicatie transport",
-    "uber local, bolt local",
-    "glovo local, wolt local",
   ],
-
-  authors: [{ name: "UCAB Team" }],
-  creator: "UCAB",
-  publisher: "UCAB.ro",
 
   robots: {
     index: true,
@@ -62,21 +58,17 @@ export const metadata = {
     maximumScale: 1,
   },
 
-  themeColor: "#000000",
-
-  // ⭐ FAVICON
   icons: {
     icon: [
       { rel: "icon", url: "/ucabro.svg", type: "image/svg+xml" },
-      { rel: "icon", url: "/ucabro-32.png", sizes: "32x32" },
-      { rel: "icon", url: "/ucabro-16.png", sizes: "16x16" },
+      { rel: "icon", url: "/ucabapp.png", sizes: "32x32" },
+      { rel: "icon", url: "/ucabapp.png", sizes: "16x16" },
     ],
     apple: "/apple-touch-icon.png",
   },
 
-  // ⭐ OPEN GRAPH (Facebook, WhatsApp, etc.)
   openGraph: {
-    title: "UCAB – Ride-sharing local",
+    title: "UCAB.ro – Ride-sharing local",
     description:
       "Transport modern, sigur și cu comision minim. Platformă pentru comunitatea locală.",
     url: "https://ucab.ro",
@@ -93,7 +85,6 @@ export const metadata = {
     locale: "ro_RO",
   },
 
-  // ⭐ TWITTER
   twitter: {
     card: "summary_large_image",
     title: "UCAB – Ride-sharing local",
@@ -102,7 +93,6 @@ export const metadata = {
     creator: "@ucab",
   },
 
-  // ⭐ PWA (optional)
   manifest: "/manifest.json",
 };
 
@@ -110,40 +100,22 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ro">
       <head>
-        {/* Preload SVG pentru favicon instant */}
         <link rel="preload" as="image" href="/ucabro.svg" />
-        
-        {/* JSON-LD — SEO ULTRA (Google Knowledge Graph) */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "LocalBusiness",
-              name: "UCAB",
-              url: "https://ucab.ro",
-              logo: "https://ucab.ro/ucabro.png",
-              description:
-                "UCAB – ride-sharing local modern și accesibil, construit pentru comunitate.",
-              areaServed: "Romania",
-              sameAs: [
-                "https://facebook.com/ucab",
-                "https://instagram.com/ucab",
-              ],
-            }),
-          }}
-        />
       </head>
 
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
+        {/* SEO global */}
+        <SEO />
+
         <Header />
+
         <main className="flex-1">{children}</main>
-  
+
         <Footer />
         <CookiesBanner />
-       <OracleChat />
+        <OracleChat />
       </body>
     </html>
   );
