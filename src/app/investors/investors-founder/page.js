@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FaCoins, FaChartLine } from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
 
 export default function InvestorsForm() {
   const [selectedTier, setSelectedTier] = useState(null);
@@ -22,21 +21,17 @@ export default function InvestorsForm() {
     { id: 3, label: "Investor Gold", minAmount: 4999, benefits: ["Board consultativ + toate beneficiile"] },
   ];
 
-  const validateEmail = (email) => /^\S+@\S+\.\S+$/.test(email);
-
   const handleSubmit = async () => {
     if (!formData.name || !formData.email || !formData.amount) {
       setFeedback({ type: "error", message: "Completează toate câmpurile obligatorii." });
       return;
     }
-    if (!validateEmail(formData.email)) {
-      setFeedback({ type: "error", message: "Email invalid." });
-      return;
-    }
+
     if (!formData.acceptedPolicy) {
       setFeedback({ type: "error", message: "Trebuie să accepți politica de confidențialitate." });
       return;
     }
+
     if (selectedTier && Number(formData.amount) < investmentTiers.find(t => t.id === selectedTier).minAmount) {
       setFeedback({ type: "error", message: `Investiția minimă pentru acest tier este ${investmentTiers.find(t => t.id === selectedTier).minAmount}€.` });
       return;
@@ -52,10 +47,12 @@ export default function InvestorsForm() {
         body: JSON.stringify({ tier: selectedTier, ...formData }),
       });
       const data = await res.json();
+
       if (res.ok && data.ok) {
         setFeedback({ type: "success", message: data.message || "Cererea ta a fost trimisă cu succes!" });
+        // Resetează doar câmpurile formularului
         setFormData({ name: "", email: "", amount: "", message: "", acceptedPolicy: false });
-        setSelectedTier(null);
+        // Nu reseta selectedTier, formularul rămâne vizibil
       } else {
         setFeedback({ type: "error", message: data.message || "A apărut o eroare." });
       }
@@ -64,118 +61,105 @@ export default function InvestorsForm() {
     }
 
     setLoading(false);
-    setTimeout(() => setFeedback(null), 3000);
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-100 to-gray-200 p-4 md:p-12">
-      
+    <div className="max-w-4xl mx-auto p-6 md:p-12 space-y-12 font-sans">
       {/* Header */}
-      <div className="text-center mb-12">
-        <h2 className="text-4xl md:text-5xl font-bold flex items-center justify-center gap-2">
+      <div className="text-center space-y-3">
+        <h2 className="text-4xl font-bold text-gray-900 flex items-center justify-center gap-2">
           <FaCoins /> Investitori Strategici
         </h2>
-        <p className="text-gray-600 max-w-2xl mx-auto mt-2 text-lg md:text-xl">
+        <p className="text-gray-600 max-w-2xl mx-auto text-lg">
           Alege nivelul de implicare și completează formularul pentru a susține proiectul.
         </p>
       </div>
 
       {/* Investment Tiers */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {investmentTiers.map((tier) => (
-          <motion.div
+          <div
             key={tier.id}
             onClick={() => setSelectedTier(tier.id)}
-            className={`p-6 rounded-2xl cursor-pointer border-2 shadow-lg transition-all duration-300 ${
-              selectedTier === tier.id ? "border-blue-500 bg-blue-50 scale-105" : "border-gray-300 bg-white"
+            className={`p-6 rounded-2xl cursor-pointer border-2 transition hover:scale-105 shadow-md ${
+              selectedTier === tier.id ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-white dark:bg-gray-800"
             }`}
-            whileHover={{ scale: 1.05 }}
-            layout
           >
             <h4 className="text-xl font-semibold mb-2">{tier.label}</h4>
-            <p className="text-gray-600 mb-2">Min. Investiție: {tier.minAmount}€</p>
-            <ul className="list-disc list-inside text-gray-700">
-              {tier.benefits.map((b, i) => <li key={i}>{b}</li>)}
+            <p className="text-gray-600 dark:text-gray-300 mb-2">Min. Investiție: {tier.minAmount}€</p>
+            <ul className="text-gray-700 dark:text-gray-200 list-disc list-inside space-y-1">
+              {tier.benefits.map((b, i) => (
+                <li key={i}>{b}</li>
+              ))}
             </ul>
-          </motion.div>
+          </div>
         ))}
       </div>
 
       {/* Form */}
-      <AnimatePresence mode="wait">
-        {selectedTier && (
-          <motion.div
-            key="form"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4 }}
-            className="w-full max-w-xl bg-white rounded-3xl shadow-2xl p-6 md:p-12 space-y-4"
-          >
-            {feedback && (
-              <motion.div
-                key="feedback"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className={`p-3 rounded text-center ${feedback.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
-              >
-                {feedback.message}
-              </motion.div>
-            )}
-            <input
-              type="text"
-              placeholder="Nume complet"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="number"
-              placeholder="Sumă investiție (€)"
-              value={formData.amount}
-              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
-            />
-            <textarea
-              placeholder="Mesaj / observații"
-              value={formData.message}
-              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
-            />
-            <label className="flex items-center gap-2 text-gray-700 mt-2">
-              <input
-                type="checkbox"
-                checked={formData.acceptedPolicy}
-                onChange={() => setFormData({ ...formData, acceptedPolicy: !formData.acceptedPolicy })}
-                className="rounded border-gray-300 focus:ring-2 focus:ring-gray-500"
-              />
-              Accept Politica de Confidențialitate și Termenii
-            </label>
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="w-full py-3 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-600 transition mt-2 disabled:opacity-50"
+      {selectedTier && (
+        <div className="mt-6 space-y-4 text-left max-w-xl mx-auto">
+          {feedback && (
+            <div
+              className={`p-3 rounded text-center ${feedback.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
             >
-              {loading ? "Se trimite..." : "Trimite cererea"}
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {feedback.message}
+            </div>
+          )}
+          <input
+            type="text"
+            placeholder="Nume complet"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="number"
+            placeholder="Sumă investiție (€)"
+            value={formData.amount}
+            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+          />
+          <textarea
+            placeholder="Mesaj / observații"
+            value={formData.message}
+            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+          />
+
+          <label className="flex items-center gap-2 text-gray-700 mt-2">
+            <input
+              type="checkbox"
+              checked={formData.acceptedPolicy}
+              onChange={() => setFormData({ ...formData, acceptedPolicy: !formData.acceptedPolicy })}
+              className="rounded border-gray-300 focus:ring-2 focus:ring-gray-500"
+            />
+            Accept Politica de Confidențialitate și Termenii
+          </label>
+
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="w-full py-3 rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition font-semibold mt-2"
+          >
+            {loading ? "Se trimite..." : "Trimite cererea"}
+          </button>
+        </div>
+      )}
 
       {/* Stats / Info */}
-      <div className="bg-white rounded-2xl shadow-lg p-6 md:p-12 text-center mt-12 w-full max-w-5xl">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 md:p-12 shadow-lg text-center mt-12">
         <h3 className="text-2xl font-bold flex items-center justify-center gap-2">
           <FaChartLine /> Statistici & Impact
         </h3>
-        <p className="text-gray-600 mt-4 text-lg">
+        <p className="text-gray-600 dark:text-gray-300 mt-4 text-lg">
           În curând vom afișa grafice cu investițiile și impactul lor asupra dezvoltării proiectului.
         </p>
       </div>
