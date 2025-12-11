@@ -20,11 +20,11 @@ export default function OracleChatBlueRoBot() {
 
   const contactOptions = {
     comercial: [
-      { id: "call", label: "Sună-ne", detail: "+40 700 111 222", icon: <FaPhoneAlt /> },
+      { id: "call", label: "Sună-ne", detail: "+40 700 111 x22", icon: <FaPhoneAlt /> },
       { id: "chat", label: "Chat Comercial", detail: "Începe o conversație cu echipa Comercială", icon: <FaComments /> },
     ],
     tehnic: [
-      { id: "call", label: "Sună-ne", detail: "+40 700 555 666", icon: <FaPhoneAlt /> },
+      { id: "call", label: "Sună-ne", detail: "+40 700 555 x66", icon: <FaPhoneAlt /> },
       { id: "chat", label: "Chat Tehnic", detail: "Începe o conversație cu echipa Tehnică", icon: <FaComments /> },
     ],
   };

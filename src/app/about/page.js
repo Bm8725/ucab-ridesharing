@@ -140,6 +140,12 @@ export default function About() {
         </div>
       </section>
 
+
+
+
+
+
+
       {/* CTA */}
       <section className="py-20 md:py-28 text-center px-6 bg-gray-50 border-t border-gray-200">
         <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">Alătură-te UCab</h2>
