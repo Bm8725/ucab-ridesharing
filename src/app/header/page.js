@@ -42,7 +42,7 @@ export default function Header() {
       label: "Promoții",
       desc: "Descoperă ofertele și reducerile curente.",
       icon: <Badge size={24} />,
-      href: "#",
+      href: "/404/",
     },
   ];
 

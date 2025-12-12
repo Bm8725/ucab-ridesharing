@@ -67,9 +67,9 @@ export default function Footer() {
           <ul className="space-y-2 text-sm">
             <li><Link href="/" className="hover:text-green-500 transition">Acasă</Link></li>
             <li><Link href="/about/" className="hover:text-green-500 transition">Despre noi</Link></li>
-            <li><Link href="/404" className="hover:text-green-500 transition">Cariere</Link></li>
+            <li><Link href="/404/" className="hover:text-green-500 transition">Cariere</Link></li>
             <li><Link href="/404/" className="hover:text-green-500 transition">Știri & Blog</Link></li>
-            <li><Link href="/investors" className="hover:text-green-500 transition">Investitori</Link></li>
+            <li><Link href="/investors/" className="hover:text-green-500 transition">Investitori</Link></li>
           </ul>
         </div>
 
@@ -80,7 +80,7 @@ export default function Footer() {
             <li><Link href="/driver/" className="hover:text-green-500 transition">Înregistrează-te</Link></li>
             <li><Link href="/cerinte_auto/" className="hover:text-green-500 transition">Cerințe auto</Link></li>
             <li><Link href="/implementare/" className="hover:text-green-500 transition">Implementare</Link></li>
-            <li><Link href="/404" className="hover:text-green-500 transition">Plătește sigur</Link></li>
+            <li><Link href="/404/" className="hover:text-green-500 transition">Dezvoltare durabila</Link></li>
           </ul>
         </div>
 
