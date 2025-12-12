@@ -1,42 +1,51 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { FaComments, FaPhoneAlt, FaEnvelope, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaComments, FaEnvelope, FaCheckCircle, FaTimesCircle, FaUserCircle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+
+const COLORS = {
+  primary: "#0A4EC4",
+  gradient: "linear-gradient(135deg, #6a0dad, #9b30ff)",
+  panelBg: "rgba(255,255,255,0.95)",
+  glass: "rgba(255,255,255,0.6)",
+  border: "rgba(0,0,0,0.1)",
+};
+
+const TEXT = {
+  ro: { chat: "Chat rapid", messageUs: "Lasă-ne un mesaj", send: "Trimite", placeholder: "Scrie un mesaj...", sending: "Se trimite...", success: "Mesaj trimis cu succes!", error: "Eroare la trimitere!" },
+  en: { chat: "Quick Chat", messageUs: "Send us a message", send: "Send", placeholder: "Type a message...", sending: "Sending...", success: "Message sent successfully!", error: "Error sending message!" },
+};
 
 export default function FloatingContact() {
   const [open, setOpen] = useState(false);
-  const [view, setView] = useState(null); // "chat", "contact", "form"
+  const [view, setView] = useState(null); // chat | form | null
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const messagesEndRef = useRef(null);
   const [botTyping, setBotTyping] = useState(false);
+  const [unread, setUnread] = useState(0);
+  const [language, setLanguage] = useState("ro");
+  const t = TEXT[language];
+  const messagesEndRef = useRef(null);
 
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [loading, setLoading] = useState(false);
   const [formStatus, setFormStatus] = useState(null);
 
-  const [unread, setUnread] = useState(0); // counter for unread messages
-
-  const primary = "#0A4EC4";
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, botTyping]);
 
   const handleSend = () => {
     if (!input.trim()) return;
-    const user = input;
+    const userMsg = input;
     setInput("");
-    setMessages((p) => [...p, { type: "user", text: user }]);
+    setMessages((p) => [...p, { type: "user", text: userMsg }]);
     setBotTyping(true);
-
     setTimeout(() => {
-      setMessages((p) => [...p, { type: "bot", text: "Mulțumim! Echipa va reveni curând." }]);
+      setMessages((p) => [...p, { type: "bot", text: language === "ro" ? "Mulțumim! Echipa va reveni curând." : "Thank you! We will get back soon." }]);
       setBotTyping(false);
-      if (!open) setUnread((u) => u + 1); // increase unread if panel closed
+      if (!open) setUnread((u) => u + 1);
     }, 800);
   };
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, botTyping]);
 
   const submitForm = async () => {
     setLoading(true);
@@ -47,40 +56,31 @@ export default function FloatingContact() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      if (res.ok) {
-        setFormStatus("success");
-        setFormData({ name: "", email: "", message: "" });
-      } else setFormStatus("error");
-    } catch (e) {
+      setFormStatus(res.ok ? "success" : "error");
+      if (res.ok) setFormData({ name: "", email: "", message: "" });
+    } catch {
       setFormStatus("error");
     }
     setLoading(false);
   };
 
-  const togglePanel = () => {
-    setOpen((o) => !o);
-    if (!open) setUnread(0); // reset unread when opening
-  };
+  const togglePanel = () => { setOpen((o) => !o); if (!open) setUnread(0); };
 
   return (
     <>
-      {/* Floating Button Bottom Right */}
+      {/* Floating Button */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        whileHover={{ scale: 1.1 }}
+        whileHover={{ scale: 1.1, boxShadow: "0px 0px 20px rgba(10,78,196,0.5)" }}
         whileTap={{ scale: 0.95 }}
         onClick={togglePanel}
-        className="fixed bottom-5 right-5 bg-blue-600 text-white px-4 py-4 shadow-2xl rounded-full cursor-pointer flex items-center justify-center z-[9999] hover:bg-blue-700 transition"
+        className="fixed bottom-6 right-6 z-[9999] p-4 rounded-full flex items-center justify-center cursor-pointer"
+        style={{ background: COLORS.gradient, color: "white" }}
       >
         <FaComments size={22} />
-        {/* Unread badge */}
         {unread > 0 && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs flex items-center justify-center rounded-full shadow"
-          >
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs text-white bg-red-500 shadow-lg">
             {unread}
           </motion.div>
         )}
@@ -93,130 +93,76 @@ export default function FloatingContact() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 30 }}
-            className="fixed bottom-20 right-5 w-[350px] bg-white/95 backdrop-blur-2xl shadow-2xl rounded-xl z-[10000] flex flex-col border border-white/30 overflow-hidden"
+            className="fixed bottom-24 right-4 w-[90%] max-w-[360px] sm:w-[360px] rounded-3xl shadow-2xl backdrop-blur-2xl overflow-hidden z-[10000]"
+            style={{ background: COLORS.panelBg }}
           >
+            {/* Header */}
+            {view && (
+              <div className="flex justify-between items-center p-4 rounded-t-3xl text-white font-semibold" style={{ background: COLORS.gradient }}>
+                <div className="flex items-center gap-3">
+                  <FaUserCircle size={24} />
+                  <span className="text-lg font-semibold">{view === "chat" ? t.chat : t.messageUs}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => setLanguage(language === "ro" ? "en" : "ro")} className="px-3 py-1 rounded-xl bg-white/30 text-white font-medium shadow">{language === "ro" ? "EN" : "RO"}</button>
+                  <button onClick={() => setView(null)} className="px-2 py-1 rounded-xl bg-white/30 text-white font-medium shadow">X</button>
+                </div>
+              </div>
+            )}
+
             {/* Menu */}
             {!view && (
-              <motion.div className="p-4 space-y-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                {[
-                  { label: "Chat rapid", icon: <FaComments />, v: "chat" },
-               
-                  { label: "Lasă-ne un mesaj", icon: <FaEnvelope />, v: "form" }
-                ].map((btn, i) => (
+              <motion.div className="p-6 space-y-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                {[{ label: t.chat, icon: <FaComments />, v: "chat" }, { label: t.messageUs, icon: <FaEnvelope />, v: "form" }].map((b, i) => (
                   <motion.button
                     key={i}
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    onClick={() => setView(btn.v)}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-blue-50 text-blue-700 font-semibold shadow hover:bg-blue-100 transition"
+                    onClick={() => setView(b.v)}
+                    className="w-full flex items-center gap-3 p-4 rounded-2xl font-medium shadow-sm backdrop-blur-xl"
+                    style={{ background: COLORS.glass, color: COLORS.primary }}
                   >
-                    {btn.icon} {btn.label}
+                    {b.icon} {b.label}
                   </motion.button>
                 ))}
               </motion.div>
             )}
 
-
-            {/* Chat */}
+            {/* Chat View */}
             {view === "chat" && (
-              <motion.div className="flex flex-col h-[300px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <div className="flex-1 overflow-y-auto p-3 space-y-2">
+              <div className="flex flex-col h-[60vh] sm:h-[380px]">
+                <div className="flex-1 overflow-y-auto p-4 space-y-3">
                   {messages.map((m, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={`max-w-[80%] p-2 rounded-xl text-sm shadow-lg backdrop-blur-xl ${
-                        m.type === "user" ? "ml-auto bg-blue-100/80" : "mr-auto bg-gray-100/70"
-                      }`}
-                    >
-                      {m.text}
-                    </motion.div>
+                    <div key={i} className={`max-w-[80%] p-3 rounded-2xl ${m.type === "user" ? "ml-auto bg-[#e8f0fe]" : "mr-auto bg-white/70 border border-gray-200"}`}>{m.text}</div>
                   ))}
                   {botTyping && (
-                    <motion.div className="flex items-center gap-1 p-2 bg-gray-200/70 rounded-xl ml-2 text-gray-600 text-sm animate-pulse">
-                      <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" />
-                      <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-150" />
-                      <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-300" />
-                      Bot tastează...
-                    </motion.div>
+                    <div className="flex items-center gap-2 p-2 bg-white/70 rounded-2xl border text-gray-600 text-sm ml-1 animate-pulse">
+                      <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" />
+                      <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce delay-150" />
+                      <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce delay-300" />
+                      {language === "ro" ? "Bot tastează..." : "Bot is typing..."}
+                    </div>
                   )}
-                  <div ref={messagesEndRef}></div>
+                  <div ref={messagesEndRef} />
                 </div>
-
-                <div className="p-2 flex gap-2 border-t bg-white/70 backdrop-blur-xl">
-                  <input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                    placeholder="Scrie un mesaj..."
-                    className="flex-1 p-2 rounded-lg border border-blue-400 bg-white/60 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleSend}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
-                  >
-                    Trimite
-                  </motion.button>
+                <div className="p-3 flex gap-2 border-t backdrop-blur-xl rounded-b-2xl">
+                  <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()} placeholder={t.placeholder} className="flex-1 p-3 rounded-2xl border focus:outline-none focus:ring-2 bg-white/70" />
+                  <button onClick={handleSend} className="px-4 py-2 rounded-2xl text-white font-semibold shadow-lg" style={{ background: COLORS.primary }}>{t.send}</button>
                 </div>
-
-                <button onClick={() => setView(null)} className="text-blue-600 underline p-2">← Înapoi</button>
-              </motion.div>
+              </div>
             )}
 
-            {/* Form */}
+            {/* Form View */}
             {view === "form" && (
-              <motion.div className="p-4 space-y-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <div className="text-lg font-bold text-blue-700">Lasă-ne un mesaj</div>
-
-                <input
-                  type="text"
-                  placeholder="Nume"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full p-2 border rounded-lg bg-white/60 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full p-2 border rounded-lg bg-white/60 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <textarea
-                  placeholder="Mesajul tău..."
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full p-2 border rounded-lg h-24 bg-white/60 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                ></textarea>
-
-                <AnimatePresence>
-                  {formStatus === "success" && (
-                    <motion.div className="flex items-center gap-2 text-green-600 font-semibold" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      <FaCheckCircle /> Mesaj trimis cu succes!
-                    </motion.div>
-                  )}
-                  {formStatus === "error" && (
-                    <motion.div className="flex items-center gap-2 text-red-600 font-semibold" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      <FaTimesCircle /> Eroare la trimitere!
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  disabled={loading}
-                  onClick={submitForm}
-                  className="w-full bg-blue-600 text-white py-2 rounded-lg shadow hover:bg-blue-700 transition"
-                >
-                  {loading ? "Se trimite..." : "Trimite mesajul"}
-                </motion.button>
-
-                <button onClick={() => setView(null)} className="text-blue-600 underline">← Înapoi</button>
-              </motion.div>
+              <div className="p-6 space-y-4">
+                <div className="text-xl font-bold" style={{ color: COLORS.primary }}>{t.messageUs}</div>
+                <input type="text" placeholder="Nume" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full p-3 rounded-2xl border bg-white/70 backdrop-blur-md focus:outline-none focus:ring-2 shadow-sm" />
+                <input type="email" placeholder="Email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full p-3 rounded-2xl border bg-white/70 backdrop-blur-md focus:outline-none focus:ring-2 shadow-sm" />
+                <textarea placeholder={language === "ro" ? "Mesajul tău" : "Your message"} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} className="w-full p-3 rounded-2xl border bg-white/70 backdrop-blur-md focus:outline-none focus:ring-2 shadow-sm h-28 resize-none" />
+                <button onClick={submitForm} disabled={loading} className="w-full py-3 rounded-2xl text-white font-semibold shadow-lg bg-gradient-to-r from-purple-500 to-pink-500">{loading ? t.sending : t.send}</button>
+                {formStatus === "success" && <div className="flex items-center gap-2 text-green-600 text-sm animate-pulse"><FaCheckCircle /> {t.success}</div>}
+                {formStatus === "error" && <div className="flex items-center gap-2 text-red-600 text-sm animate-pulse"><FaTimesCircle /> {t.error}</div>}
+              </div>
             )}
           </motion.div>
         )}
