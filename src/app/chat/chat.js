@@ -13,8 +13,8 @@ const COLORS = {
 };
 
 const TEXT = {
-  ro: { chat: "Chat rapid", messageUs: "Lasă-ne un mesaj", close: "Închide", placeholder: "Scrie un mesaj...", send: "Trimite", back: "← Înapoi", formTitle: "Lasă-ne un mesaj", name: "Nume", email: "Email", message: "Mesajul tău", sending: "Se trimite...", sendMessage: "Trimite mesajul", success: "Mesaj trimis cu succes!", error: "Eroare la trimitere!", botReply: "Mulțumim! Echipa va reveni curând."},
-  en: { chat: "Quick Chat", messageUs: "Send us a message", close: "Close", placeholder: "Type a message...", send: "Send", back: "← Back", formTitle: "Send us a message", name: "Name", email: "Email", message: "Your message", sending: "Sending...", sendMessage: "Send message", success: "Message sent successfully!", error: "Error sending message!", botReply: "Thank you! We'll get back soon." },
+  ro: { chat: "Chat rapid", messageUs: "Lasă-ne un mesaj", placeholder: "Scrie un mesaj...", send: "Trimite", formTitle: "Lasă-ne un mesaj", name: "Nume", email: "Email", message: "Mesajul tău", sending: "Se trimite...", sendMessage: "Trimite mesajul", success: "Mesaj trimis cu succes!", error: "Eroare la trimitere!", botReply: "Mulțumim! Echipa va reveni curând."},
+  en: { chat: "Quick Chat", messageUs: "Send us a message", placeholder: "Type a message...", send: "Send", formTitle: "Send us a message", name: "Name", email: "Email", message: "Your message", sending: "Sending...", sendMessage: "Send message", success: "Message sent successfully!", error: "Error sending message!", botReply: "Thank you! We'll get back soon." },
 };
 
 export default function FloatingContact() {
@@ -93,7 +93,7 @@ export default function FloatingContact() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 30 }}
-            className="fixed bottom-24 right-2 w-[95%] max-w-[380px] sm:w-[380px] rounded-3xl shadow-2xl backdrop-blur-2xl overflow-hidden z-[10000] border"
+            className="fixed bottom-24 right-4 w-[90%] max-w-[380px] sm:w-[380px] sm:bottom-24 sm:right-2 rounded-3xl shadow-2xl backdrop-blur-2xl overflow-hidden z-[10000] border"
             style={{ background: COLORS.panelBg, borderColor: COLORS.border }}
           >
             {/* Header */}
@@ -113,7 +113,7 @@ export default function FloatingContact() {
 
             {/* Menu */}
             {!view && (
-              <motion.div className="p-4 sm:p-6 space-y-3 sm:space-y-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <motion.div className="p-4 sm:p-6 space-y-3 sm:space-y-4 flex flex-col" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 {[{ label: t.chat, icon: <FaComments />, v: "chat" }, { label: t.messageUs, icon: <FaEnvelope />, v: "form" }].map((b, i) => (
                   <motion.button key={i} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setView(b.v)} className="w-full flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-2xl font-medium shadow-sm backdrop-blur-xl border text-sm sm:text-base" style={{ background: COLORS.glass, borderColor: COLORS.border, color: COLORS.primary }}>
                     {b.icon} {b.label}
@@ -149,7 +149,7 @@ export default function FloatingContact() {
 
             {/* Form View */}
             {view === "form" && (
-              <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+              <div className="p-4 sm:p-6 space-y-3 sm:space-y-4 h-full sm:h-[380px] overflow-auto">
                 <div className="text-base sm:text-xl font-light" style={{ color: COLORS.primary }}>{t.formTitle}</div>
                 <input type="text" placeholder={t.name} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full p-2 sm:p-3 rounded-xl border bg-white/70 focus:outline-none focus:ring-2 text-xs sm:text-sm" style={{ borderColor: COLORS.border }} />
                 <input type="email" placeholder={t.email} value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full p-2 sm:p-3 rounded-xl border bg-white/70 focus:outline-none focus:ring-2 text-xs sm:text-sm" style={{ borderColor: COLORS.border }} />
