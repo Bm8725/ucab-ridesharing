@@ -5,14 +5,14 @@ import { FaComments, FaEnvelope, FaUser, FaGlobe, FaCheck, FaTimes } from "react
 import { motion, AnimatePresence } from "framer-motion";
 
 const TEXT = {
-  ro: { chat: "Chat rapid", messageUs: "Lasă-ne un mesaj", placeholder: "Scrie un mesaj...", send: "Trimite", formTitle: "Lasă-ne un mesaj", name: "Nume", email: "Email", message: "Mesajul tău", sending: "Se trimite...", sendMessage: "Trimite mesajul", success: "Mesaj trimis cu succes!", error: "Eroare la trimitere!", botReply: "Mulțumim! Echipa va reveni curând.", selectOperator: "Selectează operatorul"},
-  en: { chat: "Quick Chat", messageUs: "Send us a message", placeholder: "Type a message...", send: "Send", formTitle: "Send us a message", name: "Name", email: "Email", message: "Your message", sending: "Sending...", sendMessage: "Send message", success: "Message sent successfully!", error: "Error sending message!", botReply: "Thank you! We'll get back soon.", selectOperator: "Select operator" },
+  ro: { chat: "Chat support UCab.ro", messageUs: "Lasă-ne un mesaj", placeholder: "Scrie un mesaj...", send: "Trimite", formTitle: "Lasă-ne un mesaj", name: "Nume", email: "Email", message: "Mesajul tău", sending: "Se trimite...", sendMessage: "Trimite mesajul", success: "Mesaj trimis cu succes!", error: "Eroare la trimitere!", botReply: "Mulțumim! Echipa va reveni curând.", selectOperator: "Selectează operatorul"},
+  en: { chat: "Chat support UCab.ro", messageUs: "Send us a message", placeholder: "Type a message...", send: "Send", formTitle: "Send us a message", name: "Name", email: "Email", message: "Your message", sending: "Sending...", sendMessage: "Send message", success: "Message sent successfully!", error: "Error sending message!", botReply: "Thank you! We'll get back soon.", selectOperator: "Select operator" },
 };
 
 const OPERATORS = [
   { id: 1, name: "Alice" },
   { id: 2, name: "Bob" },
-  { id: 3, name: "Charlie" }
+  { id: 3, name: "Michael" }
 ];
 
 export default function CorporateChat() {
@@ -30,12 +30,52 @@ export default function CorporateChat() {
   const [loading, setLoading] = useState(false);
   const [formStatus, setFormStatus] = useState(null);
 
+  const [operatorStatus, setOperatorStatus] = useState(OPERATORS.map(op => ({ ...op, online: false })));
+
+  const wsRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, botTyping]);
 
+  // Initialize WebSocket
+  useEffect(() => {
+    wsRef.current = new WebSocket('wss://example.com/ws'); // Replace with your WebSocket server
+
+    wsRef.current.onopen = () => console.log('WebSocket connected');
+
+    wsRef.current.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+
+        // Update operator status if provided
+        if (data.operatorStatus) {
+          setOperatorStatus(prev => prev.map(op => ({ ...op, online: data.operatorStatus.find(s => s.id === op.id)?.online ?? op.online })));
+        }
+
+        // Receive messages from operator
+        if (data.message) {
+          setMessages(prev => [...prev, { type: 'operator', text: data.message }]);
+        }
+      } catch (err) {
+        console.error('WebSocket message error:', err);
+      }
+    };
+
+    wsRef.current.onerror = (err) => console.error('WebSocket error:', err);
+    wsRef.current.onclose = () => console.log('WebSocket disconnected');
+
+    return () => wsRef.current?.close();
+  }, []);
+
   const handleSend = () => {
     if (!input.trim()) return;
+
+    // Send message via WebSocket if connected
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: 'message', text: input, operatorId: selectedOperator?.id }));
+    }
+
+    // Add to local messages
     setMessages(p => [...p, { type: "user", text: input, operator: selectedOperator?.name || null }]);
     setInput("");
     setBotTyping(true);
@@ -113,9 +153,10 @@ export default function CorporateChat() {
             {!view && (
               <div className="p-4 flex flex-col gap-3">
                 <div className="font-semibold">{t.selectOperator}:</div>
-                {OPERATORS.map(op => (
-                  <button key={op.id} onClick={() => { setSelectedOperator(op); setView('chat'); }} className="p-2 border border-black rounded hover:bg-black hover:text-white">
-                    {op.name}
+                {operatorStatus.map(op => (
+                  <button key={op.id} onClick={() => { setSelectedOperator(op); setView('chat'); }} className="p-2 border border-black rounded hover:bg-black hover:text-white flex items-center justify-between">
+                    <span>{op.name}</span>
+                    <span className={`w-3 h-3 rounded-full ${op.online ? 'bg-green-500' : 'bg-yellow-400'}`}></span>
                   </button>
                 ))}
                 <button onClick={() => setView('form')} className="p-2 border border-black rounded hover:bg-black hover:text-white flex items-center gap-2">
