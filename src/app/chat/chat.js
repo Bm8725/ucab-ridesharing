@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { FaComments, FaEnvelope, FaUser, FaGlobe, FaCheck, FaTimes } from "react-icons/fa";
+import { FaComments, FaEnvelope, FaUser, FaGlobe, FaCheck, FaTimes, FaQuestion } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 const TEXT = {
@@ -10,9 +10,9 @@ const TEXT = {
 };
 
 const OPERATORS = [
-  { id: 1, name: "Alice" },
-  { id: 2, name: "Bob" },
-  { id: 3, name: "Charlie" }
+  { id: 1, name: "Alice", online: true },
+  { id: 2, name: "Bob", online: false },
+  { id: 3, name: "Charlie", online: true }
 ];
 
 export default function CorporateChat() {
@@ -25,14 +25,38 @@ export default function CorporateChat() {
   const [input, setInput] = useState("");
   const [botTyping, setBotTyping] = useState(false);
   const [selectedOperator, setSelectedOperator] = useState(null);
+  const [operatorStatus, setOperatorStatus] = useState({});
 
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [loading, setLoading] = useState(false);
   const [formStatus, setFormStatus] = useState(null);
 
   const messagesEndRef = useRef(null);
+  const wsRef = useRef(null);
 
-  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, botTyping]);
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, botTyping]);
+
+  useEffect(() => {
+    // Initialize WebSocket (placeholder, can be replaced with real URL)
+    wsRef.current = new WebSocket('wss://example.com/ws');
+    wsRef.current.onopen = () => console.log('WebSocket connected');
+    wsRef.current.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.operatorStatus) {
+          setOperatorStatus(data.operatorStatus);
+        }
+      } catch (err) {
+        console.error('WebSocket message error:', err);
+      }
+    };
+    wsRef.current.onerror = (err) => console.error('WebSocket error:', err);
+    wsRef.current.onclose = () => console.log('WebSocket disconnected');
+
+    return () => wsRef.current.close();
+  }, []);
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -62,6 +86,20 @@ export default function CorporateChat() {
     setLoading(false);
   };
 
+  const closeView = () => {
+    if (view) {
+      setView(null);
+    } else {
+      setOpen(false);
+      setSelectedOperator(null);
+    }
+  };
+
+  const getOperatorOnlineStatus = (op) => {
+    if (operatorStatus[op.id] !== undefined) return operatorStatus[op.id] ? 'bg-green-500' : 'bg-red-500';
+    return 'bg-yellow-400'; // pending / unknown
+  };
+
   return (
     <>
       {/* Floating Button */}
@@ -83,18 +121,29 @@ export default function CorporateChat() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 30 }}
-            className="fixed top-0 left-0 w-full h-full sm:w-[400px] sm:h-[600px] bg-white border border-black shadow-2xl z-[10000] flex flex-col"
+            className="fixed bottom-6 right-6 sm:right-6 sm:bottom-6 sm:w-[400px] sm:h-[600px] w-full h-full bg-white border border-black shadow-2xl z-[10000] flex flex-col"
           >
             {/* Header */}
             <div className="flex justify-between items-center p-4 border-b border-black">
-              <div className="flex items-center gap-2 font-bold text-lg">
-                <FaUser /> {view === 'form' ? t.messageUs : t.chat}
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2 font-bold text-lg">
+                  <FaUser /> {view === 'form' ? t.messageUs : t.chat}
+                  {selectedOperator && (
+                    <span className={`ml-2 w-3 h-3 rounded-full flex items-center justify-center text-black text-[10px] ${selectedOperator.online ? 'bg-green-500' : 'bg-yellow-400'}`}>
+                      {!selectedOperator.online && <FaQuestion />}
+                    </span>
+                  )}
+                </div>
+                {selectedOperator && (
+                  <div className="text-sm font-medium">{selectedOperator.name}</div>
+                )}
               </div>
+
               <div className="flex gap-2">
                 <button onClick={() => setLanguage(language === "ro" ? "en" : "ro")} className="px-2 py-1 border border-black rounded">
                   <FaGlobe /> {language === "ro" ? "EN" : "RO"}
                 </button>
-                <button onClick={() => setOpen(false)} className="px-2 py-1 border border-black rounded">
+                <button onClick={closeView} className="px-2 py-1 border border-black rounded">
                   <FaTimes />
                 </button>
               </div>
@@ -105,8 +154,11 @@ export default function CorporateChat() {
               <div className="p-4 flex flex-col gap-3">
                 <div className="font-semibold">{t.selectOperator}:</div>
                 {OPERATORS.map(op => (
-                  <button key={op.id} onClick={() => { setSelectedOperator(op); setView('chat'); }} className="p-2 border border-black rounded hover:bg-black hover:text-white">
-                    {op.name}
+                  <button key={op.id} onClick={() => { setSelectedOperator(op); setView('chat'); }} className="p-2 border border-black rounded hover:bg-black hover:text-white flex items-center justify-between">
+                    <span>{op.name}</span>
+                    <span className={`w-3 h-3 rounded-full flex items-center justify-center text-black text-[10px] ${getOperatorOnlineStatus(op)}`}>
+                      {operatorStatus[op.id] === undefined && <FaQuestion />}
+                    </span>
                   </button>
                 ))}
                 <button onClick={() => setView('form')} className="p-2 border border-black rounded hover:bg-black hover:text-white flex items-center gap-2">
