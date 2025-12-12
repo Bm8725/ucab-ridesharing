@@ -1,47 +1,48 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { FaComments, FaEnvelope, FaUser, FaGlobe, FaCheck, FaTimes } from "react-icons/fa";
+import { FaComments, FaEnvelope, FaUser, FaGlobe, FaCheck, FaTimes, FaQuestion } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 const TEXT = {
-  ro: { chat: "Chat support UCab.ro", messageUs: "Lasă-ne un mesaj", placeholder: "Scrie un mesaj...", send: "Trimite", formTitle: "Lasă-ne un mesaj", name: "Nume", email: "Email", message: "Mesajul tău", sending: "Se trimite...", sendMessage: "Trimite mesajul", success: "Mesaj trimis cu succes!", error: "Eroare la trimitere!", botReply: "Mulțumim! Echipa va reveni curând.", selectOperator: "Selectează operatorul"},
+  ro: { chat: "Chat support UCab.ro", messageUs: "Lasă-ne un mesaj", placeholder: "Scrie un mesaj...", send: "Trimite", formTitle: "Lasă-ne un mesaj", name: "Nume", email: "Email", message: "Mesajul tău", sending: "Se trimite...", sendMessage: "Trimite mesajul", success: "Mesaj trimis cu succes!", error: "Eroare la trimitere!", botReply: "Mulțumim! Echipa va reveni curând!", selectOperator: "Selectează operatorul"},
   en: { chat: "Chat support UCab.ro", messageUs: "Send us a message", placeholder: "Type a message...", send: "Send", formTitle: "Send us a message", name: "Name", email: "Email", message: "Your message", sending: "Sending...", sendMessage: "Send message", success: "Message sent successfully!", error: "Error sending message!", botReply: "Thank you! We'll get back soon.", selectOperator: "Select operator" },
 };
 
 const OPERATORS = [
-  { id: 1, name: "Alice" },
-  { id: 2, name: "Bob" },
-  { id: 3, name: "Michael" }
+  { id: 1, name: "Alice", online: false },
+  { id: 2, name: "Bob", online: false },
+  { id: 3, name: "Michael", online: false }
 ];
 
 export default function CorporateChat() {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState(null);
   const [language, setLanguage] = useState("ro");
-  const t = TEXT[language];
-
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [botTyping, setBotTyping] = useState(false);
   const [selectedOperator, setSelectedOperator] = useState(null);
+  const [operatorStatus, setOperatorStatus] = useState(OPERATORS);
 
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [loading, setLoading] = useState(false);
   const [formStatus, setFormStatus] = useState(null);
 
-  const [operatorStatus, setOperatorStatus] = useState(OPERATORS.map(op => ({ ...op, online: false })));
-
-  const wsRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const wsRef = useRef(null);
 
-  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, botTyping]);
+  const t = TEXT[language];
 
-  // Initialize WebSocket
   useEffect(() => {
-    wsRef.current = new WebSocket('wss://example.com/ws'); // Replace with your WebSocket server
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, botTyping]);
 
-    wsRef.current.onopen = () => console.log('WebSocket connected');
+  // WebSocket setup
+  useEffect(() => {
+    wsRef.current = new WebSocket("wss://ws.postman-echo.com/raw"); // Placeholder server
+
+    wsRef.current.onopen = () => console.log("WebSocket connected");
 
     wsRef.current.onmessage = (event) => {
       try {
@@ -49,7 +50,12 @@ export default function CorporateChat() {
 
         // Update operator status if provided
         if (data.operatorStatus) {
-          setOperatorStatus(prev => prev.map(op => ({ ...op, online: data.operatorStatus.find(s => s.id === op.id)?.online ?? op.online })));
+          setOperatorStatus(prev =>
+            prev.map(op => ({
+              ...op,
+              online: data.operatorStatus.find(s => s.id === op.id)?.online ?? op.online
+            }))
+          );
         }
 
         // Receive messages from operator
@@ -57,28 +63,27 @@ export default function CorporateChat() {
           setMessages(prev => [...prev, { type: 'operator', text: data.message }]);
         }
       } catch (err) {
-        console.error('WebSocket message error:', err);
+        console.error("WebSocket message error:", err);
       }
     };
 
-    wsRef.current.onerror = (err) => console.error('WebSocket error:', err);
-    wsRef.current.onclose = () => console.log('WebSocket disconnected');
+    wsRef.current.onerror = (err) => console.error("WebSocket error:", err);
+    wsRef.current.onclose = () => console.log("WebSocket disconnected");
 
-    return () => wsRef.current?.close();
+    return () => wsRef.current.close();
   }, []);
 
   const handleSend = () => {
     if (!input.trim()) return;
 
-    // Send message via WebSocket if connected
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type: 'message', text: input, operatorId: selectedOperator?.id }));
-    }
+    // Send message via WebSocket
+    const payload = { type: "user", message: input, operatorId: selectedOperator?.id || null };
+    wsRef.current?.send(JSON.stringify(payload));
 
-    // Add to local messages
-    setMessages(p => [...p, { type: "user", text: input, operator: selectedOperator?.name || null }]);
+    setMessages(p => [...p, { type: "user", text: input }]);
     setInput("");
     setBotTyping(true);
+
     setTimeout(() => {
       setMessages(p => [...p, { type: "bot", text: t.botReply }]);
       setBotTyping(false);
@@ -103,12 +108,8 @@ export default function CorporateChat() {
   };
 
   const closeView = () => {
-    if (view) {
-      setView(null);
-    } else {
-      setOpen(false);
-      setSelectedOperator(null);
-    }
+    if (view) setView(null);
+    else { setOpen(false); setSelectedOperator(null); }
   };
 
   return (
@@ -136,9 +137,18 @@ export default function CorporateChat() {
           >
             {/* Header */}
             <div className="flex justify-between items-center p-4 border-b border-black">
-              <div className="flex items-center gap-2 font-bold text-lg">
-                <FaUser /> {view === 'form' ? t.messageUs : t.chat}
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2 font-bold text-lg">
+                  <FaUser /> {view === 'form' ? t.messageUs : t.chat}
+                  {selectedOperator && (
+                    <span className={`ml-2 w-3 h-3 rounded-full ${selectedOperator.online ? 'bg-green-500' : 'bg-yellow-400 flex items-center justify-center text-black text-[10px]'}`}>
+                      {!selectedOperator.online && <FaQuestion />}
+                    </span>
+                  )}
+                </div>
+                {selectedOperator && <div className="text-sm font-medium">{selectedOperator.name}</div>}
               </div>
+
               <div className="flex gap-2">
                 <button onClick={() => setLanguage(language === "ro" ? "en" : "ro")} className="px-2 py-1 border border-black rounded">
                   <FaGlobe /> {language === "ro" ? "EN" : "RO"}
@@ -156,7 +166,9 @@ export default function CorporateChat() {
                 {operatorStatus.map(op => (
                   <button key={op.id} onClick={() => { setSelectedOperator(op); setView('chat'); }} className="p-2 border border-black rounded hover:bg-black hover:text-white flex items-center justify-between">
                     <span>{op.name}</span>
-                    <span className={`w-3 h-3 rounded-full ${op.online ? 'bg-green-500' : 'bg-yellow-400'}`}></span>
+                    <span className={`w-3 h-3 rounded-full ${op.online ? 'bg-green-500' : 'bg-yellow-400 flex items-center justify-center text-black text-[10px]'}`}>
+                      {!op.online && <FaQuestion />}
+                    </span>
                   </button>
                 ))}
                 <button onClick={() => setView('form')} className="p-2 border border-black rounded hover:bg-black hover:text-white flex items-center gap-2">
