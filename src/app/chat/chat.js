@@ -5,8 +5,8 @@ import { FaComments, FaEnvelope, FaUser, FaGlobe, FaCheck, FaTimes, FaQuestion }
 import { motion, AnimatePresence } from "framer-motion";
 
 const TEXT = {
-  ro: { chat: "Chat support UCab.ro", messageUs: "Lasă-ne un mesaj", placeholder: "Scrie un mesaj...", send: "Trimite", formTitle: "Lasă-ne un mesaj", name: "Nume", email: "Email", message: "Mesajul tău", sending: "Se trimite...", sendMessage: "Trimite mesajul", success: "Mesaj trimis cu succes!", error: "Eroare la trimitere!", botReply: "Mulțumim! Echipa va reveni curând!", selectOperator: "Selectează operatorul"},
-  en: { chat: "Chat support UCab.ro", messageUs: "Send us a message", placeholder: "Type a message...", send: "Send", formTitle: "Send us a message", name: "Name", email: "Email", message: "Your message", sending: "Sending...", sendMessage: "Send message", success: "Message sent successfully!", error: "Error sending message!", botReply: "Thank you! We'll get back soon.", selectOperator: "Select operator" },
+  ro: { chat: "Chat support UCab.ro", messageUs: "Lasă-ne un mesaj", placeholder: "Scrie un mesaj...", send: "Trimite", formTitle: "Lasă-ne un mesaj", name: "Nume", email: "Email", message: "Mesajul tău", sending: "Se trimite...", sendMessage: "Trimite mesajul", success: "Mesaj trimis cu succes!", error: "Eroare la trimitere!", botReply: "Mulțumim! Echipa va reveni curând.", selectOperator: "Selectează operatorul"},
+  en: { chat: "Chat support UCab.ro", messageUs: "Send us a message", placeholder: "Type a message...", send: "Send", formTitle: "Send us a message", name: "Name", email: "Email", message: "Your message", sending: "Sending...", sendMessage: "Send message", success: "Message sent successfully!", error: "Error sending message!", botReply: "Thank you! We'll get back soon.", selectOperator: "Select operator" }
 };
 
 const OPERATORS = [
@@ -38,9 +38,9 @@ export default function CorporateChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, botTyping]);
 
-  // WebSocket setup
+  // WebSocket setup (real, replace URL with your server)
   useEffect(() => {
-    wsRef.current = new WebSocket("wss://ws.postman-echo.com/raw"); // Placeholder server
+    wsRef.current = new WebSocket("wss://chat.doxer.ro/ws");
 
     wsRef.current.onopen = () => console.log("WebSocket connected");
 
@@ -48,7 +48,6 @@ export default function CorporateChat() {
       try {
         const data = JSON.parse(event.data);
 
-        // Update operator status if provided
         if (data.operatorStatus) {
           setOperatorStatus(prev =>
             prev.map(op => ({
@@ -58,7 +57,6 @@ export default function CorporateChat() {
           );
         }
 
-        // Receive messages from operator
         if (data.message) {
           setMessages(prev => [...prev, { type: 'operator', text: data.message }]);
         }
@@ -70,13 +68,12 @@ export default function CorporateChat() {
     wsRef.current.onerror = (err) => console.error("WebSocket error:", err);
     wsRef.current.onclose = () => console.log("WebSocket disconnected");
 
-    return () => wsRef.current.close();
+    return () => wsRef.current?.close();
   }, []);
 
   const handleSend = () => {
     if (!input.trim()) return;
 
-    // Send message via WebSocket
     const payload = { type: "user", message: input, operatorId: selectedOperator?.id || null };
     wsRef.current?.send(JSON.stringify(payload));
 
@@ -116,8 +113,8 @@ export default function CorporateChat() {
     <>
       {/* Floating Button */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 20, scale: 0.5 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setOpen(!open)}
@@ -126,13 +123,14 @@ export default function CorporateChat() {
         <FaComments size={22} />
       </motion.div>
 
-      {/* Chat Panel */}
+      {/* Chat Panel with animated open */}
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, scale: 0, x: 50, y: 50 }}
+            animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+            exit={{ opacity: 0, scale: 0, x: 50, y: 50 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
             className="fixed bottom-0 right-0 w-full h-full sm:bottom-6 sm:right-6 sm:w-[400px] sm:h-[600px] bg-white border border-black shadow-2xl z-[10000] flex flex-col"
           >
             {/* Header */}
