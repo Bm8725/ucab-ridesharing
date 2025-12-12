@@ -1,23 +1,21 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { FaComments, FaEnvelope, FaCheckCircle, FaTimesCircle, FaUserCircle, FaGlobe } from "react-icons/fa";
+import { FaComments, FaEnvelope, FaUser, FaGlobe, FaCheck, FaTimes } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
-const COLORS = {
-  primary: "#0A4EC4",
-  gradient: "linear-gradient(135deg, #6a0dad, #9b30ff)",
-  panelBg: "rgba(255,255,255,0.95)",
-  glass: "rgba(255,255,255,0.6)",
-  border: "rgba(0,0,0,0.1)",
-};
-
 const TEXT = {
-  ro: { chat: "Chat rapid", messageUs: "Lasă-ne un mesaj", placeholder: "Scrie un mesaj...", send: "Trimite", formTitle: "Lasă-ne un mesaj", name: "Nume", email: "Email", message: "Mesajul tău", sending: "Se trimite...", sendMessage: "Trimite mesajul", success: "Mesaj trimis cu succes!", error: "Eroare la trimitere!", botReply: "Mulțumim! Echipa va reveni curând."},
-  en: { chat: "Quick Chat", messageUs: "Send us a message", placeholder: "Type a message...", send: "Send", formTitle: "Send us a message", name: "Name", email: "Email", message: "Your message", sending: "Sending...", sendMessage: "Send message", success: "Message sent successfully!", error: "Error sending message!", botReply: "Thank you! We'll get back soon." },
+  ro: { chat: "Chat rapid", messageUs: "Lasă-ne un mesaj", placeholder: "Scrie un mesaj...", send: "Trimite", formTitle: "Lasă-ne un mesaj", name: "Nume", email: "Email", message: "Mesajul tău", sending: "Se trimite...", sendMessage: "Trimite mesajul", success: "Mesaj trimis cu succes!", error: "Eroare la trimitere!", botReply: "Mulțumim! Echipa va reveni curând.", selectOperator: "Selectează operatorul"},
+  en: { chat: "Quick Chat", messageUs: "Send us a message", placeholder: "Type a message...", send: "Send", formTitle: "Send us a message", name: "Name", email: "Email", message: "Your message", sending: "Sending...", sendMessage: "Send message", success: "Message sent successfully!", error: "Error sending message!", botReply: "Thank you! We'll get back soon.", selectOperator: "Select operator" },
 };
 
-export default function FloatingContact() {
+const OPERATORS = [
+  { id: 1, name: "Alice" },
+  { id: 2, name: "Bob" },
+  { id: 3, name: "Charlie" }
+];
+
+export default function CorporateChat() {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState(null);
   const [language, setLanguage] = useState("ro");
@@ -26,24 +24,24 @@ export default function FloatingContact() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [botTyping, setBotTyping] = useState(false);
-  const [unread, setUnread] = useState(0);
-  const messagesEndRef = useRef(null);
+  const [selectedOperator, setSelectedOperator] = useState(null);
 
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [loading, setLoading] = useState(false);
   const [formStatus, setFormStatus] = useState(null);
 
+  const messagesEndRef = useRef(null);
+
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, botTyping]);
 
   const handleSend = () => {
     if (!input.trim()) return;
-    setMessages(p => [...p, { type: "user", text: input }]);
+    setMessages(p => [...p, { type: "user", text: input, operator: selectedOperator?.name || null }]);
     setInput("");
     setBotTyping(true);
     setTimeout(() => {
       setMessages(p => [...p, { type: "bot", text: t.botReply }]);
       setBotTyping(false);
-      if (!open) setUnread(u => u + 1);
     }, 800);
   };
 
@@ -64,8 +62,6 @@ export default function FloatingContact() {
     setLoading(false);
   };
 
-  const togglePanel = () => { setOpen(o => !o); if (!open) { setUnread(0); setView(null); } };
-
   return (
     <>
       {/* Floating Button */}
@@ -74,90 +70,76 @@ export default function FloatingContact() {
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
-        onClick={togglePanel}
-        className="fixed bottom-6 right-6 z-[9999] p-4 rounded-full shadow-xl flex items-center justify-center cursor-pointer"
-        style={{ background: COLORS.primary, color: "white" }}
+        onClick={() => setOpen(!open)}
+        className="fixed bottom-6 right-6 z-[9999] p-4 rounded-full shadow-xl bg-black text-white cursor-pointer flex items-center justify-center"
       >
         <FaComments size={22} />
-        {unread > 0 && (
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs text-white bg-red-500 shadow">
-            {unread}
-          </motion.div>
-        )}
       </motion.div>
 
-      {/* Floating Panel */}
+      {/* Chat Panel */}
       <AnimatePresence>
         {open && (
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 30 }}
-            className="fixed bottom-24 right-4 w-[90%] max-w-[380px] sm:w-[380px] sm:bottom-24 sm:right-2 rounded-3xl shadow-2xl backdrop-blur-2xl overflow-hidden z-[10000] border"
-            style={{ background: COLORS.panelBg, borderColor: COLORS.border }}
+            className="fixed top-0 left-0 w-full h-full sm:w-[400px] sm:h-[600px] bg-white border border-black shadow-2xl z-[10000] flex flex-col"
           >
             {/* Header */}
-            {view && (
-              <div className="flex justify-between items-center p-4 rounded-t-3xl text-white font-light" style={{ background: COLORS.gradient, minHeight: '70px' }}>
-                <div className="flex items-center gap-2 text-sm sm:text-lg">
-                  <FaUserCircle size={20} /> <span className="truncate">{view === "chat" ? t.chat : t.messageUs}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button onClick={() => setLanguage(language === "ro" ? "en" : "ro")} className="px-2 py-1 rounded-xl bg-white/30 text-white font-medium flex items-center gap-1 text-xs sm:text-sm">
-                    <FaGlobe /> {language === "ro" ? "EN" : "RO"}
+            <div className="flex justify-between items-center p-4 border-b border-black">
+              <div className="flex items-center gap-2 font-bold text-lg">
+                <FaUser /> {view === 'form' ? t.messageUs : t.chat}
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => setLanguage(language === "ro" ? "en" : "ro")} className="px-2 py-1 border border-black rounded">
+                  <FaGlobe /> {language === "ro" ? "EN" : "RO"}
+                </button>
+                <button onClick={() => setOpen(false)} className="px-2 py-1 border border-black rounded">
+                  <FaTimes />
+                </button>
+              </div>
+            </div>
+
+            {/* Operator selection */}
+            {!view && (
+              <div className="p-4 flex flex-col gap-3">
+                <div className="font-semibold">{t.selectOperator}:</div>
+                {OPERATORS.map(op => (
+                  <button key={op.id} onClick={() => { setSelectedOperator(op); setView('chat'); }} className="p-2 border border-black rounded hover:bg-black hover:text-white">
+                    {op.name}
                   </button>
-                  <button onClick={() => setView(null)} className="px-2 py-1 rounded-xl bg-white/30 text-white font-medium text-xs sm:text-sm">X</button>
-                </div>
+                ))}
+                <button onClick={() => setView('form')} className="p-2 border border-black rounded hover:bg-black hover:text-white flex items-center gap-2">
+                  <FaEnvelope /> {t.messageUs}
+                </button>
               </div>
             )}
 
-            {/* Menu */}
-            {!view && (
-              <motion.div className="p-4 sm:p-6 space-y-3 sm:space-y-4 flex flex-col" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                {[{ label: t.chat, icon: <FaComments />, v: "chat" }, { label: t.messageUs, icon: <FaEnvelope />, v: "form" }].map((b, i) => (
-                  <motion.button key={i} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setView(b.v)} className="w-full flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-2xl font-medium shadow-sm backdrop-blur-xl border text-sm sm:text-base" style={{ background: COLORS.glass, borderColor: COLORS.border, color: COLORS.primary }}>
-                    {b.icon} {b.label}
-                  </motion.button>
-                ))}
-              </motion.div>
-            )}
-
             {/* Chat View */}
-            {view === "chat" && (
-              <div className="flex flex-col h-[50vh] sm:h-[380px]">
-                <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-3">
-                  {messages.map((m, i) => (
-                    <div key={i} className={`max-w-[80%] p-2 sm:p-3 rounded-2xl ${m.type === "user" ? "ml-auto bg-[#e8f0fe]" : "mr-auto bg-white/70 border border-gray-200"} text-sm sm:text-base`}>{m.text}</div>
-                  ))}
-                  {botTyping && (
-                    <div className="flex items-center gap-1 sm:gap-2 p-2 bg-white/70 rounded-2xl border text-gray-600 text-xs sm:text-sm ml-1 animate-pulse">
-                      <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" />
-                      <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce delay-150" />
-                      <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce delay-300" />
-                      Bot tastează...
-                    </div>
-                  )}
-                  <div ref={messagesEndRef} />
+            {view === 'chat' && (
+              <div className="flex-1 flex flex-col p-4 gap-2 overflow-y-auto">
+                {messages.map((m, i) => (
+                  <div key={i} className={`p-3 border ${m.type === 'user' ? 'self-end bg-black text-white' : 'self-start bg-white border-black'}`}>{m.text}</div>
+                ))}
+                {botTyping && <div className="italic text-gray-600">Bot tastează...</div>}
+                <div ref={messagesEndRef} />
+                <div className="flex gap-2 mt-auto">
+                  <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder={t.placeholder} className="flex-1 border border-black p-2" />
+                  <button onClick={handleSend} className="px-4 py-2 border border-black bg-black text-white">{t.send}</button>
                 </div>
-                <div className="p-2 sm:p-3 flex gap-2 border-t backdrop-blur-xl" style={{ borderColor: COLORS.border }}>
-                  <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()} placeholder={t.placeholder} className="flex-1 p-2 sm:p-3 rounded-xl border focus:outline-none focus:ring-2 bg-white/70 text-xs sm:text-sm" style={{ borderColor: COLORS.border }} />
-                  <button onClick={handleSend} className="px-3 sm:px-4 py-2 rounded-xl text-white text-xs sm:text-sm" style={{ background: COLORS.primary }}>{t.send}</button>
-                </div>
-                <div className="text-[10px] sm:text-xs text-gray-400 p-1 sm:p-2 text-center">© 2025 UCAB.ro</div>
               </div>
             )}
 
             {/* Form View */}
-            {view === "form" && (
-              <div className="p-4 sm:p-6 space-y-3 sm:space-y-4 h-full sm:h-[380px] overflow-auto">
-                <div className="text-base sm:text-xl font-light" style={{ color: COLORS.primary }}>{t.formTitle}</div>
-                <input type="text" placeholder={t.name} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full p-2 sm:p-3 rounded-xl border bg-white/70 focus:outline-none focus:ring-2 text-xs sm:text-sm" style={{ borderColor: COLORS.border }} />
-                <input type="email" placeholder={t.email} value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full p-2 sm:p-3 rounded-xl border bg-white/70 focus:outline-none focus:ring-2 text-xs sm:text-sm" style={{ borderColor: COLORS.border }} />
-                <textarea placeholder={t.message} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} className="w-full p-2 sm:p-3 rounded-xl border bg-white/70 focus:outline-none focus:ring-2 h-20 sm:h-28 resize-none text-xs sm:text-sm" style={{ borderColor: COLORS.border }} />
-                <button onClick={submitForm} disabled={loading} className="w-full py-2 sm:py-3 rounded-xl text-white font-medium shadow text-sm sm:text-base" style={{ backgroundColor: COLORS.primary, opacity: loading ? 0.6 : 1 }}>{loading ? t.sending : t.sendMessage}</button>
-                {formStatus === "success" && <div className="flex items-center gap-1 sm:gap-2 text-green-600 text-xs sm:text-sm p-1 sm:p-2"> <FaCheckCircle /> {t.success}</div>}
-                {formStatus === "error" && <div className="flex items-center gap-1 sm:gap-2 text-red-600 text-xs sm:text-sm p-1 sm:p-2"> <FaTimesCircle /> {t.error}</div>}
-                <div className="text-[10px] sm:text-xs text-gray-400 text-center">© 2025 UCAB.ro</div>
+            {view === 'form' && (
+              <div className="flex-1 flex flex-col p-4 gap-3 overflow-auto">
+                <div className="font-bold text-lg">{t.formTitle}</div>
+                <input type="text" placeholder={t.name} value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="border border-black p-2" />
+                <input type="email" placeholder={t.email} value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="border border-black p-2" />
+                <textarea placeholder={t.message} value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} className="border border-black p-2 h-32 resize-none" />
+                <button onClick={submitForm} disabled={loading} className="p-3 border border-black bg-black text-white mt-2">{loading ? t.sending : t.sendMessage}</button>
+                {formStatus === 'success' && <div className="text-green-600 flex items-center gap-2"><FaCheck /> {t.success}</div>}
+                {formStatus === 'error' && <div className="text-red-600 flex items-center gap-2"><FaTimes /> {t.error}</div>}
               </div>
             )}
           </motion.div>
