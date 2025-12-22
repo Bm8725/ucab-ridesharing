@@ -41,7 +41,7 @@ export default function LandingPage() {
     {
       title: "Tehnologie Modernă",
       desc: "Platforma UCab folosește algoritmi de rutare bazat pe AI, GPS live și plăți digitale securizate pentru o experiență completă. Folosim servere de ultimă generație pentru a asigura performanță și fiabilitate cu procesoare ARM, consum redus de energie si prieteni cu natura. In arhitectura noastra software includem cloud scaling, microservicii și baze de date NoSQL pentru a gestiona eficient traficul și datele utilizatorilor.",
-      img: "./ucab_tehnology.png",
+      img: "./ucab2.png",
       reverse: true,
     },
     {
