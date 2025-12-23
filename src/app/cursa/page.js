@@ -135,7 +135,7 @@ export default function RideSharePage() {
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center h-screen">
-        Se încarcă Google Maps...
+        Loading Google Maps...
       </div>
     );
   }
@@ -165,7 +165,7 @@ export default function RideSharePage() {
         <motion.div
           initial={{ y: "100%", scale: 0.9, rotateX: 25 }}
           animate={{
-            y: sheetMinimized ? "78%" : 0, // doar header vizibil
+            y: sheetMinimized ? "25%" : 0, // doar header vizibil
             scale: sheetMinimized ? 0.95 : 1,
             rotateX: sheetMinimized ? 10 : 0,
           }}
@@ -198,7 +198,7 @@ export default function RideSharePage() {
                       key={car}
                       className={`flex-1 py-2 rounded-xl border ${
                         selectedCar === car
-                          ? "bg-blue-600 text-white border-black"
+                          ? "bg-black text-white border-blue-800"
                           : "border-gray-300"
                       }`}
                       onClick={() => setSelectedCar(car)}
@@ -256,7 +256,7 @@ export default function RideSharePage() {
 
                   <button
                     onClick={calculateRoute}
-                    className="w-full bg-blue-600 text-white py-2 rounded-xl"
+                    className="w-full  bg-black text-white py-2 rounded-xl"
                   >
                     Calculează ruta
                   </button>
