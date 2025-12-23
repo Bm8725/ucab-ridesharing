@@ -45,14 +45,19 @@ export default function RideSharePage() {
   const [message, setMessage] = useState("");
   const [selectedCar, setSelectedCar] = useState("standard");
 
-  /* ================= GEOLOCATION ================= */
+  /* ================= GEOLOCATION LIVE ================= */
   useEffect(() => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setCenter(coords);
-        setPickup(coords);
-      });
+      const watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          setCenter(coords);
+          setPickup(coords); // actualizează punctul de plecare live
+        },
+        (err) => console.error(err),
+        { enableHighAccuracy: true, maximumAge: 1000 }
+      );
+      return () => navigator.geolocation.clearWatch(watchId);
     }
   }, []);
 
@@ -120,7 +125,6 @@ export default function RideSharePage() {
     return () => clearInterval(interval);
   }, [directions, rideStatus]);
 
-  /* ================= LOADING ================= */
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -129,9 +133,8 @@ export default function RideSharePage() {
     );
   }
 
-  /* ================= UI ================= */
   return (
-    <div className="h-screen w-screen relative">
+    <div className="h-screen w-screen relative perspective-1000">
       {/* ===== MAP ===== */}
       <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={14}>
         {pickup && <Marker position={pickup} />}
@@ -148,14 +151,14 @@ export default function RideSharePage() {
         {directions && <DirectionsRenderer directions={directions} />}
       </GoogleMap>
 
-      {/* ===== BOTTOM SHEET ===== */}
+      {/* ===== BOTTOM SHEET 3D ===== */}
       <AnimatePresence>
         <motion.div
-          initial={{ y: "100%", scale: 0.9, rotateX: 15 }}
+          initial={{ y: "100%", scale: 0.9, rotateX: 25 }}
           animate={{ y: 0, scale: 1, rotateX: 0 }}
-          exit={{ y: "100%", scale: 0.9, rotateX: 15 }}
-          transition={{ type: "spring", damping: 25, stiffness: 120 }}
-          className="fixed bottom-0 w-full bg-white rounded-t-3xl shadow-xl p-6 space-y-3 z-50"
+          exit={{ y: "100%", scale: 0.9, rotateX: 25 }}
+          transition={{ type: "spring", damping: 20, stiffness: 120 }}
+          className="fixed bottom-0 w-full bg-white rounded-t-3xl shadow-xl p-6 space-y-3 z-50 transform-origin-bottom"
         >
           <div className="flex justify-between items-center">
             <h2 className="font-bold text-lg text-center flex-1">
