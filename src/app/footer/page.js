@@ -136,7 +136,7 @@ export default function Footer() {
   {/* Social + Copyright */}
   <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 mt-6 w-full">
     <div className="flex items-center gap-5">
-      <a href="#" aria-label="Facebook UCab" className="hover:text-green-500 transition"><Facebook className="w-5 h-5" /></a>
+      <a href="/takpak/" aria-label="Facebook UCab" className="hover:text-green-500 transition"><Facebook className="w-5 h-5" /></a>
       <a href="#" aria-label="Instagram UCab" className="hover:text-green-500 transition"><Instagram className="w-5 h-5" /></a>
     </div>
     <p className="text-sm text-gray-400 text-center sm:text-right">
