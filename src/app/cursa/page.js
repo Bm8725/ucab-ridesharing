@@ -28,6 +28,7 @@ export default function RideSharePage() {
     libraries,
   });
 
+  const mapRef = useRef(null);
   const pickupRef = useRef(null);
   const destinationRef = useRef(null);
 
@@ -44,7 +45,7 @@ export default function RideSharePage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [selectedCar, setSelectedCar] = useState("standard");
-  const [sheetMinimized, setSheetMinimized] = useState(false); // <-- state for toggle
+  const [sheetMinimized, setSheetMinimized] = useState(false);
 
   /* ================= GEOLOCATION LIVE ================= */
   useEffect(() => {
@@ -136,7 +137,12 @@ export default function RideSharePage() {
   return (
     <div className="h-screen w-screen relative perspective-1000">
       {/* ===== MAP ===== */}
-      <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={14}>
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={center}
+        zoom={14}
+        onLoad={(map) => (mapRef.current = map)}
+      >
         {pickup && <Marker position={pickup} />}
         {destination && <Marker position={destination} />}
         {driverPos && (
@@ -153,16 +159,20 @@ export default function RideSharePage() {
         <motion.div
           initial={{ y: "100%", scale: 0.9, rotateX: 25 }}
           animate={{
-            y: sheetMinimized ? "80%" : 0,
+            y: sheetMinimized ? "85%" : 0,
             scale: sheetMinimized ? 0.95 : 1,
-            rotateX: sheetMinimized ? 15 : 0,
+            rotateX: sheetMinimized ? 10 : 0,
+            height: sheetMinimized ? "60px" : "auto",
           }}
           exit={{ y: "100%", scale: 0.9, rotateX: 25 }}
           transition={{ type: "spring", damping: 20, stiffness: 120 }}
-          className="fixed bottom-0 w-full bg-white rounded-t-3xl shadow-xl p-6 space-y-3 z-50 transform-origin-bottom"
+          className="fixed bottom-0 w-full bg-white rounded-t-3xl shadow-xl p-3 z-50 transform-origin-bottom overflow-hidden"
         >
-          {/* HEADER + Toggle */}
-          <div className="flex justify-between items-center cursor-pointer" onClick={() => setSheetMinimized(!sheetMinimized)}>
+          {/* HEADER FIX */}
+          <div
+            className="flex justify-between items-center cursor-pointer"
+            onClick={() => setSheetMinimized(!sheetMinimized)}
+          >
             <h2 className="font-bold text-lg flex-1 text-center">
               {rideStatus === "pending" && "Cursă UCab"}
               {rideStatus === "assigned" && "Șofer în drum"}
@@ -172,8 +182,9 @@ export default function RideSharePage() {
             {sheetMinimized ? <FaChevronUp /> : <FaChevronDown />}
           </div>
 
+          {/* CONTENT */}
           {!sheetMinimized && (
-            <>
+            <div className="mt-3 space-y-3">
               {/* Tip mașină */}
               {rideStatus === "pending" && (
                 <div className="flex gap-2 mb-3">
@@ -269,7 +280,7 @@ export default function RideSharePage() {
                   {message}
                 </p>
               )}
-            </>
+            </div>
           )}
         </motion.div>
       </AnimatePresence>
