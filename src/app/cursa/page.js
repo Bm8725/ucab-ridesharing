@@ -28,7 +28,6 @@ export default function RideSharePage() {
     libraries,
   });
 
-  const mapRef = useRef(null);
   const pickupRef = useRef(null);
   const destinationRef = useRef(null);
 
@@ -45,7 +44,7 @@ export default function RideSharePage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [selectedCar, setSelectedCar] = useState("standard");
-  const [sheetMinimized, setSheetMinimized] = useState(false); // <-- sheet state
+  const [sheetMinimized, setSheetMinimized] = useState(false); // <-- state for toggle
 
   /* ================= GEOLOCATION LIVE ================= */
   useEffect(() => {
@@ -137,12 +136,7 @@ export default function RideSharePage() {
   return (
     <div className="h-screen w-screen relative perspective-1000">
       {/* ===== MAP ===== */}
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={center}
-        zoom={14}
-        onLoad={(map) => (mapRef.current = map)}
-      >
+      <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={14}>
         {pickup && <Marker position={pickup} />}
         {destination && <Marker position={destination} />}
         {driverPos && (
@@ -158,21 +152,24 @@ export default function RideSharePage() {
       <AnimatePresence>
         <motion.div
           initial={{ y: "100%", scale: 0.9, rotateX: 25 }}
-          animate={{ y: sheetMinimized ? "80%" : 0, scale: sheetMinimized ? 0.95 : 1, rotateX: sheetMinimized ? 15 : 0 }}
+          animate={{
+            y: sheetMinimized ? "80%" : 0,
+            scale: sheetMinimized ? 0.95 : 1,
+            rotateX: sheetMinimized ? 15 : 0,
+          }}
           exit={{ y: "100%", scale: 0.9, rotateX: 25 }}
           transition={{ type: "spring", damping: 20, stiffness: 120 }}
           className="fixed bottom-0 w-full bg-white rounded-t-3xl shadow-xl p-6 space-y-3 z-50 transform-origin-bottom"
         >
-          <div className="flex justify-between items-center">
+          {/* HEADER + Toggle */}
+          <div className="flex justify-between items-center cursor-pointer" onClick={() => setSheetMinimized(!sheetMinimized)}>
             <h2 className="font-bold text-lg flex-1 text-center">
               {rideStatus === "pending" && "Cursă UCab"}
               {rideStatus === "assigned" && "Șofer în drum"}
               {rideStatus === "in_progress" && "Cursă în desfășurare"}
               {rideStatus === "completed" && "Cursă finalizată"}
             </h2>
-            <button onClick={() => setSheetMinimized(!sheetMinimized)}>
-              {sheetMinimized ? <FaChevronUp /> : <FaChevronDown />}
-            </button>
+            {sheetMinimized ? <FaChevronUp /> : <FaChevronDown />}
           </div>
 
           {!sheetMinimized && (
