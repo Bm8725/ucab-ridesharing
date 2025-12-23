@@ -120,7 +120,7 @@ export default function RideSharePage() {
         setRideStatus("completed");
         clearInterval(interval);
       }
-    }, 1000);
+    }, 223);
 
     return () => clearInterval(interval);
   }, [directions, rideStatus]);
