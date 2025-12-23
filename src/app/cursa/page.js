@@ -14,7 +14,7 @@ import { FaMapMarkerAlt, FaFlagCheckered, FaDollarSign, FaTimes } from "react-ic
 /* ================= CONFIG ================= */
 const libraries = ["places"];
 const containerStyle = { width: "100%", height: "100%" };
-const defaultCenter = { lat: 44.4268, lng: 26.1025 }; // fallback București
+const defaultCenter = { lat: 44.4268, lng: 26.1025 };
 const carOptions = {
   standard: { label: "Standard", rate: 0.5 },
   comfort: { label: "Comfort", rate: 0.8 },
@@ -45,36 +45,24 @@ export default function RideSharePage() {
   const [message, setMessage] = useState("");
   const [selectedCar, setSelectedCar] = useState("standard");
 
-/* ================= GEOLOCATION ROBUST ================= */
+  /* ================= GEOLOCATION ================= */
   useEffect(() => {
-    if (!navigator.geolocation) {
-      setMessage("Geolocația nu este suportată de browser.");
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
         const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setCenter(coords);
         setPickup(coords);
-        setMessage("");
-      },
-      (err) => {
-        console.warn("GPS refuzat sau eroare:", err.message);
-        setCenter(defaultCenter);
-        setPickup(defaultCenter);
-        setMessage("GPS refuzat sau indisponibil, folosește locația implicită.");
-      },
-      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-    );
+      });
+    }
   }, []);
 
-/* ================= ROUTE CALC ================= */
+  /* ================= ROUTE CALC ================= */
   const calculateRoute = () => {
     if (!pickup || !destination) {
       setMessage("Completează plecarea și destinația.");
       return;
     }
+
     const service = new window.google.maps.DirectionsService();
     service.route(
       {
@@ -96,10 +84,10 @@ export default function RideSharePage() {
     );
   };
 
-/* ================= COST ================= */
+  /* ================= COST ================= */
   const cost = distance ? (distance * carOptions[selectedCar].rate).toFixed(2) : "0.00";
 
-/* ================= CONFIRM ================= */
+  /* ================= CONFIRM ================= */
   const confirmRide = () => {
     if (!directions) return;
     setLoading(true);
@@ -111,30 +99,28 @@ export default function RideSharePage() {
     }, 1200);
   };
 
-/* ================= DRIVER SIM ================= */
-/* ================= DRIVER SIM ================= */
-useEffect(() => {
-  if (!directions || !driverPos || rideStatus !== "assigned") return;
+  /* ================= DRIVER SIM ================= */
+  useEffect(() => {
+    if (!directions || !driverPos || rideStatus !== "assigned") return;
 
-  const path = directions.routes[0].overview_path;
-  let i = 0;
+    const path = directions.routes[0].overview_path;
+    let i = 0;
 
-  const interval = setInterval(() => {
-    if (i < path.length) {
-      setDriverPos({ lat: path[i].lat(), lng: path[i].lng() });
-      if (i > path.length / 2) setRideStatus("in_progress");
-      i++;
-    } else {
-      setRideStatus("completed");
-      clearInterval(interval);
-    }
-  }, 1000); // actualizează la fiecare 1s
+    const interval = setInterval(() => {
+      if (i < path.length) {
+        setDriverPos({ lat: path[i].lat(), lng: path[i].lng() });
+        if (i > path.length / 2) setRideStatus("in_progress");
+        i++;
+      } else {
+        setRideStatus("completed");
+        clearInterval(interval);
+      }
+    }, 1000);
 
-  return () => clearInterval(interval);
-}, [directions, rideStatus]);
+    return () => clearInterval(interval);
+  }, [directions, rideStatus]);
 
-
-/* ================= LOADING ================= */
+  /* ================= LOADING ================= */
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -143,9 +129,10 @@ useEffect(() => {
     );
   }
 
-/* ================= UI ================= */
+  /* ================= UI ================= */
   return (
     <div className="h-screen w-screen relative">
+      {/* ===== MAP ===== */}
       <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={14}>
         {pickup && <Marker position={pickup} />}
         {destination && <Marker position={destination} />}
@@ -161,16 +148,17 @@ useEffect(() => {
         {directions && <DirectionsRenderer directions={directions} />}
       </GoogleMap>
 
+      {/* ===== BOTTOM SHEET ===== */}
       <AnimatePresence>
         <motion.div
-          initial={{ y: "100%" }}
-          animate={{ y: 0 }}
-          exit={{ y: "100%" }}
-          transition={{ type: "spring", damping: 30 }}
+          initial={{ y: "100%", scale: 0.9, rotateX: 15 }}
+          animate={{ y: 0, scale: 1, rotateX: 0 }}
+          exit={{ y: "100%", scale: 0.9, rotateX: 15 }}
+          transition={{ type: "spring", damping: 25, stiffness: 120 }}
           className="fixed bottom-0 w-full bg-white rounded-t-3xl shadow-xl p-6 space-y-3 z-50"
         >
           <div className="flex justify-between items-center">
-            <h2 className="font-bold text-lg flex-1 text-center">
+            <h2 className="font-bold text-lg text-center flex-1">
               {rideStatus === "pending" && "Cursă UCab"}
               {rideStatus === "assigned" && "Șofer în drum"}
               {rideStatus === "in_progress" && "Cursă în desfășurare"}
@@ -179,7 +167,7 @@ useEffect(() => {
             <FaTimes className="cursor-pointer" />
           </div>
 
-          {/* Select tip mașină */}
+          {/* Tip mașină */}
           {rideStatus === "pending" && (
             <div className="flex gap-2">
               {Object.keys(carOptions).map((car) => (
@@ -198,7 +186,7 @@ useEffect(() => {
             </div>
           )}
 
-          {/* Input plecare/destinație */}
+          {/* Input-uri */}
           {rideStatus === "pending" && (
             <>
               <div className="flex gap-2 items-center">
@@ -278,7 +266,13 @@ useEffect(() => {
 
           {/* Mesaj status */}
           {message && (
-            <p className={`text-sm text-center text-blue-600`}>{message}</p>
+            <p
+              className={`text-sm text-center ${
+                rideStatus === "completed" ? "text-green-600" : "text-blue-600"
+              }`}
+            >
+              {message}
+            </p>
           )}
         </motion.div>
       </AnimatePresence>
