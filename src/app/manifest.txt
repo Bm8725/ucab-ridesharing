@@ -1,0 +1,44 @@
+==========================
+UCab.ro Project Manifest
+==========================
+
+Proiect: UCab – Transport și Livrări Profesionale
+Versiune: 0.1.13
+Data inițiere: Septembrie 2025
+Status: Dezvoltare / Pre-lansare
+
+initiatori:
+B Marius- app developer and dream Code, business technical integration ;
+B Florin- strategy manager rideshare driver and develope;
+n Razvan -strategy manager Food delivery and develope ;
+
+
+Descriere:
+UCab este un startup românesc dedicat transportului și livrărilor rapide. 
+Scopul nostru este să oferim servicii profesionale, transparente și inovative 
+pentru clienți și parteneri.
+
+Ambiție și Obiective:
+- Profesionalism și transparență în toate operațiunile
+- Dezvoltarea aplicațiilor mobile: UCab App și UCab Food
+- Platformă web pentru administrarea comenzilor și dashboard business
+- Testare pilot și obținerea avizelor oficiale
+- Lansare oficială la nivel național până în decembrie 2026
+
+Roadmap (pe scurt):
+1. Planificare – Septembrie 2025
+2. Dezvoltare aplicații – Noiembrie 2025 – Mai 2026
+3. Pilot Test & Atestare – Iunie 2026
+4. Lansare Oficială – 1 Decembrie 2026
+
+Transparență:
+- Codul este disponibil public pe GitHub: https://github.com/Bm8725/ucab-app
+- Documentație, roadmap și update-uri vor fi vizibile în repository
+
+Contact:
+Email: echipa@ucab.ro
+Website: https://ucab.ro 
+
+Note:
+Acest manifest reprezintă misiunea și direcția proiectului UCab. 
+Este un punct de referință pentru echipă și pentru comunitate.
