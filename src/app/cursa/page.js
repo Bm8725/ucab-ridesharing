@@ -112,24 +112,27 @@ export default function RideSharePage() {
   };
 
 /* ================= DRIVER SIM ================= */
-  useEffect(() => {
-    if (!directions || !driverPos) return;
-    const path = directions.routes[0].overview_path;
-    let i = 0;
+/* ================= DRIVER SIM ================= */
+useEffect(() => {
+  if (!directions || !driverPos || rideStatus !== "assigned") return;
 
-    const animateDriver = () => {
-      if (i < path.length) {
-        setDriverPos({ lat: path[i].lat(), lng: path[i].lng() });
-        if (i > path.length / 2) setRideStatus("in_progress");
-        i++;
-        requestAnimationFrame(animateDriver);
-      } else {
-        setRideStatus("completed");
-      }
-    };
+  const path = directions.routes[0].overview_path;
+  let i = 0;
 
-    if (rideStatus === "assigned") animateDriver();
-  }, [directions, driverPos, rideStatus]);
+  const interval = setInterval(() => {
+    if (i < path.length) {
+      setDriverPos({ lat: path[i].lat(), lng: path[i].lng() });
+      if (i > path.length / 2) setRideStatus("in_progress");
+      i++;
+    } else {
+      setRideStatus("completed");
+      clearInterval(interval);
+    }
+  }, 1000); // actualizează la fiecare 1s
+
+  return () => clearInterval(interval);
+}, [directions, rideStatus]);
+
 
 /* ================= LOADING ================= */
   if (!isLoaded) {
