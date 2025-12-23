@@ -103,6 +103,9 @@ export default function About() {
             }}
           ></motion.div>
 
+
+
+
           <div className="space-y-20">
             {roadmapSteps.map((step, index) => (
               <div
@@ -141,6 +144,23 @@ export default function About() {
       </section>
 
 
+
+  
+{/* GitHub Repository */}
+<section className="py-12 text-center px-6 bg-gray-100 border-t border-gray-200">
+  <h3 className="text-2xl font-bold mb-4 text-gray-900">Transparență și Cod Sursă</h3>
+  <p className="text-gray-600 max-w-xl mx-auto mb-4">
+    Codul aplicației UCab este disponibil public pe GitHub. Puteți vedea roadmap-ul, funcționalitățile și progresul echipei noastre.
+  </p>
+  <a
+    href="https://github.com/Bm8725/ucab-ridesharing" 
+    target="_blank"
+    rel="noopener noreferrer"
+    className="inline-block px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition"
+  >
+    Vezi Repository-ul GitHub
+  </a>
+</section>
 
 
 
