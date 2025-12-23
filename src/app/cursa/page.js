@@ -9,7 +9,13 @@ import {
   Autocomplete,
   useJsApiLoader,
 } from "@react-google-maps/api";
-import { FaMapMarkerAlt, FaFlagCheckered, FaDollarSign, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import {
+  FaMapMarkerAlt,
+  FaFlagCheckered,
+  FaDollarSign,
+  FaChevronDown,
+  FaChevronUp,
+} from "react-icons/fa";
 
 /* ================= CONFIG ================= */
 const libraries = ["places"];
@@ -54,7 +60,7 @@ export default function RideSharePage() {
         (pos) => {
           const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           setCenter(coords);
-          setPickup(coords);
+          setPickup(coords); // live update plecare
         },
         (err) => console.error(err),
         { enableHighAccuracy: true, maximumAge: 1000 }
@@ -159,18 +165,17 @@ export default function RideSharePage() {
         <motion.div
           initial={{ y: "100%", scale: 0.9, rotateX: 25 }}
           animate={{
-            y: sheetMinimized ? "85%" : 0,
+            y: sheetMinimized ? "78%" : 0, // doar header vizibil
             scale: sheetMinimized ? 0.95 : 1,
             rotateX: sheetMinimized ? 10 : 0,
-            height: sheetMinimized ? "60px" : "auto",
           }}
           exit={{ y: "100%", scale: 0.9, rotateX: 25 }}
           transition={{ type: "spring", damping: 20, stiffness: 120 }}
-          className="fixed bottom-0 w-full bg-white rounded-t-3xl shadow-xl p-3 z-50 transform-origin-bottom overflow-hidden"
+          className="fixed bottom-0 w-full bg-white rounded-t-3xl shadow-xl z-50 transform-origin-bottom overflow-hidden"
         >
           {/* HEADER FIX */}
           <div
-            className="flex justify-between items-center cursor-pointer"
+            className="flex justify-between items-center cursor-pointer px-4 py-3"
             onClick={() => setSheetMinimized(!sheetMinimized)}
           >
             <h2 className="font-bold text-lg flex-1 text-center">
@@ -184,7 +189,7 @@ export default function RideSharePage() {
 
           {/* CONTENT */}
           {!sheetMinimized && (
-            <div className="mt-3 space-y-3">
+            <div className="px-4 pb-4">
               {/* Tip mașină */}
               {rideStatus === "pending" && (
                 <div className="flex gap-2 mb-3">
