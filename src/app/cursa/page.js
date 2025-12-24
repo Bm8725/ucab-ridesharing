@@ -22,7 +22,7 @@ import {
 /* ================= CONFIG ================= */
 const libraries = ["places"];
 const containerStyle = { width: "100%", height: "100%" };
-const defaultCenter = { lat: 44.4268, lng: 26.1025 };   // manastirea Dealu targoviste coords
+const defaultCenter = { lat: 44.95835, lng: 25.48167 };   // manastirea Dealu targoviste coords
 const carOptions = {
   standard: { label: "Standard", rate: 0.5 },
   comfort: { label: "Comfort", rate: 0.8 },
