@@ -1,3 +1,5 @@
+/* app web app december 2025 BM V 0.1.13 */
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -131,6 +133,8 @@ export default function RideSharePage() {
 
     return () => clearInterval(interval);
   }, [directions, rideStatus]);
+
+
 
   if (!isLoaded) {
     return (

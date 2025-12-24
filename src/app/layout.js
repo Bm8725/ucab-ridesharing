@@ -24,7 +24,7 @@ export const metadata = {
 
   title: {
     default:
-      "UCAB.ro – Ridesharing local. Livrare locală și transport urban la comisioane mici",
+      "UCAB.ro – Ridesharing local. Livrare locală și transport urban la comisioane mici. ",
     template: "%s | UCAB",
   },
 
