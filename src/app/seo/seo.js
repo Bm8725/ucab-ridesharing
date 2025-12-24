@@ -3,8 +3,8 @@
 import Head from "next/head";
 
 export default function SEO({
-  title = "UCab.ro — Transport & Food rapid în România",
-  description = "UCab — ride-sharing și livrări rapide. Descarcă UCab App și UCab Food pentru transport și mâncare rapidă.",
+  title = "UCab.ro — Transport rapid  & Food delivery în România. Rideshare pentru companii locale",
+  description = "UCab — ride-sharing și livrări rapide. Descarcă UCab App și UCab Food pentru transport și mâncare rapidă. Solutii accesibile de rideshare si food delivery Romania",
   url = "https://ucab.ro",
   image = "/ucabapp.png.png",
 }) {
