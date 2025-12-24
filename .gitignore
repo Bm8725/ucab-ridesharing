@@ -24,6 +24,7 @@ out/
 build/
 .next-env.d.ts
 api/
+backend/
 
 # ==========================
 # Backend specific
