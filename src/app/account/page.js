@@ -32,7 +32,7 @@ export default function RegisterWizard() {
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // --- Camera & Live Detection ---
+  // --- Camera & Detection ---
   useEffect(() => {
     let animationFrame;
     const video = videoRef.current;
@@ -40,23 +40,20 @@ export default function RegisterWizard() {
     const ctx = detectionCanvas?.getContext("2d");
 
     const detectFace = () => {
-      if (!video || !ctx) return;
-
-      const width = video.videoWidth;
-      const height = video.videoHeight;
-
-      if (!width || !height) {
+      if (!video || !ctx || video.videoWidth === 0 || video.videoHeight === 0) {
         animationFrame = requestAnimationFrame(detectFace);
         return;
       }
+
+      const width = video.videoWidth;
+      const height = video.videoHeight;
 
       detectionCanvas.width = width;
       detectionCanvas.height = height;
 
       ctx.drawImage(video, 0, 0, width, height);
 
-      // --- Căutăm zona centrală mare ---
-      const boxSize = Math.min(width, height) * 0.6; // 60% din latura mică
+      const boxSize = Math.min(width, height) * 0.6;
       const startX = (width - boxSize) / 2;
       const startY = (height - boxSize) / 2;
 
@@ -67,10 +64,8 @@ export default function RegisterWizard() {
         sum += imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2];
       }
       const brightness = sum / (boxSize * boxSize);
-
       setFaceDetected(brightness > 30);
 
-      // Desenăm cadru adaptiv
       ctx.strokeStyle = brightness > 30 ? "green" : "red";
       ctx.lineWidth = 4;
       ctx.strokeRect(startX, startY, boxSize, boxSize);
@@ -102,6 +97,11 @@ export default function RegisterWizard() {
     const canvas = canvasRef.current;
     if (!video || !canvas || video.videoWidth === 0) return;
 
+    // Păstrează raportul de aspect
+    const aspectRatio = video.videoWidth / video.videoHeight;
+    const width = 400;
+    const height = width / aspectRatio;
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext("2d");
@@ -119,12 +119,25 @@ export default function RegisterWizard() {
     setSuccessMsg("");
     setErrorMsg("");
 
-    // Demo: mock API
-    setTimeout(() => {
-      setLoading(false);
-      setSuccessMsg("Cont creat cu succes! Redirecționare...");
-      setTimeout(() => (window.location.href = "/login"), 2000);
-    }, 1000);
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) throw new Error("Eroare server");
+      const data = await res.json();
+      if (data.success) {
+        setSuccessMsg("Cont creat cu succes! Redirecționare...");
+        setTimeout(() => (window.location.href = "/login"), 2000);
+      } else {
+        setErrorMsg(data.message || "Eroare server");
+      }
+    } catch (err) {
+      setErrorMsg("Eroare server");
+    }
+
+    setLoading(false);
   };
 
   const renderProgress = () => {
