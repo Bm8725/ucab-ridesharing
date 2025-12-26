@@ -18,6 +18,7 @@ export default function RegisterWizard() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [instruction, setInstruction] = useState("");
+  const [faceDetected, setFaceDetected] = useState(false);
 
   const totalSteps = 5;
 
@@ -36,7 +37,7 @@ export default function RegisterWizard() {
           videoRef.current.srcObject = stream;
           videoRef.current.play();
           setInstruction("Mișcă capul stânga-dreapta pentru verificare...");
-          setTimeout(captureFace, 3000);
+          setFaceDetected(false);
         })
         .catch((err) => console.error("Camera error:", err));
     } else if (videoRef.current?.srcObject) {
@@ -49,10 +50,23 @@ export default function RegisterWizard() {
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas || video.videoWidth === 0) return;
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Simplificat: detectare feței - putem folosi claritatea centrului ca demo
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const imageData = ctx.getImageData(centerX - 50, centerY - 50, 100, 100);
+    let sum = 0;
+    for (let i = 0; i < imageData.data.length; i += 4) {
+      sum += imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2];
+    }
+    const brightness = sum / (100 * 100);
+    if (brightness > 30) setFaceDetected(true);
+
     const dataUrl = canvas.toDataURL("image/png");
     setFormData({ ...formData, faceImage: dataUrl });
     nextStep();
@@ -62,16 +76,16 @@ export default function RegisterWizard() {
   const renderProgress = () => {
     const steps = ["Info", "Contact", "Poză", "Plată", "Politică"];
     return (
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 relative">
         {steps.map((label, index) => {
           const stepNumber = index + 1;
           const isCompleted = step > stepNumber;
           const isCurrent = step === stepNumber;
           return (
-            <div key={index} className="flex-1 flex items-center">
-              <div className="flex flex-col items-center">
+            <div key={index} className="flex-1 flex items-center relative">
+              <div className="flex flex-col items-center z-10">
                 <div
-                  className={`w-8 h-8 flex items-center justify-center rounded-full border-2 ${
+                  className={`w-8 h-8 flex items-center justify-center rounded-full border-2 transition-colors duration-300 ${
                     isCompleted
                       ? "bg-blue-600 border-blue-600 text-white"
                       : isCurrent
@@ -85,9 +99,13 @@ export default function RegisterWizard() {
               </div>
               {index !== steps.length - 1 && (
                 <div
-                  className={`flex-1 h-1 ${
-                    step > stepNumber ? "bg-blue-600" : "bg-gray-300"
-                  }`}
+                  className={`absolute top-3.5 left-10 right-0 h-1 rounded transition-all duration-500`}
+                  style={{
+                    background:
+                      step > stepNumber
+                        ? "linear-gradient(to right, #3b82f6, #60a5fa)"
+                        : "#e5e7eb",
+                  }}
                 ></div>
               )}
             </div>
@@ -177,13 +195,22 @@ export default function RegisterWizard() {
             <h2 className="text-xl font-bold mb-4">Poză față</h2>
             {instruction && <p className="mb-2 text-sm text-gray-600">{instruction}</p>}
             <video ref={videoRef} className="w-full rounded mb-3" autoPlay muted />
-            <canvas ref={canvasRef} style={{ display: "none" }} />
+            <canvas
+              ref={canvasRef}
+              style={{
+                display: "block",
+                width: "100%",
+                border: faceDetected ? "2px solid green" : "2px dashed gray",
+                borderRadius: "8px",
+                marginBottom: "10px",
+              }}
+            />
             <div className="flex justify-between">
               <button onClick={prevStep} className="bg-gray-300 p-3 rounded">
                 Înapoi
               </button>
               <button onClick={captureFace} className="bg-black text-white p-3 rounded">
-                Capturează manual
+                Capturează
               </button>
             </div>
           </>
@@ -201,7 +228,8 @@ export default function RegisterWizard() {
             >
               <option value="">Selectează metoda de plată</option>
               <option value="card">Card</option>
-              <option value="paypal">PayPal</option>
+              <option value="cash">Cash</option>
+              <option value="mixt">Mixt</option>
             </select>
             <div className="flex justify-between">
               <button onClick={prevStep} className="bg-gray-300 p-3 rounded">
