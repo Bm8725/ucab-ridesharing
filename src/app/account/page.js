@@ -19,16 +19,18 @@ export default function RegisterWizard() {
   const canvasRef = useRef(null);
   const [instruction, setInstruction] = useState("");
   const [faceDetected, setFaceDetected] = useState(false);
-
   const totalSteps = 5;
+
+  const [loading, setLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const nextStep = () => setStep(Math.min(step + 1, totalSteps));
   const prevStep = () => setStep(Math.max(step - 1, 1));
-
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // --- Camera & Capture ---
+  // Camera setup
   useEffect(() => {
     if (step === 3 && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices
@@ -41,8 +43,7 @@ export default function RegisterWizard() {
         })
         .catch((err) => console.error("Camera error:", err));
     } else if (videoRef.current?.srcObject) {
-      let stream = videoRef.current.srcObject;
-      stream.getTracks().forEach((track) => track.stop());
+      videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
     }
   }, [step]);
 
@@ -56,7 +57,6 @@ export default function RegisterWizard() {
     const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // Simplificat: detectare feței - putem folosi claritatea centrului ca demo
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
     const imageData = ctx.getImageData(centerX - 50, centerY - 50, 100, 100);
@@ -72,7 +72,33 @@ export default function RegisterWizard() {
     nextStep();
   };
 
-  // --- Fancy Progress ---
+  const handleSubmit = async () => {
+    if (!formData.acceptPolicy) return;
+
+    setLoading(true);
+    setSuccessMsg("");
+    setErrorMsg("");
+
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSuccessMsg("Cont creat cu succes! Redirecționare...");
+        setTimeout(() => (window.location.href = "/login"), 2000);
+      } else {
+        setErrorMsg(data.message || "Eroare la server");
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMsg("Eroare server");
+    }
+    setLoading(false);
+  };
+
   const renderProgress = () => {
     const steps = ["Info", "Contact", "Poză", "Plată", "Politică"];
     return (
@@ -117,22 +143,23 @@ export default function RegisterWizard() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-100 dark:bg-gray-900">
-      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-8 w-full max-w-md">
-        <h1 className="text-center text-2xl font-bold mb-6">UCab.ro - Înregistrare Client</h1>
+      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-3xl p-6 md:p-10 w-full max-w-lg">
+        <h1 className="text-center text-2xl md:text-3xl font-bold mb-6">
+          UCab.ro - Înregistrare Client
+        </h1>
 
         {renderProgress()}
 
-        {/* --- Step 1: Nume, Email, Parolă --- */}
+        {/* Step 1 */}
         {step === 1 && (
-          <>
-            <h2 className="text-xl font-bold mb-4">Informații personale</h2>
+          <div className="space-y-4">
             <input
               type="text"
               name="name"
               placeholder="Nume complet"
               value={formData.name}
               onChange={handleChange}
-              className="w-full p-3 mb-3 border rounded"
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
             />
             <input
               type="email"
@@ -140,7 +167,7 @@ export default function RegisterWizard() {
               placeholder="Email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full p-3 mb-3 border rounded"
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
             />
             <input
               type="password"
@@ -148,27 +175,29 @@ export default function RegisterWizard() {
               placeholder="Parolă"
               value={formData.password}
               onChange={handleChange}
-              className="w-full p-3 mb-3 border rounded"
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
             />
             <div className="flex justify-end">
-              <button onClick={nextStep} className="bg-black text-white p-3 rounded">
+              <button
+                onClick={nextStep}
+                className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
+              >
                 Următorul
               </button>
             </div>
-          </>
+          </div>
         )}
 
-        {/* --- Step 2: Telefon și Adresă --- */}
+        {/* Step 2 */}
         {step === 2 && (
-          <>
-            <h2 className="text-xl font-bold mb-4">Date contact</h2>
+          <div className="space-y-4">
             <input
               type="tel"
               name="phone"
               placeholder="Telefon"
               value={formData.phone}
               onChange={handleChange}
-              className="w-full p-3 mb-3 border rounded"
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
             />
             <input
               type="text"
@@ -176,55 +205,70 @@ export default function RegisterWizard() {
               placeholder="Adresă"
               value={formData.address}
               onChange={handleChange}
-              className="w-full p-3 mb-3 border rounded"
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
             />
             <div className="flex justify-between">
-              <button onClick={prevStep} className="bg-gray-300 p-3 rounded">
+              <button
+                onClick={prevStep}
+                className="bg-gray-300 p-3 rounded-lg hover:bg-gray-400 transition"
+              >
                 Înapoi
               </button>
-              <button onClick={nextStep} className="bg-black text-white p-3 rounded">
+              <button
+                onClick={nextStep}
+                className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
+              >
                 Următorul
               </button>
             </div>
-          </>
+          </div>
         )}
 
-        {/* --- Step 3: Captură față --- */}
+        {/* Step 3 */}
         {step === 3 && (
-          <>
-            <h2 className="text-xl font-bold mb-4">Poză față</h2>
-            {instruction && <p className="mb-2 text-sm text-gray-600">{instruction}</p>}
-            <video ref={videoRef} className="w-full rounded mb-3" autoPlay muted />
+          <div className="space-y-4">
+            {instruction && <p className="text-sm text-gray-600">{instruction}</p>}
+            <video
+              ref={videoRef}
+              className="w-full rounded-xl mb-3 border"
+              autoPlay
+              muted
+            />
             <canvas
               ref={canvasRef}
               style={{
                 display: "block",
                 width: "100%",
                 border: faceDetected ? "2px solid green" : "2px dashed gray",
-                borderRadius: "8px",
+                borderRadius: "12px",
                 marginBottom: "10px",
               }}
             />
             <div className="flex justify-between">
-              <button onClick={prevStep} className="bg-gray-300 p-3 rounded">
+              <button
+                onClick={prevStep}
+                className="bg-gray-300 p-3 rounded-lg hover:bg-gray-400 transition"
+              >
                 Înapoi
               </button>
-              <button onClick={captureFace} className="bg-black text-white p-3 rounded">
+              <button
+                onClick={captureFace}
+                className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
+              >
                 Capturează
               </button>
             </div>
-          </>
+          </div>
         )}
 
-        {/* --- Step 4: Metodă plată --- */}
+        {/* Step 4 */}
         {step === 4 && (
-          <>
-            <h2 className="text-xl font-bold mb-4">Metodă plată</h2>
+          <div className="space-y-4">
             <select
               name="paymentMethod"
               value={formData.paymentMethod}
               onChange={handleChange}
-              className="w-full p-3 mb-3 border rounded"
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
             >
               <option value="">Selectează metoda de plată</option>
               <option value="card">Card</option>
@@ -232,21 +276,26 @@ export default function RegisterWizard() {
               <option value="mixt">Mixt</option>
             </select>
             <div className="flex justify-between">
-              <button onClick={prevStep} className="bg-gray-300 p-3 rounded">
+              <button
+                onClick={prevStep}
+                className="bg-gray-300 p-3 rounded-lg hover:bg-gray-400 transition"
+              >
                 Înapoi
               </button>
-              <button onClick={nextStep} className="bg-black text-white p-3 rounded">
+              <button
+                onClick={nextStep}
+                className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
+              >
                 Următorul
               </button>
             </div>
-          </>
+          </div>
         )}
 
-        {/* --- Step 5: Acceptare politică --- */}
+        {/* Step 5 */}
         {step === 5 && (
-          <>
-            <h2 className="text-xl font-bold mb-4">Politica de confidențialitate</h2>
-            <label className="flex items-center gap-2 mb-3">
+          <div className="space-y-4">
+            <label className="flex items-center gap-2">
               <input
                 type="checkbox"
                 name="acceptPolicy"
@@ -257,29 +306,36 @@ export default function RegisterWizard() {
               />
               Accept politica de confidențialitate
             </label>
+
             {formData.faceImage && (
-              <div className="mt-4">
-                <h3 className="text-sm font-medium mb-1">Poză capturată:</h3>
+              <div className="mt-4 flex justify-center">
                 <img
                   src={formData.faceImage}
                   alt="Face"
-                  className="w-32 h-32 object-cover rounded-full"
+                  className="w-32 h-32 object-cover rounded-full border-2 border-gray-300"
                 />
               </div>
             )}
+
             <div className="flex justify-between mt-3">
-              <button onClick={prevStep} className="bg-gray-300 p-3 rounded">
+              <button
+                onClick={prevStep}
+                className="bg-gray-300 p-3 rounded-lg hover:bg-gray-400 transition"
+              >
                 Înapoi
               </button>
               <button
-                onClick={() => alert("Formular complet: " + JSON.stringify(formData))}
-                disabled={!formData.acceptPolicy}
-                className="bg-black text-white p-3 rounded disabled:opacity-50"
+                onClick={handleSubmit}
+                disabled={!formData.acceptPolicy || loading}
+                className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
               >
-                Trimite
+                {loading ? "Se trimite..." : "Trimite"}
               </button>
             </div>
-          </>
+
+            {successMsg && <p className="mt-2 text-green-600">{successMsg}</p>}
+            {errorMsg && <p className="mt-2 text-red-600">{errorMsg}</p>}
+          </div>
         )}
       </div>
     </div>
