@@ -17,6 +17,7 @@ export default function RegisterWizard() {
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const detectionCanvasRef = useRef(null);
   const [instruction, setInstruction] = useState("");
   const [faceDetected, setFaceDetected] = useState(false);
   const totalSteps = 5;
@@ -30,21 +31,59 @@ export default function RegisterWizard() {
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // Camera setup
+  // --- Camera setup + live detection ---
   useEffect(() => {
+    let animationFrame;
+    const video = videoRef.current;
+    const detectionCanvas = detectionCanvasRef.current;
+    const ctx = detectionCanvas?.getContext("2d");
+
+    const detectFace = () => {
+      if (!video || !ctx) return;
+      detectionCanvas.width = video.videoWidth;
+      detectionCanvas.height = video.videoHeight;
+
+      ctx.drawImage(video, 0, 0, detectionCanvas.width, detectionCanvas.height);
+
+      // Demo detection: simplificat pe zona centrală
+      const centerX = detectionCanvas.width / 2;
+      const centerY = detectionCanvas.height / 2;
+      const imageData = ctx.getImageData(centerX - 50, centerY - 50, 100, 100);
+
+      let sum = 0;
+      for (let i = 0; i < imageData.data.length; i += 4) {
+        sum += imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2];
+      }
+      const brightness = sum / (100 * 100);
+      if (brightness > 30) setFaceDetected(true);
+
+      // Overlay cadru verde dacă detectează față
+      ctx.strokeStyle = brightness > 30 ? "green" : "red";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(centerX - 50, centerY - 50, 100, 100);
+
+      animationFrame = requestAnimationFrame(detectFace);
+    };
+
     if (step === 3 && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices
         .getUserMedia({ video: { facingMode: "user" } })
         .then((stream) => {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play();
+          video.srcObject = stream;
+          video.play();
           setInstruction("Mișcă capul stânga-dreapta pentru verificare...");
           setFaceDetected(false);
+          animationFrame = requestAnimationFrame(detectFace);
         })
         .catch((err) => console.error("Camera error:", err));
-    } else if (videoRef.current?.srcObject) {
-      videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
     }
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      if (video?.srcObject) {
+        video.srcObject.getTracks().forEach((track) => track.stop());
+      }
+    };
   }, [step]);
 
   const captureFace = () => {
@@ -56,16 +95,6 @@ export default function RegisterWizard() {
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const imageData = ctx.getImageData(centerX - 50, centerY - 50, 100, 100);
-    let sum = 0;
-    for (let i = 0; i < imageData.data.length; i += 4) {
-      sum += imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2];
-    }
-    const brightness = sum / (100 * 100);
-    if (brightness > 30) setFaceDetected(true);
 
     const dataUrl = canvas.toDataURL("image/png");
     setFormData({ ...formData, faceImage: dataUrl });
@@ -79,24 +108,12 @@ export default function RegisterWizard() {
     setSuccessMsg("");
     setErrorMsg("");
 
-    try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setSuccessMsg("Cont creat cu succes! Redirecționare...");
-        setTimeout(() => (window.location.href = "/login"), 2000);
-      } else {
-        setErrorMsg(data.message || "Eroare la server");
-      }
-    } catch (err) {
-      console.error(err);
-      setErrorMsg("Eroare server");
-    }
-    setLoading(false);
+    // Demo: fără backend, doar mock
+    setTimeout(() => {
+      setLoading(false);
+      setSuccessMsg("Cont creat cu succes! Redirecționare...");
+      setTimeout(() => (window.location.href = "/login"), 2000);
+    }, 1000);
   };
 
   const renderProgress = () => {
@@ -226,7 +243,7 @@ export default function RegisterWizard() {
 
         {/* Step 3 */}
         {step === 3 && (
-          <div className="space-y-4">
+          <div className="space-y-4 relative">
             {instruction && <p className="text-sm text-gray-600">{instruction}</p>}
             <video
               ref={videoRef}
@@ -235,16 +252,11 @@ export default function RegisterWizard() {
               muted
             />
             <canvas
-              ref={canvasRef}
-              style={{
-                display: "block",
-                width: "100%",
-                border: faceDetected ? "2px solid green" : "2px dashed gray",
-                borderRadius: "12px",
-                marginBottom: "10px",
-              }}
+              ref={detectionCanvasRef}
+              className="absolute top-0 left-0 w-full h-full rounded-xl pointer-events-none"
             />
-            <div className="flex justify-between">
+            <canvas ref={canvasRef} style={{ display: "none" }} />
+            <div className="flex justify-between mt-3">
               <button
                 onClick={prevStep}
                 className="bg-gray-300 p-3 rounded-lg hover:bg-gray-400 transition"
