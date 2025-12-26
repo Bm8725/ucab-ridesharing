@@ -57,7 +57,7 @@ export default function RegisterPage() {
         <div className="flex justify-center mb-8">
           <h1 className="text-4xl font-extrabold tracking-wide">
             <span className="text-black dark:text-white">UC</span>
-            <span className="text-green-500">ab</span>
+            <span className="text-blue-500">ab</span>
             <span className="text-gray-500">.ro</span>
           </h1>
         </div>
@@ -86,7 +86,7 @@ export default function RegisterPage() {
             <label className="text-gray-700 dark:text-gray-300 font-medium">Nume complet</label>
             <input
               type="text"
-              className="w-full px-4 py-3 mt-1 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 outline-none"
+              className="w-full px-4 py-3 mt-1 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
               placeholder="Popescu Andrei"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -97,7 +97,7 @@ export default function RegisterPage() {
             <label className="text-gray-700 dark:text-gray-300 font-medium">Email</label>
             <input
               type="email"
-              className="w-full px-4 py-3 mt-1 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 outline-none"
+              className="w-full px-4 py-3 mt-1 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
               placeholder="ex: nume@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -108,7 +108,7 @@ export default function RegisterPage() {
             <label className="text-gray-700 dark:text-gray-300 font-medium">Parolă</label>
             <input
               type="password"
-              className="w-full px-4 py-3 mt-1 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 outline-none"
+              className="w-full px-4 py-3 mt-1 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
               placeholder="••••••••"
               value={pass}
               onChange={(e) => setPass(e.target.value)}
@@ -119,7 +119,7 @@ export default function RegisterPage() {
             <label className="text-gray-700 dark:text-gray-300 font-medium">Confirmă parola</label>
             <input
               type="password"
-              className="w-full px-4 py-3 mt-1 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 outline-none"
+              className="w-full px-4 py-3 mt-1 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
               placeholder="••••••••"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
@@ -128,7 +128,7 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            className="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition shadow-lg"
+            className="w-full py-3 bg-black hover:bg-blue-600 text-white font-medium rounded-lg transition shadow-lg"
           >
             Creează cont
           </button>
@@ -155,7 +155,7 @@ export default function RegisterPage() {
 
         <p className="text-center text-gray-600 dark:text-gray-400 mt-6 text-sm">
           Ai deja cont?{" "}
-          <Link href="/login" className="text-green-600 hover:text-green-700 font-medium">
+          <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
             Autentifică-te
           </Link>
         </p>

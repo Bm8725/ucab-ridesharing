@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -45,7 +46,7 @@ export default function LoginPage() {
         <div className="flex justify-center mb-8">
           <h1 className="text-4xl font-extrabold tracking-wide">
             <span className="text-black dark:text-white">UC</span>
-            <span className="text-green-500">ab</span>
+            <span className="text-blue-500">ab</span>
             <span className="text-gray-500">.ro</span>
           </h1>
         </div>
@@ -68,7 +69,7 @@ export default function LoginPage() {
             <label className="text-gray-700 dark:text-gray-300 font-medium">Email</label>
             <input
               type="email"
-              className="w-full px-4 py-3 mt-1 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 outline-none"
+              className="w-full px-4 py-3 mt-1 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
               placeholder="ex: nume@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -79,7 +80,7 @@ export default function LoginPage() {
             <label className="text-gray-700 dark:text-gray-300 font-medium">Parolă</label>
             <input
               type="password"
-              className="w-full px-4 py-3 mt-1 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 outline-none"
+              className="w-full px-4 py-3 mt-1 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
               placeholder="••••••••"
               value={pass}
               onChange={(e) => setPass(e.target.value)}
@@ -87,14 +88,14 @@ export default function LoginPage() {
           </div>
 
           <div className="flex justify-end -mt-3">
-            <Link href="/forgot" className="text-green-600 hover:text-green-700 text-sm">
+            <Link href="/forgot" className="text-blue-600 hover:text-blue-700 text-sm">
               Ai uitat parola?
             </Link>
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition shadow-lg"
+            className="w-full py-3 bg-black hover:bg-blue-600 text-white font-medium rounded-lg transition shadow-lg"
           >
             Autentificare
           </button>
@@ -109,13 +110,18 @@ export default function LoginPage() {
 
         {/* Social Login */}
         <div className="space-y-3">
-          {/* Folosim <img> simplu pentru compatibilitate cu export static */}
-          <button className="w-full py-3 border border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+          <button
+            onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+            className="w-full py-3 border border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+          >
             <img src="/google.webp" width={20} height={20} alt="Google" />
             Continuă cu Google
           </button>
 
-          <button className="w-full py-3 border border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+          <button
+            onClick={() => signIn("apple", { callbackUrl: "/dashboard" })}
+            className="w-full py-3 border border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+          >
             <img src="/apple.png" width={20} height={20} alt="Apple" />
             Continuă cu Apple
           </button>
@@ -124,7 +130,7 @@ export default function LoginPage() {
         {/* Register */}
         <p className="text-center text-gray-600 dark:text-gray-400 mt-6 text-sm">
           Nu ai cont?{" "}
-          <Link href="/account" className="text-green-600 hover:text-green-700 font-medium">
+          <Link href="/account" className="text-blue-600 hover:text-blue-700 font-medium">
             Creează cont
           </Link>
         </p>
