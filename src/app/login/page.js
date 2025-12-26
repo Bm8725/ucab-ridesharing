@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -110,18 +109,13 @@ export default function LoginPage() {
 
         {/* Social Login */}
         <div className="space-y-3">
-          <button
-            onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-            className="w-full py-3 border border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-          >
+          {/* Folosim <img> simplu pentru compatibilitate cu export static */}
+          <button className="w-full py-3 border border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
             <img src="/google.webp" width={20} height={20} alt="Google" />
             Continuă cu Google
           </button>
 
-          <button
-            onClick={() => signIn("apple", { callbackUrl: "/dashboard" })}
-            className="w-full py-3 border border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-          >
+          <button className="w-full py-3 border border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
             <img src="/apple.png" width={20} height={20} alt="Apple" />
             Continuă cu Apple
           </button>
