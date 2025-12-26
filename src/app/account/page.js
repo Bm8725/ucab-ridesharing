@@ -5,9 +5,11 @@ import { useState, useRef, useEffect } from "react";
 export default function RegisterWizard() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
     phone: "",
+    address: "",
     faceImage: "",
     acceptPolicy: false,
     paymentMethod: "",
@@ -15,14 +17,17 @@ export default function RegisterWizard() {
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const [instruction, setInstruction] = useState("");
 
-  const nextStep = () => setStep(step + 1);
-  const prevStep = () => setStep(step - 1);
+  const totalSteps = 5;
+
+  const nextStep = () => setStep(Math.min(step + 1, totalSteps));
+  const prevStep = () => setStep(Math.max(step - 1, 1));
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // Pasul 3: Camera
+  // --- Camera & Capture ---
   useEffect(() => {
     if (step === 3 && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices
@@ -30,37 +35,87 @@ export default function RegisterWizard() {
         .then((stream) => {
           videoRef.current.srcObject = stream;
           videoRef.current.play();
+          setInstruction("Mișcă capul stânga-dreapta pentru verificare...");
+          setTimeout(captureFace, 3000);
         })
         .catch((err) => console.error("Camera error:", err));
     } else if (videoRef.current?.srcObject) {
       let stream = videoRef.current.srcObject;
-      let tracks = stream.getTracks();
-      tracks.forEach((track) => track.stop());
+      stream.getTracks().forEach((track) => track.stop());
     }
   }, [step]);
 
   const captureFace = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    if (video && canvas) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL("image/png");
-      setFormData({ ...formData, faceImage: dataUrl });
-      nextStep();
-    }
+    if (!video || !canvas || video.videoWidth === 0) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL("image/png");
+    setFormData({ ...formData, faceImage: dataUrl });
+    nextStep();
+  };
+
+  // --- Fancy Progress ---
+  const renderProgress = () => {
+    const steps = ["Info", "Contact", "Poză", "Plată", "Politică"];
+    return (
+      <div className="flex justify-between items-center mb-6">
+        {steps.map((label, index) => {
+          const stepNumber = index + 1;
+          const isCompleted = step > stepNumber;
+          const isCurrent = step === stepNumber;
+          return (
+            <div key={index} className="flex-1 flex items-center">
+              <div className="flex flex-col items-center">
+                <div
+                  className={`w-8 h-8 flex items-center justify-center rounded-full border-2 ${
+                    isCompleted
+                      ? "bg-blue-600 border-blue-600 text-white"
+                      : isCurrent
+                      ? "border-blue-600 text-blue-600"
+                      : "border-gray-300 text-gray-400"
+                  }`}
+                >
+                  {isCompleted ? "✓" : stepNumber}
+                </div>
+                <span className="mt-2 text-xs text-center">{label}</span>
+              </div>
+              {index !== steps.length - 1 && (
+                <div
+                  className={`flex-1 h-1 ${
+                    step > stepNumber ? "bg-blue-600" : "bg-gray-300"
+                  }`}
+                ></div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-100 dark:bg-gray-900">
       <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-8 w-full max-w-md">
+        <h1 className="text-center text-2xl font-bold mb-6">UCab.ro - Înregistrare Client</h1>
 
-        {/* Pasul 1: Email & Parolă */}
+        {renderProgress()}
+
+        {/* --- Step 1: Nume, Email, Parolă --- */}
         {step === 1 && (
           <>
-            <h2 className="text-xl font-bold mb-4">Email & Parolă</h2>
+            <h2 className="text-xl font-bold mb-4">Informații personale</h2>
+            <input
+              type="text"
+              name="name"
+              placeholder="Nume complet"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full p-3 mb-3 border rounded"
+            />
             <input
               type="email"
               name="email"
@@ -77,21 +132,31 @@ export default function RegisterWizard() {
               onChange={handleChange}
               className="w-full p-3 mb-3 border rounded"
             />
-            <button onClick={nextStep} className="w-full bg-black text-white p-3 rounded">
-              Următorul
-            </button>
+            <div className="flex justify-end">
+              <button onClick={nextStep} className="bg-black text-white p-3 rounded">
+                Următorul
+              </button>
+            </div>
           </>
         )}
 
-        {/* Pasul 2: Telefon */}
+        {/* --- Step 2: Telefon și Adresă --- */}
         {step === 2 && (
           <>
-            <h2 className="text-xl font-bold mb-4">Telefon</h2>
+            <h2 className="text-xl font-bold mb-4">Date contact</h2>
             <input
               type="tel"
               name="phone"
-              placeholder="Număr de telefon"
+              placeholder="Telefon"
               value={formData.phone}
+              onChange={handleChange}
+              className="w-full p-3 mb-3 border rounded"
+            />
+            <input
+              type="text"
+              name="address"
+              placeholder="Adresă"
+              value={formData.address}
               onChange={handleChange}
               className="w-full p-3 mb-3 border rounded"
             />
@@ -106,22 +171,25 @@ export default function RegisterWizard() {
           </>
         )}
 
-        {/* Pasul 3: Captură față */}
+        {/* --- Step 3: Captură față --- */}
         {step === 3 && (
           <>
             <h2 className="text-xl font-bold mb-4">Poză față</h2>
+            {instruction && <p className="mb-2 text-sm text-gray-600">{instruction}</p>}
             <video ref={videoRef} className="w-full rounded mb-3" autoPlay muted />
             <canvas ref={canvasRef} style={{ display: "none" }} />
-            <button onClick={captureFace} className="w-full bg-black text-white p-3 rounded">
-              Capturează
-            </button>
-            <button onClick={prevStep} className="mt-2 w-full bg-gray-300 p-3 rounded">
-              Înapoi
-            </button>
+            <div className="flex justify-between">
+              <button onClick={prevStep} className="bg-gray-300 p-3 rounded">
+                Înapoi
+              </button>
+              <button onClick={captureFace} className="bg-black text-white p-3 rounded">
+                Capturează manual
+              </button>
+            </div>
           </>
         )}
 
-        {/* Pasul 4: Metodă plată */}
+        {/* --- Step 4: Metodă plată --- */}
         {step === 4 && (
           <>
             <h2 className="text-xl font-bold mb-4">Metodă plată</h2>
@@ -135,8 +203,7 @@ export default function RegisterWizard() {
               <option value="card">Card</option>
               <option value="paypal">PayPal</option>
             </select>
-
-            <div className="flex justify-between mt-3">
+            <div className="flex justify-between">
               <button onClick={prevStep} className="bg-gray-300 p-3 rounded">
                 Înapoi
               </button>
@@ -147,7 +214,7 @@ export default function RegisterWizard() {
           </>
         )}
 
-        {/* Pasul 5: Acceptare politică */}
+        {/* --- Step 5: Acceptare politică --- */}
         {step === 5 && (
           <>
             <h2 className="text-xl font-bold mb-4">Politica de confidențialitate</h2>
@@ -162,7 +229,16 @@ export default function RegisterWizard() {
               />
               Accept politica de confidențialitate
             </label>
-
+            {formData.faceImage && (
+              <div className="mt-4">
+                <h3 className="text-sm font-medium mb-1">Poză capturată:</h3>
+                <img
+                  src={formData.faceImage}
+                  alt="Face"
+                  className="w-32 h-32 object-cover rounded-full"
+                />
+              </div>
+            )}
             <div className="flex justify-between mt-3">
               <button onClick={prevStep} className="bg-gray-300 p-3 rounded">
                 Înapoi
@@ -175,16 +251,8 @@ export default function RegisterWizard() {
                 Trimite
               </button>
             </div>
-
-            {formData.faceImage && (
-              <div className="mt-4">
-                <h3 className="text-sm font-medium mb-1">Poză capturată:</h3>
-                <img src={formData.faceImage} alt="Face" className="w-32 h-32 object-cover rounded-full" />
-              </div>
-            )}
           </>
         )}
-
       </div>
     </div>
   );
