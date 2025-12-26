@@ -61,17 +61,18 @@ export default function CookiesBanner() {
             className="
               fixed bottom-24 left-1/2 transform -translate-x-1/2 
               z-50 
-              w-[90%] sm:max-w-lg md:max-w-xl
+              w-[95%] sm:w-[90%] md:w-[600px] lg:w-[700px] 
               bg-white text-black 
               rounded-2xl shadow-2xl 
-              p-6 border border-gray-200
+              p-4 sm:p-6 md:p-8 border border-gray-200
+              flex flex-col gap-4
             "
           >
-            <h3 className="text-xl font-bold mb-2">
+            <h3 className="text-lg sm:text-xl font-bold mb-2 text-center md:text-left">
               UCab utilizează cookies pentru performanță și personalizare 🍪
             </h3>
 
-            <p className="text-gray-700 text-sm mb-4">
+            <p className="text-gray-700 text-sm sm:text-base text-center md:text-left">
               Folosim module cookies și tehnologii similare pentru a asigura
               funcționarea corectă a platformei, pentru a optimiza performanța,
               analiza traficul și comportamentul utilizatorilor, precum și pentru a
@@ -80,30 +81,30 @@ export default function CookiesBanner() {
               tipurilor de cookies utilizate.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-2 justify-end">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 justify-center md:justify-end">
               <button
                 onClick={() => setShowSettings(true)}
-                className="px-4 py-2 rounded-lg border border-gray-500 text-black hover:bg-gray-100 transition text-sm"
+                className="px-4 py-2 rounded-lg border border-gray-500 text-black hover:bg-gray-100 transition text-sm flex-1 sm:flex-none"
               >
                 Gestionare preferințe
               </button>
 
               <button
                 onClick={rejectAll}
-                className="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 text-black transition text-sm"
+                className="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 text-black transition text-sm flex-1 sm:flex-none"
               >
                 Refuz toate modulele opționale
               </button>
 
               <button
                 onClick={acceptAll}
-                className="px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-900 transition text-sm"
+                className="px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-900 transition text-sm flex-1 sm:flex-none"
               >
                 Accept toate modulele cookie
               </button>
             </div>
 
-            <p className="mt-4 text-xs text-gray-500 text-center">
+            <p className="mt-2 text-xs text-gray-500 text-center sm:text-left">
               <a
                 href="/politica-de-cookies"
                 className="underline hover:text-gray-700"
@@ -129,13 +130,16 @@ export default function CookiesBanner() {
             className="
               fixed bottom-24 left-1/2 transform -translate-x-1/2 
               z-50 
-              w-[90%] sm:max-w-lg md:max-w-xl
+              w-[95%] sm:w-[90%] md:w-[600px] lg:w-[700px] 
               bg-white text-black 
               rounded-2xl shadow-2xl 
-              p-6 border border-gray-200
+              p-4 sm:p-6 md:p-8 border border-gray-200
+              flex flex-col gap-4
             "
           >
-            <h3 className="text-xl font-bold mb-4">Gestionare preferințe cookies 🍪</h3>
+            <h3 className="text-lg sm:text-xl font-bold mb-4 text-center md:text-left">
+              Gestionare preferințe cookies 🍪
+            </h3>
 
             <div className="space-y-4">
 
@@ -151,41 +155,41 @@ export default function CookiesBanner() {
               </div>
 
               {/* Analytics */}
-              <div className="p-3 rounded-lg border border-gray-300">
-                <div className="flex justify-between items-center">
+              <div className="p-3 rounded-lg border border-gray-300 flex justify-between items-center">
+                <div>
                   <strong>Analytics</strong>
-                  <input
-                    type="checkbox"
-                    checked={preferences.analytics}
-                    onChange={(e) =>
-                      setPreferences({ ...preferences, analytics: e.target.checked })
-                    }
-                    className="scale-125 accent-black"
-                  />
+                  <p className="text-sm text-gray-600 mt-1">
+                    Ne permit să colectăm date anonime despre utilizarea website-ului
+                    pentru a îmbunătăți performanța și a optimiza experiența.
+                  </p>
                 </div>
-                <p className="text-sm text-gray-600 mt-1">
-                  Ne permit să colectăm date anonime despre utilizarea website-ului
-                  pentru a îmbunătăți performanța și a optimiza experiența.
-                </p>
+                <input
+                  type="checkbox"
+                  checked={preferences.analytics}
+                  onChange={(e) =>
+                    setPreferences({ ...preferences, analytics: e.target.checked })
+                  }
+                  className="scale-125 accent-black ml-2"
+                />
               </div>
 
               {/* Marketing */}
-              <div className="p-3 rounded-lg border border-gray-300">
-                <div className="flex justify-between items-center">
+              <div className="p-3 rounded-lg border border-gray-300 flex justify-between items-center">
+                <div>
                   <strong>Marketing</strong>
-                  <input
-                    type="checkbox"
-                    checked={preferences.marketing}
-                    onChange={(e) =>
-                      setPreferences({ ...preferences, marketing: e.target.checked })
-                    }
-                    className="scale-125 accent-black"
-                  />
+                  <p className="text-sm text-gray-600 mt-1">
+                    Aceste cookies pot fi folosite pentru personalizarea conținutului,
+                    publicitate relevantă și analizarea eficienței campaniilor.
+                  </p>
                 </div>
-                <p className="text-sm text-gray-600 mt-1">
-                  Aceste cookies pot fi folosite pentru personalizarea conținutului,
-                  publicitate relevantă și analizarea eficienței campaniilor.
-                </p>
+                <input
+                  type="checkbox"
+                  checked={preferences.marketing}
+                  onChange={(e) =>
+                    setPreferences({ ...preferences, marketing: e.target.checked })
+                  }
+                  className="scale-125 accent-black ml-2"
+                />
               </div>
 
             </div>
@@ -193,20 +197,20 @@ export default function CookiesBanner() {
             <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
               <button
                 onClick={() => setShowSettings(false)}
-                className="px-4 py-2 rounded-lg border border-gray-500 text-black hover:bg-gray-100 transition text-sm"
+                className="px-4 py-2 rounded-lg border border-gray-500 text-black hover:bg-gray-100 transition text-sm flex-1 sm:flex-none"
               >
                 Înapoi la banner
               </button>
 
               <button
                 onClick={() => savePreferences()}
-                className="px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-900 transition text-sm"
+                className="px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-900 transition text-sm flex-1 sm:flex-none"
               >
                 Salvează setările
               </button>
             </div>
 
-            <p className="mt-4 text-xs text-gray-500 text-center">
+            <p className="mt-4 text-xs text-gray-500 text-center sm:text-left">
               <a
                 href="/resource/policy/"
                 className="underline hover:text-gray-700"

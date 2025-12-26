@@ -22,7 +22,7 @@ import {
 /* ================= CONFIG ================= */
 const libraries = ["places"];
 const containerStyle = { width: "100%", height: "100%" };
-const defaultCenter = { lat: 44.92756, lng: 25.46090 };  // mitropolia  din  targoviste coords
+const defaultCenter = { lat: 44.92756, lng: 25.46090 };  // Mitropolia  from Targoviste coords.
 const carOptions = {
   standard: { label: "Standard", rate: 0.5 },
   comfort: { label: "Comfort", rate: 0.8 },

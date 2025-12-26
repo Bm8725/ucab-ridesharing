@@ -52,11 +52,10 @@ export default function Footer() {
             Platformă modernă de ride-sharing pentru transport rapid, sigur și eficient în orașele din România. Creat pentru companii locale de incredere. 
           </p>
           <div className="mt-6 space-y-2 text-sm">
-            <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-green-500" /> +40 700 x23 456</div>
-            <div className="flex items-center gap-2"><Mail className="w-4 h-4 text-green-500" /> support@ucab.ro</div>
+
             <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-green-500" />
-              <span onClick={handlePreciseLocation} className="cursor-pointer hover:text-green-400 transition">{location}</span>
+              <MapPin className="w-4 h-4 text-blue-500" />
+              <span onClick={handlePreciseLocation} className="cursor-pointer hover:text-blue-400 transition">{location}</span>
             </div>
           </div>
         </div>
@@ -65,11 +64,11 @@ export default function Footer() {
         <div>
           <h4 className="text-white text-lg font-semibold mb-4">Companie</h4>
           <ul className="space-y-2 text-sm">
-            <li><Link href="/" className="hover:text-green-500 transition">Acasă</Link></li>
-            <li><Link href="/about/" className="hover:text-green-500 transition">Despre noi</Link></li>
-            <li><Link href="/404/" className="hover:text-green-500 transition">Cariere</Link></li>
-            <li><Link href="/404/" className="hover:text-green-500 transition">Știri & Blog</Link></li>
-            <li><Link href="/investors/" className="hover:text-green-500 transition">Investitori</Link></li>
+            <li><Link href="/" className="hover:text-blue-500 transition">Acasă</Link></li>
+            <li><Link href="/about/" className="hover:text-blue-500 transition">Despre noi</Link></li>
+            <li><Link href="/404/" className="hover:text-blue-500 transition">Cariere</Link></li>
+            <li><Link href="/404/" className="hover:text-blue-500 transition">Știri & Blog</Link></li>
+            <li><Link href="/investors/" className="hover:text-blue-500 transition">Investitori</Link></li>
           </ul>
         </div>
 
@@ -77,10 +76,10 @@ export default function Footer() {
         <div>
           <h4 className="text-white text-lg font-semibold mb-4">Servicii</h4>
           <ul className="space-y-2 text-sm">
-            <li><Link href="/driver/" className="hover:text-green-500 transition">Înregistrează-te</Link></li>
-            <li><Link href="/cerinte_auto/" className="hover:text-green-500 transition">Cerințe auto</Link></li>
-            <li><Link href="/implementare/" className="hover:text-green-500 transition">Implementare</Link></li>
-            <li><Link href="/404/" className="hover:text-green-500 transition">Dezvoltare durabila</Link></li>
+            <li><Link href="/driver/" className="hover:text-blue-500 transition">Înregistrează-te</Link></li>
+            <li><Link href="/cerinte_auto/" className="hover:text-blue-500 transition">Cerințe auto</Link></li>
+            <li><Link href="/implementare/" className="hover:text-blue-500 transition">Implementare</Link></li>
+            <li><Link href="/404/" className="hover:text-blue-500 transition">Dezvoltare durabila</Link></li>
           </ul>
         </div>
 
@@ -88,11 +87,11 @@ export default function Footer() {
         <div>
           <h4 className="text-white text-lg font-semibold mb-4">Legal</h4>
           <ul className="mt-6 space-y-2 text-sm">
-            <li><Link href="/resource/terms/" className="hover:text-green-500 transition">Termeni și Condiții</Link></li>
-            <li><Link href="/resource/policy/" className="hover:text-green-500 transition">Politica de Confidențialitate</Link></li>
-            <li><Link href="/resource/safe/" className="hover:text-green-500 transition">Siguranță & Protecție</Link></li>
-            <li><Link href="/resource/cadru-legal/" className="hover:text-green-500 transition">Cadru legal</Link></li>
-            <li><Link href="/resource/contract/" className="hover:text-green-500 transition">Contract ucab</Link></li>
+            <li><Link href="/resource/terms/" className="hover:text-blue-500 transition">Termeni și Condiții</Link></li>
+            <li><Link href="/resource/policy/" className="hover:text-blue-500 transition">Politica de Confidențialitate</Link></li>
+            <li><Link href="/resource/safe/" className="hover:text-blue-500 transition">Siguranță & Protecție</Link></li>
+            <li><Link href="/resource/cadru-legal/" className="hover:text-blue-500 transition">Cadru legal</Link></li>
+            <li><Link href="/resource/contract/" className="hover:text-blue-500 transition">Contract ucab</Link></li>
           </ul>
         </div>
       </div>
