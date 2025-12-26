@@ -18,6 +18,7 @@ export default function RegisterWizard() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const detectionCanvasRef = useRef(null);
+
   const [instruction, setInstruction] = useState("");
   const [faceDetected, setFaceDetected] = useState(false);
   const totalSteps = 5;
@@ -31,7 +32,7 @@ export default function RegisterWizard() {
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // --- Camera setup + live detection ---
+  // --- Camera & Live Detection ---
   useEffect(() => {
     let animationFrame;
     const video = videoRef.current;
@@ -40,27 +41,39 @@ export default function RegisterWizard() {
 
     const detectFace = () => {
       if (!video || !ctx) return;
-      detectionCanvas.width = video.videoWidth;
-      detectionCanvas.height = video.videoHeight;
 
-      ctx.drawImage(video, 0, 0, detectionCanvas.width, detectionCanvas.height);
+      const width = video.videoWidth;
+      const height = video.videoHeight;
 
-      // Demo detection: simplificat pe zona centrală
-      const centerX = detectionCanvas.width / 2;
-      const centerY = detectionCanvas.height / 2;
-      const imageData = ctx.getImageData(centerX - 50, centerY - 50, 100, 100);
+      if (!width || !height) {
+        animationFrame = requestAnimationFrame(detectFace);
+        return;
+      }
+
+      detectionCanvas.width = width;
+      detectionCanvas.height = height;
+
+      ctx.drawImage(video, 0, 0, width, height);
+
+      // --- Căutăm zona centrală mare ---
+      const boxSize = Math.min(width, height) * 0.6; // 60% din latura mică
+      const startX = (width - boxSize) / 2;
+      const startY = (height - boxSize) / 2;
+
+      const imageData = ctx.getImageData(startX, startY, boxSize, boxSize);
 
       let sum = 0;
       for (let i = 0; i < imageData.data.length; i += 4) {
         sum += imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2];
       }
-      const brightness = sum / (100 * 100);
-      if (brightness > 30) setFaceDetected(true);
+      const brightness = sum / (boxSize * boxSize);
 
-      // Overlay cadru verde dacă detectează față
+      setFaceDetected(brightness > 30);
+
+      // Desenăm cadru adaptiv
       ctx.strokeStyle = brightness > 30 ? "green" : "red";
-      ctx.lineWidth = 3;
-      ctx.strokeRect(centerX - 50, centerY - 50, 100, 100);
+      ctx.lineWidth = 4;
+      ctx.strokeRect(startX, startY, boxSize, boxSize);
 
       animationFrame = requestAnimationFrame(detectFace);
     };
@@ -80,9 +93,7 @@ export default function RegisterWizard() {
 
     return () => {
       cancelAnimationFrame(animationFrame);
-      if (video?.srcObject) {
-        video.srcObject.getTracks().forEach((track) => track.stop());
-      }
+      if (video?.srcObject) video.srcObject.getTracks().forEach((t) => t.stop());
     };
   }, [step]);
 
@@ -108,7 +119,7 @@ export default function RegisterWizard() {
     setSuccessMsg("");
     setErrorMsg("");
 
-    // Demo: fără backend, doar mock
+    // Demo: mock API
     setTimeout(() => {
       setLoading(false);
       setSuccessMsg("Cont creat cu succes! Redirecționare...");
@@ -128,7 +139,7 @@ export default function RegisterWizard() {
             <div key={index} className="flex-1 flex items-center relative">
               <div className="flex flex-col items-center z-10">
                 <div
-                  className={`w-8 h-8 flex items-center justify-center rounded-full border-2 transition-colors duration-300 ${
+                  className={`w-10 h-10 flex items-center justify-center rounded-full border-2 transition-colors duration-300 ${
                     isCompleted
                       ? "bg-blue-600 border-blue-600 text-white"
                       : isCurrent
@@ -142,14 +153,14 @@ export default function RegisterWizard() {
               </div>
               {index !== steps.length - 1 && (
                 <div
-                  className={`absolute top-3.5 left-10 right-0 h-1 rounded transition-all duration-500`}
+                  className={`absolute top-4 left-12 right-0 h-1 rounded transition-all duration-500`}
                   style={{
                     background:
                       step > stepNumber
                         ? "linear-gradient(to right, #3b82f6, #60a5fa)"
                         : "#e5e7eb",
                   }}
-                ></div>
+                />
               )}
             </div>
           );
@@ -245,16 +256,18 @@ export default function RegisterWizard() {
         {step === 3 && (
           <div className="space-y-4 relative">
             {instruction && <p className="text-sm text-gray-600">{instruction}</p>}
-            <video
-              ref={videoRef}
-              className="w-full rounded-xl mb-3 border"
-              autoPlay
-              muted
-            />
-            <canvas
-              ref={detectionCanvasRef}
-              className="absolute top-0 left-0 w-full h-full rounded-xl pointer-events-none"
-            />
+            <div className="relative w-full aspect-video border rounded-xl overflow-hidden">
+              <video
+                ref={videoRef}
+                className="w-full h-full object-cover"
+                autoPlay
+                muted
+              />
+              <canvas
+                ref={detectionCanvasRef}
+                className="absolute top-0 left-0 w-full h-full pointer-events-none"
+              />
+            </div>
             <canvas ref={canvasRef} style={{ display: "none" }} />
             <div className="flex justify-between mt-3">
               <button
@@ -324,7 +337,7 @@ export default function RegisterWizard() {
                 <img
                   src={formData.faceImage}
                   alt="Face"
-                  className="w-32 h-32 object-cover rounded-full border-2 border-gray-300"
+                  className="w-40 h-40 object-cover rounded-full border-2 border-gray-300"
                 />
               </div>
             )}
