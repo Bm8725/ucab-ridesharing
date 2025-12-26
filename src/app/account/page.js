@@ -99,7 +99,7 @@ export default function RegisterWizard() {
 
     // Păstrează raportul de aspect
     const aspectRatio = video.videoWidth / video.videoHeight;
-    const width = 400;
+    const width = 580;
     const height = width / aspectRatio;
 
     canvas.width = video.videoWidth;
@@ -367,7 +367,7 @@ export default function RegisterWizard() {
                 disabled={!formData.acceptPolicy || loading}
                 className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
               >
-                {loading ? "Se trimite..." : "Trimite"}
+                {loading ? "Se trimite..." : "Trimite solicitarea"}
               </button>
             </div>
 
