@@ -39,18 +39,13 @@ export default function CookiesBanner() {
       {/* Floating Toggle Button */}
       <button
         onClick={() => setShow(!show)}
-        className="
-          fixed bottom-6 left-6 z-50 
-          bg-black text-white flex items-center justify-center 
-          w-14 h-14 rounded-full shadow-xl 
-          hover:bg-gray-800 transition
-        "
+        className="fixed bottom-6 left-6 z-50 bg-black text-white flex items-center justify-center w-14 h-14 rounded-full shadow-xl hover:bg-gray-800 transition"
         aria-label="Toggle Cookies Banner"
       >
         <Cookie className="w-6 h-6" />
       </button>
 
-      {/* BANNER */}
+      {/* Banner */}
       <AnimatePresence>
         {show && !showSettings && (
           <motion.div
@@ -58,27 +53,16 @@ export default function CookiesBanner() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 150, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="
-              fixed bottom-24 left-1/2 transform -translate-x-1/2 
-              z-50 
-              w-[95%] sm:w-[90%] md:w-[600px] lg:w-[700px] 
-              bg-white text-black 
-              rounded-2xl shadow-2xl 
-              p-4 sm:p-6 md:p-8 border border-gray-200
-              flex flex-col gap-4
-            "
+            className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-50 w-[95%] sm:w-[90%] md:w-[600px] lg:w-[700px] bg-white text-black rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-gray-200 flex flex-col gap-4"
           >
             <h3 className="text-lg sm:text-xl font-bold mb-2 text-center md:text-left">
               UCab utilizează cookies pentru performanță și personalizare 🍪
             </h3>
 
-            <p className="text-gray-700 text-sm sm:text-base text-center md:text-left">
+            <p className="text-gray-700 text-sm sm:text-base text-center md:text-left leading-relaxed">
               Folosim module cookies și tehnologii similare pentru a asigura
-              funcționarea corectă a platformei, pentru a optimiza performanța,
-              analiza traficul și comportamentul utilizatorilor, precum și pentru a
-              oferi o experiență personalizată și sigură. Ne angajăm să protejăm
-              confidențialitatea datelor tale și îți oferim control complet asupra
-              tipurilor de cookies utilizate.
+              funcționarea corectă a platformei, optimiza performanța și analiza
+              traficul utilizatorilor, oferind o experiență personalizată și sigură.
             </p>
 
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 justify-center md:justify-end">
@@ -119,7 +103,7 @@ export default function CookiesBanner() {
         )}
       </AnimatePresence>
 
-      {/* SETTINGS PANEL */}
+      {/* Settings Panel */}
       <AnimatePresence>
         {show && showSettings && (
           <motion.div
@@ -127,40 +111,27 @@ export default function CookiesBanner() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 150, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="
-              fixed bottom-24 left-1/2 transform -translate-x-1/2 
-              z-50 
-              w-[95%] sm:w-[90%] md:w-[600px] lg:w-[700px] 
-              bg-white text-black 
-              rounded-2xl shadow-2xl 
-              p-4 sm:p-6 md:p-8 border border-gray-200
-              flex flex-col gap-4
-            "
+            className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-50 w-[95%] sm:w-[90%] md:w-[600px] lg:w-[700px] bg-white text-black rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-gray-200 flex flex-col gap-4"
           >
             <h3 className="text-lg sm:text-xl font-bold mb-4 text-center md:text-left">
               Gestionare preferințe cookies 🍪
             </h3>
 
             <div className="space-y-4">
-
               {/* Necessary */}
               <div className="p-3 rounded-lg border border-gray-300 bg-gray-100">
                 <strong>Necesare</strong>
                 <p className="text-sm text-gray-600 mt-1">
-                  Aceste module sunt esențiale pentru funcționarea corectă,
-                  siguranța sesiunilor, autentificare și navigare. Ele nu pot
-                  fi dezactivate, deoarece permit operarea serviciilor de bază
-                  ale platformei.
+                  Aceste module sunt esențiale pentru funcționarea corectă, siguranța sesiunilor și autentificare.
                 </p>
               </div>
 
               {/* Analytics */}
-              <div className="p-3 rounded-lg border border-gray-300 flex justify-between items-center">
+              <div className="p-3 rounded-lg border border-gray-300 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <div>
                   <strong>Analytics</strong>
                   <p className="text-sm text-gray-600 mt-1">
-                    Ne permit să colectăm date anonime despre utilizarea website-ului
-                    pentru a îmbunătăți performanța și a optimiza experiența.
+                    Ne permit să colectăm date anonime pentru a îmbunătăți performanța și a optimiza experiența.
                   </p>
                 </div>
                 <input
@@ -169,17 +140,16 @@ export default function CookiesBanner() {
                   onChange={(e) =>
                     setPreferences({ ...preferences, analytics: e.target.checked })
                   }
-                  className="scale-125 accent-black ml-2"
+                  className="scale-125 accent-black"
                 />
               </div>
 
               {/* Marketing */}
-              <div className="p-3 rounded-lg border border-gray-300 flex justify-between items-center">
+              <div className="p-3 rounded-lg border border-gray-300 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <div>
                   <strong>Marketing</strong>
                   <p className="text-sm text-gray-600 mt-1">
-                    Aceste cookies pot fi folosite pentru personalizarea conținutului,
-                    publicitate relevantă și analizarea eficienței campaniilor.
+                    Aceste cookies pot fi folosite pentru publicitate relevantă și analizarea eficienței campaniilor.
                   </p>
                 </div>
                 <input
@@ -188,10 +158,9 @@ export default function CookiesBanner() {
                   onChange={(e) =>
                     setPreferences({ ...preferences, marketing: e.target.checked })
                   }
-                  className="scale-125 accent-black ml-2"
+                  className="scale-125 accent-black"
                 />
               </div>
-
             </div>
 
             <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
