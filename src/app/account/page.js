@@ -21,14 +21,14 @@ export default function RegisterWizard() {
 
   const [instruction, setInstruction] = useState("");
   const [faceDetected, setFaceDetected] = useState(false);
-  const totalSteps = 5;
-
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
+  const totalSteps = 5;
   const nextStep = () => setStep(Math.min(step + 1, totalSteps));
   const prevStep = () => setStep(Math.max(step - 1, 1));
+
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -36,41 +36,36 @@ export default function RegisterWizard() {
   useEffect(() => {
     let animationFrame;
     const video = videoRef.current;
-    const detectionCanvas = detectionCanvasRef.current;
-    const ctx = detectionCanvas?.getContext("2d");
+    const canvas = detectionCanvasRef.current;
+    const ctx = canvas?.getContext("2d");
 
-    const detectFace = () => {
-      if (!video || !ctx || video.videoWidth === 0 || video.videoHeight === 0) {
-        animationFrame = requestAnimationFrame(detectFace);
+    const drawDetection = () => {
+      if (!video || !ctx || video.videoWidth === 0) {
+        animationFrame = requestAnimationFrame(drawDetection);
         return;
       }
 
-      const width = video.videoWidth;
-      const height = video.videoHeight;
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+      canvas.width = vw;
+      canvas.height = vh;
 
-      detectionCanvas.width = width;
-      detectionCanvas.height = height;
+      ctx.clearRect(0, 0, vw, vh);
+      ctx.drawImage(video, 0, 0, vw, vh);
 
-      ctx.drawImage(video, 0, 0, width, height);
+      // Chenar oval centrat
+      const ovalWidth = vw * 0.5;
+      const ovalHeight = vh * 0.6;
+      const centerX = vw / 2;
+      const centerY = vh / 2;
 
-      const boxSize = Math.min(width, height) * 0.6;
-      const startX = (width - boxSize) / 2;
-      const startY = (height - boxSize) / 2;
-
-      const imageData = ctx.getImageData(startX, startY, boxSize, boxSize);
-
-      let sum = 0;
-      for (let i = 0; i < imageData.data.length; i += 4) {
-        sum += imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2];
-      }
-      const brightness = sum / (boxSize * boxSize);
-      setFaceDetected(brightness > 30);
-
-      ctx.strokeStyle = brightness > 30 ? "green" : "red";
+      ctx.strokeStyle = faceDetected ? "green" : "red";
       ctx.lineWidth = 4;
-      ctx.strokeRect(startX, startY, boxSize, boxSize);
+      ctx.beginPath();
+      ctx.ellipse(centerX, centerY, ovalWidth / 2, ovalHeight / 2, 0, 0, Math.PI * 2);
+      ctx.stroke();
 
-      animationFrame = requestAnimationFrame(detectFace);
+      animationFrame = requestAnimationFrame(drawDetection);
     };
 
     if (step === 3 && navigator.mediaDevices.getUserMedia) {
@@ -81,7 +76,7 @@ export default function RegisterWizard() {
           video.play();
           setInstruction("Mișcă capul stânga-dreapta pentru verificare...");
           setFaceDetected(false);
-          animationFrame = requestAnimationFrame(detectFace);
+          animationFrame = requestAnimationFrame(drawDetection);
         })
         .catch((err) => console.error("Camera error:", err));
     }
@@ -90,22 +85,20 @@ export default function RegisterWizard() {
       cancelAnimationFrame(animationFrame);
       if (video?.srcObject) video.srcObject.getTracks().forEach((t) => t.stop());
     };
-  }, [step]);
+  }, [step, faceDetected]);
 
   const captureFace = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas || video.videoWidth === 0) return;
 
-    // Păstrează raportul de aspect
-    const aspectRatio = video.videoWidth / video.videoHeight;
-    const width = 580;
-    const height = width / aspectRatio;
-
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Simplificat: detectare demo
+    setFaceDetected(true);
 
     const dataUrl = canvas.toDataURL("image/png");
     setFormData({ ...formData, faceImage: dataUrl });
@@ -114,7 +107,6 @@ export default function RegisterWizard() {
 
   const handleSubmit = async () => {
     if (!formData.acceptPolicy) return;
-
     setLoading(true);
     setSuccessMsg("");
     setErrorMsg("");
@@ -125,21 +117,21 @@ export default function RegisterWizard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      if (!res.ok) throw new Error("Eroare server");
       const data = await res.json();
       if (data.success) {
         setSuccessMsg("Cont creat cu succes! Redirecționare...");
-        setTimeout(() => (window.location.href = "/login"), 2000);
+        setTimeout(() => window.location.href = "/login", 2000);
       } else {
         setErrorMsg(data.message || "Eroare server");
       }
     } catch (err) {
+      console.error(err);
       setErrorMsg("Eroare server");
     }
-
     setLoading(false);
   };
 
+  // --- Progress bar ---
   const renderProgress = () => {
     const steps = ["Info", "Contact", "Poză", "Plată", "Politică"];
     return (
@@ -152,7 +144,7 @@ export default function RegisterWizard() {
             <div key={index} className="flex-1 flex items-center relative">
               <div className="flex flex-col items-center z-10">
                 <div
-                  className={`w-10 h-10 flex items-center justify-center rounded-full border-2 transition-colors duration-300 ${
+                  className={`w-10 h-10 flex items-center justify-center rounded-full border-2 transition-colors duration-300 text-sm ${
                     isCompleted
                       ? "bg-blue-600 border-blue-600 text-white"
                       : isCurrent
@@ -166,14 +158,9 @@ export default function RegisterWizard() {
               </div>
               {index !== steps.length - 1 && (
                 <div
-                  className={`absolute top-4 left-12 right-0 h-1 rounded transition-all duration-500`}
-                  style={{
-                    background:
-                      step > stepNumber
-                        ? "linear-gradient(to right, #3b82f6, #60a5fa)"
-                        : "#e5e7eb",
-                  }}
-                />
+                  className={`absolute top-5 left-10 right-0 h-1 rounded transition-all duration-500`}
+                  style={{ background: step > stepNumber ? "linear-gradient(to right,#3b82f6,#60a5fa)" : "#e5e7eb" }}
+                ></div>
               )}
             </div>
           );
@@ -184,197 +171,96 @@ export default function RegisterWizard() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-100 dark:bg-gray-900">
-      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-3xl p-6 md:p-10 w-full max-w-lg">
-        <h1 className="text-center text-2xl md:text-3xl font-bold mb-6">
-          UCab.ro - Înregistrare Client
-        </h1>
+      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 md:p-8 w-full max-w-md">
+        <h1 className="text-center text-2xl font-bold mb-6">UCab.ro - Înregistrare Client</h1>
 
         {renderProgress()}
 
-        {/* Step 1 */}
+        {/* Step 1: Info */}
         {step === 1 && (
-          <div className="space-y-4">
-            <input
-              type="text"
-              name="name"
-              placeholder="Nume complet"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Parolă"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-            />
+          <div className="space-y-3">
+            <h2 className="text-xl font-bold mb-2">Informații personale</h2>
+            <input type="text" name="name" placeholder="Nume complet" value={formData.name} onChange={handleChange} className="w-full p-3 border rounded" />
+            <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} className="w-full p-3 border rounded" />
+            <input type="password" name="password" placeholder="Parolă" value={formData.password} onChange={handleChange} className="w-full p-3 border rounded" />
             <div className="flex justify-end">
-              <button
-                onClick={nextStep}
-                className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
-              >
-                Următorul
-              </button>
+              <button onClick={nextStep} className="bg-black text-white p-3 rounded">Următorul</button>
             </div>
           </div>
         )}
 
-        {/* Step 2 */}
+        {/* Step 2: Contact */}
         {step === 2 && (
-          <div className="space-y-4">
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Telefon"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-            />
-            <input
-              type="text"
-              name="address"
-              placeholder="Adresă"
-              value={formData.address}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-            />
+          <div className="space-y-3">
+            <h2 className="text-xl font-bold mb-2">Date contact</h2>
+            <input type="tel" name="phone" placeholder="Telefon" value={formData.phone} onChange={handleChange} className="w-full p-3 border rounded" />
+            <input type="text" name="address" placeholder="Adresă" value={formData.address} onChange={handleChange} className="w-full p-3 border rounded" />
             <div className="flex justify-between">
-              <button
-                onClick={prevStep}
-                className="bg-gray-300 p-3 rounded-lg hover:bg-gray-400 transition"
-              >
-                Înapoi
-              </button>
-              <button
-                onClick={nextStep}
-                className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
-              >
-                Următorul
-              </button>
+              <button onClick={prevStep} className="bg-gray-300 p-3 rounded">Înapoi</button>
+              <button onClick={nextStep} className="bg-black text-white p-3 rounded">Următorul</button>
             </div>
           </div>
         )}
 
-        {/* Step 3 */}
+        {/* Step 3: Captură față */}
         {step === 3 && (
-          <div className="space-y-4 relative">
+          <div className="space-y-3">
+            <h2 className="text-xl font-bold mb-2">Poză față</h2>
             {instruction && <p className="text-sm text-gray-600">{instruction}</p>}
-            <div className="relative w-full aspect-video border rounded-xl overflow-hidden">
-              <video
-                ref={videoRef}
-                className="w-full h-full object-cover"
-                autoPlay
-                muted
-              />
-              <canvas
-                ref={detectionCanvasRef}
-                className="absolute top-0 left-0 w-full h-full pointer-events-none"
-              />
+            <div className="relative w-full" style={{ paddingTop: "75%" }}>
+              <video ref={videoRef} className="absolute top-0 left-0 w-full h-full object-cover rounded-xl" autoPlay muted />
+              <canvas ref={detectionCanvasRef} className="absolute top-0 left-0 w-full h-full pointer-events-none" />
             </div>
             <canvas ref={canvasRef} style={{ display: "none" }} />
             <div className="flex justify-between mt-3">
-              <button
-                onClick={prevStep}
-                className="bg-gray-300 p-3 rounded-lg hover:bg-gray-400 transition"
-              >
-                Înapoi
-              </button>
-              <button
-                onClick={captureFace}
-                className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
-              >
-                Capturează
-              </button>
+              <button onClick={prevStep} className="bg-gray-300 p-3 rounded">Înapoi</button>
+              <button onClick={captureFace} className="bg-blue-600 text-white p-3 rounded">Capturează</button>
             </div>
           </div>
         )}
 
-        {/* Step 4 */}
+        {/* Step 4: Plată */}
         {step === 4 && (
-          <div className="space-y-4">
-            <select
-              name="paymentMethod"
-              value={formData.paymentMethod}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400"
-            >
+          <div className="space-y-3">
+            <h2 className="text-xl font-bold mb-2">Metodă plată</h2>
+            <select name="paymentMethod" value={formData.paymentMethod} onChange={handleChange} className="w-full p-3 border rounded">
               <option value="">Selectează metoda de plată</option>
               <option value="card">Card</option>
               <option value="cash">Cash</option>
               <option value="mixt">Mixt</option>
             </select>
             <div className="flex justify-between">
-              <button
-                onClick={prevStep}
-                className="bg-gray-300 p-3 rounded-lg hover:bg-gray-400 transition"
-              >
-                Înapoi
-              </button>
-              <button
-                onClick={nextStep}
-                className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
-              >
-                Următorul
-              </button>
+              <button onClick={prevStep} className="bg-gray-300 p-3 rounded">Înapoi</button>
+              <button onClick={nextStep} className="bg-black text-white p-3 rounded">Următorul</button>
             </div>
           </div>
         )}
 
-        {/* Step 5 */}
+        {/* Step 5: Politică */}
         {step === 5 && (
-          <div className="space-y-4">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                name="acceptPolicy"
-                checked={formData.acceptPolicy}
-                onChange={(e) =>
-                  setFormData({ ...formData, acceptPolicy: e.target.checked })
-                }
-              />
+          <div className="space-y-3">
+            <h2 className="text-xl font-bold mb-2">Politica de confidențialitate</h2>
+            <label className="flex items-center gap-2 mb-3">
+              <input type="checkbox" name="acceptPolicy" checked={formData.acceptPolicy} onChange={(e) => setFormData({ ...formData, acceptPolicy: e.target.checked })} />
               Accept politica de confidențialitate
             </label>
-
             {formData.faceImage && (
-              <div className="mt-4 flex justify-center">
-                <img
-                  src={formData.faceImage}
-                  alt="Face"
-                  className="w-40 h-40 object-cover rounded-full border-2 border-gray-300"
-                />
+              <div className="mt-2">
+                <h3 className="text-sm font-medium mb-1">Poză capturată:</h3>
+                <img src={formData.faceImage} alt="Face" className="w-32 h-32 object-cover rounded-full" />
               </div>
             )}
-
             <div className="flex justify-between mt-3">
-              <button
-                onClick={prevStep}
-                className="bg-gray-300 p-3 rounded-lg hover:bg-gray-400 transition"
-              >
-                Înapoi
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={!formData.acceptPolicy || loading}
-                className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
-              >
-                {loading ? "Se trimite..." : "Trimite solicitarea"}
+              <button onClick={prevStep} className="bg-gray-300 p-3 rounded">Înapoi</button>
+              <button onClick={handleSubmit} disabled={!formData.acceptPolicy || loading} className="bg-blue-600 text-white p-3 rounded disabled:opacity-50">
+                {loading ? "Se trimite..." : "Trimite"}
               </button>
             </div>
-
             {successMsg && <p className="mt-2 text-green-600">{successMsg}</p>}
             {errorMsg && <p className="mt-2 text-red-600">{errorMsg}</p>}
           </div>
         )}
+
       </div>
     </div>
   );
