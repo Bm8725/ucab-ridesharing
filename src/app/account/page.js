@@ -1,175 +1,191 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import { useState, useRef, useEffect } from "react";
 
-export default function RegisterPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [pass, setPass] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+export default function RegisterWizard() {
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    phone: "",
+    faceImage: "",
+    acceptPolicy: false,
+    paymentMethod: "",
+  });
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
-    if (!name || !email || !pass || !confirm) {
-      setError("Completează toate câmpurile.");
-      return;
+  const nextStep = () => setStep(step + 1);
+  const prevStep = () => setStep(step - 1);
+
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  // Pasul 3: Camera
+  useEffect(() => {
+    if (step === 3 && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices
+        .getUserMedia({ video: { facingMode: "user" } })
+        .then((stream) => {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play();
+        })
+        .catch((err) => console.error("Camera error:", err));
+    } else if (videoRef.current?.srcObject) {
+      let stream = videoRef.current.srcObject;
+      let tracks = stream.getTracks();
+      tracks.forEach((track) => track.stop());
     }
+  }, [step]);
 
-    if (pass !== confirm) {
-      setError("Parolele nu coincid.");
-      return;
-    }
-
-    try {
-      const res = await fetch("https://siteultau.ro/api/register.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password: pass }),
-      });
-
-      const data = await res.json();
-
-      if (!data.success) {
-        setError(data.message || "Eroare la creare cont.");
-      } else {
-        setSuccess("Cont creat! Te poți autentifica acum.");
-        setTimeout(() => {
-          window.location.href = "/login";
-        }, 1500);
-      }
-    } catch (err) {
-      setError("Probleme de server. Încearcă mai târziu.");
+  const captureFace = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (video && canvas) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL("image/png");
+      setFormData({ ...formData, faceImage: dataUrl });
+      nextStep();
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-black px-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-10 w-full max-w-md animate-fadeIn">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-100 dark:bg-gray-900">
+      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-8 w-full max-w-md">
 
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <h1 className="text-4xl font-extrabold tracking-wide">
-            <span className="text-black dark:text-white">UC</span>
-            <span className="text-blue-500">ab</span>
-            <span className="text-gray-500">.ro</span>
-          </h1>
-        </div>
-
-        <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-6">
-          Creează un cont nou
-        </h2>
-
-        {/* NOTIFICATIONS */}
-        {error && (
-          <div className="mb-4 p-3 rounded bg-red-500/15 border border-red-500 text-red-600 text-sm">
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="mb-4 p-3 rounded bg-green-500/15 border border-green-600 text-green-600 text-sm">
-            {success}
-          </div>
-        )}
-
-        {/* FORM */}
-        <form onSubmit={handleRegister} className="space-y-5">
-
-          <div>
-            <label className="text-gray-700 dark:text-gray-300 font-medium">Nume complet</label>
-            <input
-              type="text"
-              className="w-full px-4 py-3 mt-1 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="Popescu Andrei"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className="text-gray-700 dark:text-gray-300 font-medium">Email</label>
+        {/* Pasul 1: Email & Parolă */}
+        {step === 1 && (
+          <>
+            <h2 className="text-xl font-bold mb-4">Email & Parolă</h2>
             <input
               type="email"
-              className="w-full px-4 py-3 mt-1 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="ex: nume@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full p-3 mb-3 border rounded"
             />
-          </div>
-
-          <div>
-            <label className="text-gray-700 dark:text-gray-300 font-medium">Parolă</label>
             <input
               type="password"
-              className="w-full px-4 py-3 mt-1 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="••••••••"
-              value={pass}
-              onChange={(e) => setPass(e.target.value)}
+              name="password"
+              placeholder="Parolă"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full p-3 mb-3 border rounded"
             />
-          </div>
+            <button onClick={nextStep} className="w-full bg-black text-white p-3 rounded">
+              Următorul
+            </button>
+          </>
+        )}
 
-          <div>
-            <label className="text-gray-700 dark:text-gray-300 font-medium">Confirmă parola</label>
+        {/* Pasul 2: Telefon */}
+        {step === 2 && (
+          <>
+            <h2 className="text-xl font-bold mb-4">Telefon</h2>
             <input
-              type="password"
-              className="w-full px-4 py-3 mt-1 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="••••••••"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
+              type="tel"
+              name="phone"
+              placeholder="Număr de telefon"
+              value={formData.phone}
+              onChange={handleChange}
+              className="w-full p-3 mb-3 border rounded"
             />
-          </div>
+            <div className="flex justify-between">
+              <button onClick={prevStep} className="bg-gray-300 p-3 rounded">
+                Înapoi
+              </button>
+              <button onClick={nextStep} className="bg-black text-white p-3 rounded">
+                Următorul
+              </button>
+            </div>
+          </>
+        )}
 
-          <button
-            type="submit"
-            className="w-full py-3 bg-black hover:bg-blue-600 text-white font-medium rounded-lg transition shadow-lg"
-          >
-            Creează cont
-          </button>
-        </form>
+        {/* Pasul 3: Captură față */}
+        {step === 3 && (
+          <>
+            <h2 className="text-xl font-bold mb-4">Poză față</h2>
+            <video ref={videoRef} className="w-full rounded mb-3" autoPlay muted />
+            <canvas ref={canvasRef} style={{ display: "none" }} />
+            <button onClick={captureFace} className="w-full bg-black text-white p-3 rounded">
+              Capturează
+            </button>
+            <button onClick={prevStep} className="mt-2 w-full bg-gray-300 p-3 rounded">
+              Înapoi
+            </button>
+          </>
+        )}
 
-        <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 h-px bg-gray-300 dark:bg-gray-700"></div>
-          <span className="text-gray-500 text-sm">sau</span>
-          <div className="flex-1 h-px bg-gray-300 dark:bg-gray-700"></div>
-        </div>
+        {/* Pasul 4: Metodă plată */}
+        {step === 4 && (
+          <>
+            <h2 className="text-xl font-bold mb-4">Metodă plată</h2>
+            <select
+              name="paymentMethod"
+              value={formData.paymentMethod}
+              onChange={handleChange}
+              className="w-full p-3 mb-3 border rounded"
+            >
+              <option value="">Selectează metoda de plată</option>
+              <option value="card">Card</option>
+              <option value="paypal">PayPal</option>
+            </select>
 
-        {/* Social login */}
-        <div className="space-y-3">
-          <button className="w-full py-3 border border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-            <Image src="/google.webp" width={20} height={20} alt="Google" />
-            Creează cont cu Google
-          </button>
+            <div className="flex justify-between mt-3">
+              <button onClick={prevStep} className="bg-gray-300 p-3 rounded">
+                Înapoi
+              </button>
+              <button onClick={nextStep} className="bg-black text-white p-3 rounded">
+                Următorul
+              </button>
+            </div>
+          </>
+        )}
 
-          <button className="w-full py-3 border border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-            <Image src="/apple.png" width={20} height={20} alt="Apple" />
-            Creează cont cu Apple
-          </button>
-        </div>
+        {/* Pasul 5: Acceptare politică */}
+        {step === 5 && (
+          <>
+            <h2 className="text-xl font-bold mb-4">Politica de confidențialitate</h2>
+            <label className="flex items-center gap-2 mb-3">
+              <input
+                type="checkbox"
+                name="acceptPolicy"
+                checked={formData.acceptPolicy}
+                onChange={(e) =>
+                  setFormData({ ...formData, acceptPolicy: e.target.checked })
+                }
+              />
+              Accept politica de confidențialitate
+            </label>
 
-        <p className="text-center text-gray-600 dark:text-gray-400 mt-6 text-sm">
-          Ai deja cont?{" "}
-          <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-            Autentifică-te
-          </Link>
-        </p>
+            <div className="flex justify-between mt-3">
+              <button onClick={prevStep} className="bg-gray-300 p-3 rounded">
+                Înapoi
+              </button>
+              <button
+                onClick={() => alert("Formular complet: " + JSON.stringify(formData))}
+                disabled={!formData.acceptPolicy}
+                className="bg-black text-white p-3 rounded disabled:opacity-50"
+              >
+                Trimite
+              </button>
+            </div>
+
+            {formData.faceImage && (
+              <div className="mt-4">
+                <h3 className="text-sm font-medium mb-1">Poză capturată:</h3>
+                <img src={formData.faceImage} alt="Face" className="w-32 h-32 object-cover rounded-full" />
+              </div>
+            )}
+          </>
+        )}
+
       </div>
-
-      <style jsx>{`
-        .animate-fadeIn {
-          animation: fadeIn 0.6s ease-out both;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 }
