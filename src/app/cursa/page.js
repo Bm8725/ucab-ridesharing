@@ -14,7 +14,6 @@ import {
 import {
   FaMapMarkerAlt,
   FaFlagCheckered,
-  FaDollarSign,
   FaChevronDown,
   FaChevronUp,
 } from "react-icons/fa";
@@ -22,14 +21,14 @@ import {
 /* ================= CONFIG ================= */
 const libraries = ["places"];
 const containerStyle = { width: "100%", height: "100%" };
-const defaultCenter = { lat: 44.92756, lng: 25.46090 };  // Mitropolia  from Targoviste coords.
+const defaultCenter = { lat: 44.92756, lng: 25.4609 };
+
 const carOptions = {
   standard: { label: "Standard", rate: 0.5 },
   comfort: { label: "Comfort", rate: 0.8 },
   electric: { label: "Electric", rate: 0.7 },
 };
 
-/* ================= COMPONENT ================= */
 export default function RideSharePage() {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
@@ -55,21 +54,27 @@ export default function RideSharePage() {
   const [selectedCar, setSelectedCar] = useState("standard");
   const [sheetMinimized, setSheetMinimized] = useState(false);
 
-  /* ================= GEOLOCATION LIVE ================= */
-  useEffect(() => {
-    if (navigator.geolocation) {
-      const watchId = navigator.geolocation.watchPosition(
-        (pos) => {
-          const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          setCenter(coords);
-          setPickup(coords); // live update plecare
-        },
-        (err) => console.error(err),
-        { enableHighAccuracy: true, maximumAge: 1000 }
+  /* ================= CURRENT LOCATION ================= */
+  const useCurrentLocation = async () => {
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const coords = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+      };
+
+      setPickup(coords);
+      setCenter(coords);
+
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.lat}&lon=${coords.lng}`
       );
-      return () => navigator.geolocation.clearWatch(watchId);
-    }
-  }, []);
+      const data = await res.json();
+
+      setPickupText(data.display_name || "Current location");
+    });
+  };
 
   /* ================= ROUTE CALC ================= */
   const calculateRoute = () => {
@@ -99,10 +104,10 @@ export default function RideSharePage() {
     );
   };
 
-  /* ================= COST ================= */
-  const cost = distance ? (distance * carOptions[selectedCar].rate).toFixed(2) : "0.00";
+  const cost = distance
+    ? (distance * carOptions[selectedCar].rate).toFixed(2)
+    : "0.00";
 
-  /* ================= CONFIRM ================= */
   const confirmRide = () => {
     if (!directions) return;
     setLoading(true);
@@ -117,6 +122,7 @@ export default function RideSharePage() {
   /* ================= DRIVER SIM ================= */
   useEffect(() => {
     if (!directions || !driverPos || rideStatus !== "assigned") return;
+
     const path = directions.routes[0].overview_path;
     let i = 0;
 
@@ -129,12 +135,10 @@ export default function RideSharePage() {
         setRideStatus("completed");
         clearInterval(interval);
       }
-    }, 223);
+    }, 220);
 
     return () => clearInterval(interval);
   }, [directions, rideStatus]);
-
-
 
   if (!isLoaded) {
     return (
@@ -145,8 +149,8 @@ export default function RideSharePage() {
   }
 
   return (
-    <div className="h-screen w-screen relative perspective-1000">
-      {/* ===== MAP ===== */}
+    <div className="h-screen w-screen relative">
+      {/* MAP */}
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
@@ -155,137 +159,116 @@ export default function RideSharePage() {
       >
         {pickup && <Marker position={pickup} />}
         {destination && <Marker position={destination} />}
-        {driverPos && (
-          <Marker
-            position={driverPos}
-            icon={{ url: "/driver-icon.png", scaledSize: new window.google.maps.Size(40, 40) }}
-          />
-        )}
+        {driverPos && <Marker position={driverPos} />}
         {directions && <DirectionsRenderer directions={directions} />}
       </GoogleMap>
 
-      {/* ===== BOTTOM SHEET 3D ===== */}
+      {/* BOTTOM SHEET */}
       <AnimatePresence>
         <motion.div
-          initial={{ y: "100%", scale: 0.9, rotateX: 25 }}
-          animate={{
-            y: sheetMinimized ? "25%" : 0, // doar header vizibil
-            scale: sheetMinimized ? 0.95 : 1,
-            rotateX: sheetMinimized ? 10 : 0,
-          }}
-          exit={{ y: "100%", scale: 0.9, rotateX: 25 }}
-          transition={{ type: "spring", damping: 20, stiffness: 120 }}
-          className="fixed bottom-0 w-full bg-white rounded-t-3xl shadow-xl z-50 transform-origin-bottom overflow-hidden"
+          initial={{ y: "100%" }}
+          animate={{ y: sheetMinimized ? "25%" : 0 }}
+          exit={{ y: "100%" }}
+          transition={{ type: "spring", stiffness: 120 }}
+          className="fixed bottom-0 w-full bg-white rounded-t-3xl shadow-xl z-50"
         >
-          {/* HEADER FIX */}
+          {/* HEADER */}
           <div
-            className="flex justify-between items-center cursor-pointer px-4 py-3"
+            className="flex justify-between items-center px-4 py-3 cursor-pointer"
             onClick={() => setSheetMinimized(!sheetMinimized)}
           >
             <h2 className="font-bold text-lg flex-1 text-center">
-              {rideStatus === "pending" && "Cursă UCab"}
-              {rideStatus === "assigned" && "Șofer în drum"}
-              {rideStatus === "in_progress" && "Cursă în desfășurare"}
-              {rideStatus === "completed" && "Cursă finalizată"}
+              Cursă UCab
             </h2>
             {sheetMinimized ? <FaChevronUp /> : <FaChevronDown />}
           </div>
 
-          {/* CONTENT */}
           {!sheetMinimized && (
             <div className="px-4 pb-4">
-              {/* Tip mașină */}
-              {rideStatus === "pending" && (
-                <div className="flex gap-2 mb-3">
-                  {Object.keys(carOptions).map((car) => (
-                    <button
-                      key={car}
-                      className={`flex-1 py-2 rounded-xl border ${
-                        selectedCar === car
-                          ? "bg-black text-white border-blue-800"
-                          : "border-gray-300"
-                      }`}
-                      onClick={() => setSelectedCar(car)}
-                    >
-                      {carOptions[car].label}
-                    </button>
-                  ))}
+              {/* PLECARE */}
+              <div className="mb-3">
+                <div
+                  onClick={useCurrentLocation}
+                  className="mb-2 flex items-center gap-2 px-3 py-2
+                             rounded-xl bg-gray-100 hover:bg-gray-200
+                             cursor-pointer text-sm font-medium"
+                >
+                  📍 Use current location
                 </div>
-              )}
 
-              {/* Input-uri */}
-              {rideStatus === "pending" && (
-                <>
-                  <div className="flex gap-2 items-center mb-2">
-                    <FaMapMarkerAlt />
-                    <Autocomplete
-                      onLoad={(ref) => (pickupRef.current = ref)}
-                      onPlaceChanged={() => {
-                        const p = pickupRef.current.getPlace();
-                        if (p?.geometry) {
-                          setPickup({ lat: p.geometry.location.lat(), lng: p.geometry.location.lng() });
-                          setPickupText(p.formatted_address);
-                        }
-                      }}
-                    >
-                      <input
-                        value={pickupText}
-                        onChange={(e) => setPickupText(e.target.value)}
-                        placeholder="Plecare"
-                        className="w-full border rounded-xl px-3 py-2"
-                      />
-                    </Autocomplete>
-                  </div>
-
-                  <div className="flex gap-2 items-center mb-3">
-                    <FaFlagCheckered />
-                    <Autocomplete
-                      onLoad={(ref) => (destinationRef.current = ref)}
-                      onPlaceChanged={() => {
-                        const p = destinationRef.current.getPlace();
-                        if (p?.geometry) {
-                          setDestination({ lat: p.geometry.location.lat(), lng: p.geometry.location.lng() });
-                          setDestinationText(p.formatted_address);
-                        }
-                      }}
-                    >
-                      <input
-                        value={destinationText}
-                        onChange={(e) => setDestinationText(e.target.value)}
-                        placeholder="Destinație"
-                        className="w-full border rounded-xl px-3 py-2"
-                      />
-                    </Autocomplete>
-                  </div>
-
-                  <button
-                    onClick={calculateRoute}
-                    className="w-full  bg-black text-white py-2 rounded-xl"
+                <div className="flex gap-2 items-center">
+                  <FaMapMarkerAlt />
+                  <Autocomplete
+                    onLoad={(ref) => (pickupRef.current = ref)}
+                    onPlaceChanged={() => {
+                      const p = pickupRef.current.getPlace();
+                      if (p?.geometry) {
+                        setPickup({
+                          lat: p.geometry.location.lat(),
+                          lng: p.geometry.location.lng(),
+                        });
+                        setPickupText(p.formatted_address);
+                      }
+                    }}
                   >
-                    Calculează ruta
-                  </button>
-                </>
-              )}
+                    <input
+                      value={pickupText}
+                      onChange={(e) => setPickupText(e.target.value)}
+                      placeholder="Plecare"
+                      className="w-full border rounded-xl px-3 py-2"
+                    />
+                  </Autocomplete>
+                </div>
+              </div>
 
-              {/* Preview + confirm */}
-              {directions && rideStatus === "pending" && (
-                <div className="space-y-1 mt-2">
+              {/* DESTINATIE */}
+              <div className="flex gap-2 items-center mb-3">
+                <FaFlagCheckered />
+                <Autocomplete
+                  onLoad={(ref) => (destinationRef.current = ref)}
+                  onPlaceChanged={() => {
+                    const p = destinationRef.current.getPlace();
+                    if (p?.geometry) {
+                      setDestination({
+                        lat: p.geometry.location.lat(),
+                        lng: p.geometry.location.lng(),
+                      });
+                      setDestinationText(p.formatted_address);
+                    }
+                  }}
+                >
+                  <input
+                    value={destinationText}
+                    onChange={(e) => setDestinationText(e.target.value)}
+                    placeholder="Destinație"
+                    className="w-full border rounded-xl px-3 py-2"
+                  />
+                </Autocomplete>
+              </div>
+
+              <button
+                onClick={calculateRoute}
+                className="w-full bg-black text-white py-2 rounded-xl"
+              >
+                Calculează ruta
+              </button>
+
+              {directions && (
+                <div className="mt-3">
                   <p>Distanță: {distance?.toFixed(2)} km</p>
                   <p>Timp: {time}</p>
-                  <p className="font-bold">Cost ({carOptions[selectedCar].label}): {cost} RON</p>
+                  <p className="font-bold">Cost: {cost} RON</p>
                   <button
                     onClick={confirmRide}
-                    disabled={loading}
-                    className="w-full bg-blue-600 text-white py-2 rounded-xl"
+                    className="w-full bg-blue-600 text-white py-2 rounded-xl mt-2"
                   >
-                    {loading ? "Se confirmă..." : "Confirmă cursa"}
+                    Confirmă cursa
                   </button>
                 </div>
               )}
 
-              {/* Mesaj status */}
               {message && (
-                <p className={`text-sm text-center ${rideStatus === "completed" ? "text-green-600" : "text-blue-600"}`}>
+                <p className="text-center text-sm text-blue-600 mt-2">
                   {message}
                 </p>
               )}
