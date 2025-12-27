@@ -53,6 +53,7 @@ export default function RideSharePage() {
   const [message, setMessage] = useState("");
   const [selectedCar, setSelectedCar] = useState("standard");
   const [sheetMinimized, setSheetMinimized] = useState(false);
+  const [rideId, setRideId] = useState(null);
 
   /* ================= CURRENT LOCATION ================= */
   const useCurrentLocation = async () => {
@@ -108,37 +109,60 @@ export default function RideSharePage() {
     ? (distance * carOptions[selectedCar].rate).toFixed(2)
     : "0.00";
 
-  const confirmRide = () => {
+  /* ================= CONFIRM RIDE (API) ================= */
+  const confirmRide = async () => {
     if (!directions) return;
     setLoading(true);
-    setTimeout(() => {
-      setRideStatus("assigned");
-      setDriverPos(pickup);
-      setMessage("Cursă confirmată. Șofer în drum spre tine.");
-      setLoading(false);
-    }, 1200);
+
+    // 1. Creare ride
+    const rideRes = await fetch("/api/rides", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pickup,
+        destination,
+        distance,
+        time,
+        carType: selectedCar,
+      }),
+    });
+
+    const rideData = await rideRes.json();
+    setRideId(rideData.ride.rideId);
+
+    // 2. Creare driver pentru ride
+    const driverRes = await fetch("/api/drivers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        rideId: rideData.ride.rideId,
+        position: pickup,
+        status: "assigned",
+      }),
+    });
+
+    const driverData = await driverRes.json();
+    setDriverPos(driverData.driver.position);
+    setRideStatus(driverData.driver.status);
+    setMessage("Cursă confirmată. Șofer în drum spre tine.");
+    setLoading(false);
   };
 
-  /* ================= DRIVER SIM ================= */
+  /* ================= TRACK DRIVER LIVE ================= */
   useEffect(() => {
-    if (!directions || !driverPos || rideStatus !== "assigned") return;
+    if (!rideId || rideStatus === "completed") return;
 
-    const path = directions.routes[0].overview_path;
-    let i = 0;
-
-    const interval = setInterval(() => {
-      if (i < path.length) {
-        setDriverPos({ lat: path[i].lat(), lng: path[i].lng() });
-        if (i > path.length / 2) setRideStatus("in_progress");
-        i++;
-      } else {
-        setRideStatus("completed");
-        clearInterval(interval);
+    const interval = setInterval(async () => {
+      const res = await fetch(`/api/drivers/${rideId}`);
+      if (res.status === 200) {
+        const data = await res.json();
+        setDriverPos(data.driver.position);
+        setRideStatus(data.driver.status);
       }
-    }, 220);
+    }, 2000);
 
     return () => clearInterval(interval);
-  }, [directions, rideStatus]);
+  }, [rideId, rideStatus]);
 
   if (!isLoaded) {
     return (
@@ -177,9 +201,7 @@ export default function RideSharePage() {
             className="flex justify-between items-center px-4 py-3 cursor-pointer"
             onClick={() => setSheetMinimized(!sheetMinimized)}
           >
-            <h2 className="font-bold text-lg flex-1 text-center">
-              Cursă UCab
-            </h2>
+            <h2 className="font-bold text-lg flex-1 text-center">Cursă UCab</h2>
             {sheetMinimized ? <FaChevronUp /> : <FaChevronDown />}
           </div>
 
@@ -261,16 +283,15 @@ export default function RideSharePage() {
                   <button
                     onClick={confirmRide}
                     className="w-full bg-blue-600 text-white py-2 rounded-xl mt-2"
+                    disabled={loading}
                   >
-                    Confirmă cursa
+                    {loading ? "Se confirmă..." : "Confirmă cursa"}
                   </button>
                 </div>
               )}
 
               {message && (
-                <p className="text-center text-sm text-blue-600 mt-2">
-                  {message}
-                </p>
+                <p className="text-center text-sm text-blue-600 mt-2">{message}</p>
               )}
             </div>
           )}
