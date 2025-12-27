@@ -52,6 +52,23 @@ export default function LandingPage() {
     },
   ];
 
+//curent location
+const getCurrentLocation = () => {
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    const { latitude, longitude } = pos.coords;
+
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+    );
+    const data = await res.json();
+
+    setPickup(data.display_name || "Current location");
+  });
+};
+
+
+
+
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
 
@@ -90,16 +107,39 @@ export default function LandingPage() {
           className="w-full max-w-3xl bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-6 flex flex-col sm:flex-row gap-4 items-center border border-white/20"
         >
           {/* Pickup */}
-          <div className="relative flex-1 w-full sm:w-auto">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-green-400 text-xl">📍</span>
-            <input
-              type="text"
-              placeholder="Punct de plecare"
-              value={pickup}
-              onChange={(e) => setPickup(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/90 focus:outline-none focus:ring-2 focus:ring-green-400 shadow-md hover:shadow-lg transition"
-            />
-          </div>
+{/* Pickup */}
+<div className="relative flex-1 w-full sm:w-auto">
+
+  {/* UBER CURRENT LOCATION ROW */}
+  <div
+    onClick={getCurrentLocation}
+    className="mb-2 flex items-center gap-3 px-3 py-2 rounded-xl
+               text-sm text-gray-200 bg-white/5 hover:bg-white/10
+               cursor-pointer transition"
+  >
+    <span className="text-green-400 text-lg">📍</span>
+    <span className="font-medium">Use current location</span>
+  </div>
+
+  {/* INPUT */}
+  <div className="relative">
+    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-green-400 text-xl">
+      📍
+    </span>
+    <input
+      type="text"
+      placeholder="Enter pickup location"
+      value={pickup}
+      onChange={(e) => setPickup(e.target.value)}
+      className="w-full pl-12 pr-4 py-3 rounded-2xl
+                 bg-white/90 focus:outline-none
+                 focus:ring-2 focus:ring-green-400
+                 shadow-md hover:shadow-lg transition"
+    />
+  </div>
+
+</div>
+
 
           {/* Destination */}
           <div className="relative flex-1 w-full sm:w-auto">
