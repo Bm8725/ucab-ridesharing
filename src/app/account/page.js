@@ -5,6 +5,67 @@ import { useState } from "react";
 export default function RegisterWizard() {
   const [step, setStep] = useState(1);
   const totalSteps = 4;
+  const [errorStepMsg, setErrorStepMsg] = useState("");
+  const [language, setLanguage] = useState("ro"); // 'ro' sau 'en'
+
+  const translations = {
+    ro: {
+      headerTitle: "UCab.ro",
+      headerSubtitle: "Creare cont client",
+      steps: ["Info", "Contact", "Plată", "Politică"],
+      continue: "Continuă",
+      back: "Înapoi",
+      submit: "Finalizează",
+      submitting: "Se trimite...",
+      requiredFields: "Toate câmpurile sunt obligatorii.",
+      acceptPolicy: "Accept termenii și politica",
+      personalInfo: "Informații personale",
+      contactInfo: "Date de contact",
+      paymentMethod: "Metodă de plată",
+      privacyPolicy: "Politică de confidențialitate",
+      success: "Cont creat cu succes!",
+      phonePlaceholder: "Telefon (07xx xxx xxx)",
+      namePlaceholder: "Nume complet",
+      emailPlaceholder: "Email",
+      passwordPlaceholder: "Parolă",
+      addressPlaceholder: "Adresă",
+      selectPayment: "Selectează",
+      card: "Card",
+      cash: "Cash",
+      mixed: "Mixt",
+      invalidEmail: "Email invalid",
+      invalidPhone: "Telefon invalid",
+    },
+    en: {
+      headerTitle: "UCab.ro",
+      headerSubtitle: "Create client account",
+      steps: ["Info", "Contact", "Payment", "Policy"],
+      continue: "Next",
+      back: "Back",
+      submit: "Finish",
+      submitting: "Submitting...",
+      requiredFields: "All fields are required.",
+      acceptPolicy: "I accept the terms and policy",
+      personalInfo: "Personal Information",
+      contactInfo: "Contact Information",
+      paymentMethod: "Payment Method",
+      privacyPolicy: "Privacy Policy",
+      success: "Account created successfully!",
+      phonePlaceholder: "Phone (07xx xxx xxx)",
+      namePlaceholder: "Full Name",
+      emailPlaceholder: "Email",
+      passwordPlaceholder: "Password",
+      addressPlaceholder: "Address",
+      selectPayment: "Select",
+      card: "Card",
+      cash: "Cash",
+      mixed: "Mixed",
+      invalidEmail: "Invalid email",
+      invalidPhone: "Invalid phone",
+    },
+  };
+
+  const t = translations[language];
 
   const [formData, setFormData] = useState({
     name: "",
@@ -20,39 +81,98 @@ export default function RegisterWizard() {
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  const nextStep = () => setStep((s) => Math.min(s + 1, totalSteps));
+const handleChange = (e) => {
+  let value = e.target.value;
+
+  if (e.target.name === "phone") {
+    // Elimină orice caracter care nu e cifră
+    let digits = value.replace(/\D/g, "").slice(0, 10); // maxim 10 cifre
+
+    // Aplică masca 07xx xxx xxx
+    if (digits.length <= 4) {
+      value = digits;
+    } else if (digits.length <= 7) {
+      value = `${digits.slice(0, 4)} ${digits.slice(4)}`;
+    } else {
+      value = `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7)}`;
+    }
+  }
+
+  setFormData({ ...formData, [e.target.name]: value });
+};
+
+  const validateEmail = (email) => {
+    const re = /\S+@\S+\.\S+/;
+    return re.test(email);
+  };
+
+  const validatePhone = (phone) => {
+    // Format RO: 07xx xxx xxx, 10 cifre
+    const digits = phone.replace(/\D/g, "");
+    return /^07\d{8}$/.test(digits);
+  };
+
+  const validateStep = () => {
+    setErrorStepMsg("");
+    if (step === 1) {
+      if (!formData.name || !formData.email || !formData.password) {
+        setErrorStepMsg(t.requiredFields);
+        return false;
+      }
+      if (!validateEmail(formData.email)) {
+        setErrorStepMsg(t.invalidEmail);
+        return false;
+      }
+    } else if (step === 2) {
+      if (!formData.phone || !formData.address) {
+        setErrorStepMsg(t.requiredFields);
+        return false;
+      }
+      if (!validatePhone(formData.phone)) {
+        setErrorStepMsg(t.invalidPhone);
+        return false;
+      }
+    } else if (step === 3) {
+      if (!formData.paymentMethod) {
+        setErrorStepMsg(t.requiredFields);
+        return false;
+      }
+    } else if (step === 4) {
+      if (!formData.acceptPolicy) {
+        setErrorStepMsg(t.acceptPolicy);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const nextStep = () => {
+    if (validateStep()) setStep((s) => Math.min(s + 1, totalSteps));
+  };
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-
   const handleSubmit = async () => {
-    if (!formData.acceptPolicy) return;
+    if (!validateStep()) return;
     setLoading(true);
     setErrorMsg("");
-
     try {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-
       const data = await res.json();
       if (data.success) {
-        setSuccessMsg("Cont creat cu succes!");
+        setSuccessMsg(t.success);
         setTimeout(() => (window.location.href = "/login"), 2000);
       } else {
-        setErrorMsg(data.message || "Eroare server");
+        setErrorMsg(data.message || "Server error");
       }
     } catch {
-      setErrorMsg("Eroare server");
+      setErrorMsg("Server error");
     }
     setLoading(false);
   };
-
-  /* ---------- Progress Uber-style ---------- */
-  const steps = ["Info", "Contact", "Plată", "Politică"];
 
   const progressPercent = ((step - 1) / (totalSteps - 1)) * 100;
 
@@ -60,8 +180,18 @@ export default function RegisterWizard() {
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
       {/* Header */}
       <header className="p-6 text-center">
-        <h1 className="text-3xl font-bold">UCab.ro</h1>
-        <p className="text-gray-500">Creare cont client</p>
+        <div className="flex justify-end mb-2">
+          <select
+            className="border rounded px-2 py-1"
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+          >
+            <option value="ro">RO</option>
+            <option value="en">EN</option>
+          </select>
+        </div>
+        <h1 className="text-3xl font-bold">{t.headerTitle}</h1>
+        <p className="text-gray-500">{t.headerSubtitle}</p>
       </header>
 
       {/* Progress bar */}
@@ -74,7 +204,7 @@ export default function RegisterWizard() {
         </div>
 
         <div className="flex justify-between mt-4">
-          {steps.map((label, i) => {
+          {t.steps.map((label, i) => {
             const index = i + 1;
             const active = step >= index;
             return (
@@ -96,27 +226,28 @@ export default function RegisterWizard() {
       {/* Content */}
       <main className="flex-1 flex items-center justify-center px-4">
         <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 animate-fadeIn">
-          
+          {errorStepMsg && <p className="text-red-600 mb-2">{errorStepMsg}</p>}
+
           {/* STEP 1 */}
           {step === 1 && (
             <div className="space-y-4">
-              <h2 className="text-xl font-bold">Informații personale</h2>
-              <input className="input" name="name" placeholder="Nume complet" value={formData.name} onChange={handleChange} />
-              <input className="input" type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} />
-              <input className="input" type="password" name="password" placeholder="Parolă" value={formData.password} onChange={handleChange} />
-              <button className="btn-primary" onClick={nextStep}>Continuă</button>
+              <h2 className="text-xl font-bold">{t.personalInfo}</h2>
+              <input className="input" name="name" placeholder={t.namePlaceholder} value={formData.name} onChange={handleChange} />
+              <input className="input" type="email" name="email" placeholder={t.emailPlaceholder} value={formData.email} onChange={handleChange} />
+              <input className="input" type="password" name="password" placeholder={t.passwordPlaceholder} value={formData.password} onChange={handleChange} />
+              <button className="btn-primary" onClick={nextStep}>{t.continue}</button>
             </div>
           )}
 
           {/* STEP 2 */}
           {step === 2 && (
             <div className="space-y-4">
-              <h2 className="text-xl font-bold">Date de contact</h2>
-              <input className="input" name="phone" placeholder="Telefon" value={formData.phone} onChange={handleChange} />
-              <input className="input" name="address" placeholder="Adresă" value={formData.address} onChange={handleChange} />
+              <h2 className="text-xl font-bold">{t.contactInfo}</h2>
+              <input className="input" name="phone" placeholder={t.phonePlaceholder} value={formData.phone} onChange={handleChange} />
+              <input className="input" name="address" placeholder={t.addressPlaceholder} value={formData.address} onChange={handleChange} />
               <div className="flex justify-between">
-                <button className="btn-secondary" onClick={prevStep}>Înapoi</button>
-                <button className="btn-primary" onClick={nextStep}>Continuă</button>
+                <button className="btn-secondary" onClick={prevStep}>{t.back}</button>
+                <button className="btn-primary" onClick={nextStep}>{t.continue}</button>
               </div>
             </div>
           )}
@@ -124,16 +255,16 @@ export default function RegisterWizard() {
           {/* STEP 3 */}
           {step === 3 && (
             <div className="space-y-4">
-              <h2 className="text-xl font-bold">Metodă de plată</h2>
+              <h2 className="text-xl font-bold">{t.paymentMethod}</h2>
               <select className="input" name="paymentMethod" value={formData.paymentMethod} onChange={handleChange}>
-                <option value="">Selectează</option>
-                <option value="card">Card</option>
-                <option value="cash">Cash</option>
-                <option value="mixt">Mixt</option>
+                <option value="">{t.selectPayment}</option>
+                <option value="card">{t.card}</option>
+                <option value="cash">{t.cash}</option>
+                <option value="mixed">{t.mixed}</option>
               </select>
               <div className="flex justify-between">
-                <button className="btn-secondary" onClick={prevStep}>Înapoi</button>
-                <button className="btn-primary" onClick={nextStep}>Continuă</button>
+                <button className="btn-secondary" onClick={prevStep}>{t.back}</button>
+                <button className="btn-primary" onClick={nextStep}>{t.continue}</button>
               </div>
             </div>
           )}
@@ -141,24 +272,24 @@ export default function RegisterWizard() {
           {/* STEP 4 */}
           {step === 4 && (
             <div className="space-y-4">
-              <h2 className="text-xl font-bold">Politică de confidențialitate</h2>
+              <h2 className="text-xl font-bold">{t.privacyPolicy}</h2>
               <label className="flex gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={formData.acceptPolicy}
                   onChange={(e) => setFormData({ ...formData, acceptPolicy: e.target.checked })}
                 />
-                Accept termenii și politica
+                {t.acceptPolicy}
               </label>
 
               <div className="flex justify-between">
-                <button className="btn-secondary" onClick={prevStep}>Înapoi</button>
+                <button className="btn-secondary" onClick={prevStep}>{t.back}</button>
                 <button
                   className="btn-primary"
-                  disabled={!formData.acceptPolicy || loading}
+                  disabled={loading}
                   onClick={handleSubmit}
                 >
-                  {loading ? "Se trimite..." : "Finalizează"}
+                  {loading ? t.submitting : t.submit}
                 </button>
               </div>
 
@@ -169,7 +300,6 @@ export default function RegisterWizard() {
         </div>
       </main>
 
-      {/* Tailwind helpers */}
       <style jsx>{`
         .input {
           width: 100%;
