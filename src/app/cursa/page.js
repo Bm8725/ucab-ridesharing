@@ -109,6 +109,7 @@ export default function RideSharePage() {
     ? (distance * carOptions[selectedCar].rate).toFixed(2)
     : "0.00";
 
+    
   /* ================= CONFIRM RIDE (API) ================= */
   const confirmRide = async () => {
     if (!directions) return;
