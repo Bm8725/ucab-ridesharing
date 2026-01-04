@@ -96,7 +96,7 @@ export default function LoginPage() {
               type="email"
               disabled={loading || success}
               className={`${inputBase} ${error && !email ? errorInput : normalInput}`}
-              placeholder="nume@companie.ro"
+              placeholder="your@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -108,12 +108,7 @@ export default function LoginPage() {
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
                 Cheie Acces
               </label>
-              <Link
-                href="/forgot"
-                className="text-[9px] font-bold uppercase tracking-widest text-zinc-400 hover:text-red-600 transition-colors"
-              >
-                Recuperare
-              </Link>
+    
             </div>
             <div className="relative group">
               <input
@@ -144,6 +139,14 @@ export default function LoginPage() {
             </div>
           </div>
 
+      <Link
+  href="/forgot"
+  className="text-[13px] font-bold uppercase tracking-widest text-zinc-600 hover:text-red-600 transition-colors flex items-center gap-1"
+>
+  Recuperare / recover <span className="text-sm">↗</span>
+</Link>
+
+ 
           {/* BUTON / SUCCESS */}
           <div className="pt-6">
             {success ? (
