@@ -151,28 +151,30 @@ const handleChange = (e) => {
   };
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
-  const handleSubmit = async () => {
-    if (!validateStep()) return;
-    setLoading(true);
-    setErrorMsg("");
-    try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setSuccessMsg(t.success);
-        setTimeout(() => (window.location.href = "/login"), 2000);
-      } else {
-        setErrorMsg(data.message || "Server error");
-      }
-    } catch {
-      setErrorMsg("Server error");
+const handleSubmit = async () => {
+  if (!validateStep()) return;
+  setLoading(true);
+  setErrorMsg("");
+  try {
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+    const data = await res.json();
+    if (data.success) {
+      setSuccessMsg(t.success);
+      setTimeout(() => (window.location.href = "/login"), 2000);
+    } else {
+      setErrorMsg(data.message || "Server error");
     }
-    setLoading(false);
-  };
+  } catch (err) {
+    console.error(err);
+    setErrorMsg("Server error");
+  }
+  setLoading(false);
+};
+
 
   const progressPercent = ((step - 1) / (totalSteps - 1)) * 100;
 
