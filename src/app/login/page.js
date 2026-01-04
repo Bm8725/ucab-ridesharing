@@ -37,7 +37,7 @@ export default function LoginPage() {
       } else {
         setSuccess("Autentificare reușită. Redirecționare...");
         setTimeout(() => {
-          window.location.href = "https://www.ucab.ro/cursa/";
+          window.location.href = "/cursa/";
         }, 1200);
       }
     } catch (err) {
@@ -170,11 +170,12 @@ export default function LoginPage() {
           <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
             Nu ai inca cont la noi?
             <Link
-              href="/account"
-              className="text-black dark:text-white underline underline-offset-8 hover:opacity-50 transition-opacity ml-3"
+              href="/account/"
+              className="text-blue-600 dark:text-blue-400 font-extrabold underline underline-offset-4 hover:opacity-80 transition-opacity ml-3"
             >
               Creează cont client
             </Link>
+
           </p>
         </div>
       </main>
