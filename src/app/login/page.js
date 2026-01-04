@@ -167,7 +167,7 @@ export default function LoginPage() {
 
         {/* REGISTER */}
         <div className="mt-16 pt-8 border-t border-zinc-100 dark:border-zinc-900 text-center">
-          <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+          <p className="text-[13px] font-bold text-zinc-400 uppercase tracking-widest">
             Nu ai inca cont la noi?
             <Link
               href="/account/"
