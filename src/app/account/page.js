@@ -6,11 +6,11 @@ export default function RegisterWizard() {
   const [step, setStep] = useState(1);
   const totalSteps = 4;
   const [errorStepMsg, setErrorStepMsg] = useState("");
-  const [language, setLanguage] = useState("ro"); // 'ro' sau 'en'
+  const [language, setLanguage] = useState("ro");
 
   const translations = {
     ro: {
-      headerTitle: "UCab.ro",
+      headerTitle: "UCab.ro/cont client",
       headerSubtitle: "Creare cont client",
       steps: ["Info", "Contact", "Plată", "Politică"],
       continue: "Continuă",
@@ -37,7 +37,7 @@ export default function RegisterWizard() {
       invalidPhone: "Telefon invalid",
     },
     en: {
-      headerTitle: "UCab.ro",
+      headerTitle: "UCab.ro/client account",
       headerSubtitle: "Create client account",
       steps: ["Info", "Contact", "Payment", "Policy"],
       continue: "Next",
@@ -81,25 +81,21 @@ export default function RegisterWizard() {
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-const handleChange = (e) => {
-  let value = e.target.value;
+  const handleChange = (e) => {
+    let value = e.target.type === "checkbox" ? e.target.checked : e.target.value;
 
-  if (e.target.name === "phone") {
-    // Elimină orice caracter care nu e cifră
-    let digits = value.replace(/\D/g, "").slice(0, 10); // maxim 10 cifre
-
-    // Aplică masca 07xx xxx xxx
-    if (digits.length <= 4) {
-      value = digits;
-    } else if (digits.length <= 7) {
-      value = `${digits.slice(0, 4)} ${digits.slice(4)}`;
-    } else {
-      value = `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7)}`;
+    if (e.target.name === "phone") {
+      let digits = value.replace(/\D/g, "").slice(0, 10);
+      if (digits.length <= 4) {
+        value = digits;
+      } else if (digits.length <= 7) {
+        value = `${digits.slice(0, 4)} ${digits.slice(4)}`;
+      } else {
+        value = `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7)}`;
+      }
     }
-  }
-
-  setFormData({ ...formData, [e.target.name]: value });
-};
+    setFormData({ ...formData, [e.target.name]: value });
+  };
 
   const validateEmail = (email) => {
     const re = /\S+@\S+\.\S+/;
@@ -107,7 +103,6 @@ const handleChange = (e) => {
   };
 
   const validatePhone = (phone) => {
-    // Format RO: 07xx xxx xxx, 10 cifre
     const digits = phone.replace(/\D/g, "");
     return /^07\d{8}$/.test(digits);
   };
@@ -151,184 +146,172 @@ const handleChange = (e) => {
   };
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
-const handleSubmit = async () => {
-  if (!validateStep()) return;
-  setLoading(true);
-  setErrorMsg("");
-  try {
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
-    const data = await res.json();
-    if (data.success) {
-      setSuccessMsg(t.success);
-      setTimeout(() => (window.location.href = "/login"), 2000);
-    } else {
-      setErrorMsg(data.message || "Server error");
+  const handleSubmit = async () => {
+    if (!validateStep()) return;
+    setLoading(true);
+    setErrorMsg("");
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSuccessMsg(t.success);
+        setTimeout(() => (window.location.href = "/login"), 2000);
+      } else {
+        setErrorMsg(data.message || "Server error");
+      }
+    } catch (err) {
+      setErrorMsg("Server error");
     }
-  } catch (err) {
-    console.error(err);
-    setErrorMsg("Server error");
-  }
-  setLoading(false);
-};
-
+    setLoading(false);
+  };
 
   const progressPercent = ((step - 1) / (totalSteps - 1)) * 100;
 
+  // Stilizare dinamică pentru input-uri bazată pe erori
+  const getInputClass = (hasError) => `
+    w-full bg-transparent border-b-2 py-4 outline-none transition-all text-lg placeholder:text-zinc-400 font-light
+    ${errorStepMsg && hasError ? 'border-red-600 dark:border-red-500' : 'border-zinc-200 dark:border-zinc-800 focus:border-black dark:focus:border-white'}
+  `;
+
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
-      {/* Header */}
-      <header className="p-6 text-center">
-        <div className="flex justify-end mb-2">
-          <select
-            className="border rounded px-2 py-1"
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-          >
-            <option value="ro">RO</option>
-            <option value="en">EN</option>
-          </select>
+    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white font-sans antialiased">
+      
+      {/* Navbar cu selector limbă */}
+      <nav className="p-6 md:p-10 flex justify-between items-center max-w-2xl mx-auto">
+        <h3 className="text-xl font-black tracking-tighter uppercase">{t.headerTitle}</h3>
+        <div className="flex gap-6">
+          {['ro', 'en'].map((l) => (
+            <button
+              key={l}
+              onClick={() => setLanguage(l)}
+              className={`text-[10px] font-black uppercase tracking-widest ${language === l ? 'border-b-2 border-black dark:border-white' : 'opacity-30 hover:opacity-100'}`}
+            >
+              {l}
+            </button>
+          ))}
         </div>
-        <h1 className="text-3xl font-bold">{t.headerTitle}</h1>
-        <p className="text-gray-500">{t.headerSubtitle}</p>
-      </header>
+      </nav>
 
-      {/* Progress bar */}
-      <div className="max-w-3xl w-full mx-auto px-6">
-        <div className="relative h-1 bg-gray-300 rounded-full">
-          <div
-            className="absolute h-1 bg-black rounded-full transition-all duration-500"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
+      <main className="max-w-xl mx-auto px-6 py-12 flex flex-col min-h-[70vh]">
+        
+        {/* Progress Bar - Devine VERDE la final/succes */}
+        <header className="mb-16">
+          <div className="flex justify-between items-end mb-4">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 mb-2">Step 0{step}</p>
+              <h2 className="text-4xl font-light tracking-tighter uppercase italic">{t.steps[step - 1]}</h2>
+            </div>
+          </div>
+          <div className="w-full h-[2px] bg-zinc-100 dark:bg-zinc-900">
+            <div 
+              className={`h-full transition-all duration-1000 ease-out ${successMsg ? 'bg-emerald-500 shadow-[0_0_10px_#10b981]' : 'bg-black dark:bg-white'}`} 
+              style={{ width: `${progressPercent}%` }} 
+            />
+          </div>
+        </header>
 
-        <div className="flex justify-between mt-4">
-          {t.steps.map((label, i) => {
-            const index = i + 1;
-            const active = step >= index;
-            return (
-              <div key={label} className="flex flex-col items-center w-full">
-                <div
-                  className={`w-8 h-8 flex items-center justify-center rounded-full border-2 transition-all duration-300
-                    ${active ? "bg-black text-white border-black" : "border-gray-400 text-gray-400"}
-                  `}
-                >
-                  {index}
+        <div className="flex-1">
+          {/* Mesaj de EROARE - ROSU */}
+          {errorStepMsg && (
+            <div className="mb-8 p-4 border-l-4 border-red-600 bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 text-[11px] font-bold uppercase tracking-widest animate-bounce">
+              EROARE // {errorStepMsg}
+            </div>
+          )}
+
+          {/* Mesaj de SUCCES - VERDE */}
+          {successMsg ? (
+            <div className="py-20 text-center border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/20 rounded-xl">
+              <h3 className="text-3xl font-black uppercase italic tracking-tighter text-emerald-600 dark:text-emerald-400 animate-pulse">
+                {t.success}
+              </h3>
+              <p className="mt-4 text-xs font-bold text-emerald-700 uppercase tracking-widest">Redirecționare în curs...</p>
+            </div>
+          ) : (
+            <div className="space-y-12">
+              {step === 1 && (
+                <div className="space-y-6">
+                  <input className={getInputClass(!formData.name)} name="name" placeholder={t.namePlaceholder} value={formData.name} onChange={handleChange} autoFocus />
+                  <input className={getInputClass(!formData.email || !validateEmail(formData.email))} type="email" name="email" placeholder={t.emailPlaceholder} value={formData.email} onChange={handleChange} />
+                  <input className={getInputClass(!formData.password)} type="password" name="password" placeholder={t.passwordPlaceholder} value={formData.password} onChange={handleChange} />
                 </div>
-                <span className="text-xs mt-2 text-center">{label}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+              )}
 
-      {/* Content */}
-      <main className="flex-1 flex items-center justify-center px-4">
-        <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 animate-fadeIn">
-          {errorStepMsg && <p className="text-red-600 mb-2">{errorStepMsg}</p>}
+              {step === 2 && (
+                <div className="space-y-6">
+                  <div className="relative">
+                    <span className="absolute left-0 top-4 text-[10px] font-black text-zinc-400">RO</span>
+                    <input className={`${getInputClass(!formData.phone || !validatePhone(formData.phone))} pl-8`} name="phone" placeholder={t.phonePlaceholder} value={formData.phone} onChange={handleChange} autoFocus />
+                  </div>
+                  <input className={getInputClass(!formData.address)} name="address" placeholder={t.addressPlaceholder} value={formData.address} onChange={handleChange} />
+                </div>
+              )}
 
-          {/* STEP 1 */}
-          {step === 1 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold">{t.personalInfo}</h2>
-              <input className="input" name="name" placeholder={t.namePlaceholder} value={formData.name} onChange={handleChange} />
-              <input className="input" type="email" name="email" placeholder={t.emailPlaceholder} value={formData.email} onChange={handleChange} />
-              <input className="input" type="password" name="password" placeholder={t.passwordPlaceholder} value={formData.password} onChange={handleChange} />
-              <button className="btn-primary" onClick={nextStep}>{t.continue}</button>
-            </div>
-          )}
+              {step === 3 && (
+                <div className="grid gap-4">
+                  {['card', 'cash', 'mixed'].map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => setFormData({...formData, paymentMethod: m})}
+                      className={`text-left p-6 border transition-all flex justify-between items-center 
+                        ${formData.paymentMethod === m 
+                          ? 'bg-black text-white border-black dark:bg-white dark:text-black' 
+                          : errorStepMsg && !formData.paymentMethod ? 'border-red-300 bg-red-50' : 'border-zinc-200 dark:border-zinc-800 hover:border-black dark:hover:border-white'}`}
+                    >
+                      <span className="text-[11px] font-black uppercase tracking-[0.2em]">{t[m]}</span>
+                      {formData.paymentMethod === m && <span className="text-[9px] font-bold tracking-widest">SELECTED</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
 
-          {/* STEP 2 */}
-          {step === 2 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold">{t.contactInfo}</h2>
-              <input className="input" name="phone" placeholder={t.phonePlaceholder} value={formData.phone} onChange={handleChange} />
-              <input className="input" name="address" placeholder={t.addressPlaceholder} value={formData.address} onChange={handleChange} />
-              <div className="flex justify-between">
-                <button className="btn-secondary" onClick={prevStep}>{t.back}</button>
-                <button className="btn-primary" onClick={nextStep}>{t.continue}</button>
-              </div>
-            </div>
-          )}
+              {step === 4 && (
+                <div className="space-y-8">
+                  <div className={`text-[12px] leading-relaxed uppercase tracking-tight max-h-48 overflow-y-auto border p-6 italic
+                    ${errorStepMsg && !formData.acceptPolicy ? 'border-red-300 bg-red-50 text-red-900' : 'border-zinc-100 dark:border-zinc-900 text-zinc-500'}`}>
+                    {t.privacyPolicy}: Utilizarea platformei UCab.ro în anul 2026 implică acceptarea prelucrării datelor.
+                  </div>
+                  <label className="flex items-center gap-4 cursor-pointer group">
+                    <input 
+                      type="checkbox" 
+                      name="acceptPolicy" 
+                      checked={formData.acceptPolicy} 
+                      onChange={handleChange} 
+                      className={`w-6 h-6 rounded-none accent-emerald-600 ${errorStepMsg && !formData.acceptPolicy ? 'outline outline-2 outline-red-500' : ''}`}
+                    />
+                    <span className={`text-[11px] font-black uppercase tracking-tighter ${errorStepMsg && !formData.acceptPolicy ? 'text-red-600' : ''}`}>{t.acceptPolicy}</span>
+                  </label>
+                </div>
+              )}
 
-          {/* STEP 3 */}
-          {step === 3 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold">{t.paymentMethod}</h2>
-              <select className="input" name="paymentMethod" value={formData.paymentMethod} onChange={handleChange}>
-                <option value="">{t.selectPayment}</option>
-                <option value="card">{t.card}</option>
-                <option value="cash">{t.cash}</option>
-                <option value="mixed">{t.mixed}</option>
-              </select>
-              <div className="flex justify-between">
-                <button className="btn-secondary" onClick={prevStep}>{t.back}</button>
-                <button className="btn-primary" onClick={nextStep}>{t.continue}</button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 4 */}
-          {step === 4 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold">{t.privacyPolicy}</h2>
-              <label className="flex gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={formData.acceptPolicy}
-                  onChange={(e) => setFormData({ ...formData, acceptPolicy: e.target.checked })}
-                />
-                {t.acceptPolicy}
-              </label>
-
-              <div className="flex justify-between">
-                <button className="btn-secondary" onClick={prevStep}>{t.back}</button>
-                <button
-                  className="btn-primary"
+              {/* Navigație */}
+              <div className="pt-12 flex flex-col md:flex-row-reverse gap-4">
+                <button 
+                  onClick={step < totalSteps ? nextStep : handleSubmit}
                   disabled={loading}
-                  onClick={handleSubmit}
+                  className={`flex-1 py-5 px-8 font-black uppercase text-[11px] tracking-[0.3em] transition-all disabled:opacity-30
+                    ${step === totalSteps ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20' : 'bg-black dark:bg-white text-white dark:text-black'}`}
                 >
-                  {loading ? t.submitting : t.submit}
+                  {loading ? t.submitting : (step === totalSteps ? t.submit : t.continue)}
                 </button>
+                
+                {step > 1 && (
+                  <button onClick={prevStep} className="px-8 py-5 text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-black dark:hover:text-white">
+                    {t.back}
+                  </button>
+                )}
               </div>
-
-              {successMsg && <p className="text-green-600">{successMsg}</p>}
-              {errorMsg && <p className="text-red-600">{errorMsg}</p>}
             </div>
           )}
         </div>
+        
+        {/* Eroare de Server - ROSU */}
+        {errorMsg && <p className="mt-8 text-center text-red-600 text-[10px] font-black uppercase tracking-widest italic border-2 border-red-600 p-2">{errorMsg}</p>}
       </main>
 
-      <style jsx>{`
-        .input {
-          width: 100%;
-          padding: 0.75rem;
-          border-radius: 0.75rem;
-          border: 1px solid #d1d5db;
-        }
-        .btn-primary {
-          width: 100%;
-          padding: 0.75rem;
-          border-radius: 0.75rem;
-          background: black;
-          color: white;
-        }
-        .btn-secondary {
-          padding: 0.75rem 1.25rem;
-          border-radius: 0.75rem;
-          background: #e5e7eb;
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.4s ease;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 }
