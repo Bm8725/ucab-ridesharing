@@ -293,7 +293,7 @@ export default function RegisterWizard() {
                   onClick={step < totalSteps ? nextStep : handleSubmit}
                   disabled={loading}
                   className={`flex-1 py-5 px-8 font-black uppercase text-[11px] tracking-[0.3em] transition-all disabled:opacity-30
-                    ${step === totalSteps ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20' : 'bg-black dark:bg-white text-white dark:text-black'}`}
+                    ${step === totalSteps ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20' : 'bg-black dark:bg-white text-white dark:text-black'}`}
                 >
                   {loading ? t.submitting : (step === totalSteps ? t.submit : t.continue)}
                 </button>
