@@ -168,20 +168,17 @@ export default function LoginPage() {
         {/* REGISTER */}
         <div className="mt-16 pt-8 border-t border-zinc-100 dark:border-zinc-900 text-center">
           <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-            Lipsă acreditări?
+            Nu ai inca cont la noi?
             <Link
               href="/account"
               className="text-black dark:text-white underline underline-offset-8 hover:opacity-50 transition-opacity ml-3"
             >
-              Creează profil client
+              Creează cont client
             </Link>
           </p>
         </div>
       </main>
 
-      <footer className="mt-20 opacity-30 text-[8px] font-bold uppercase tracking-[0.5em]">
-        &copy; 2026 UCab Secure Node &bull; Encrypted Session
-      </footer>
     </div>
   );
 }
