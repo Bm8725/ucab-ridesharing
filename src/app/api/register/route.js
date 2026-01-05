@@ -24,13 +24,16 @@ export async function POST(req) {
     if (error) return NextResponse.json({ success: false, message: error.message }, { status: 400 });
 
     // Introdu user în tabela "riders"
-    await supabase.from("riders").insert({
-      id: user.user.id,
-      name,
-      phone,
-      address,
-      preferred_payment: paymentMethod,
-    });
+// Introdu user în tabela "riders"
+      await supabase.from("riders").insert({
+        id: user.user.id,
+        name,
+        email,                   // ← adăugat
+        phone,
+        address,
+        preferred_payment: paymentMethod,
+      });
+
 
     return NextResponse.json({ success: true });
   } catch (err) {
