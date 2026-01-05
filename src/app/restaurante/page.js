@@ -9,6 +9,7 @@ import {
   Bike, ChevronRight, Trophy, 
   Timer, Zap, HeartPulse, Loader2
 } from "lucide-react";
+import Script from "next/script";
 
 export default function Restaurante() {
   const [restaurante, setRestaurante] = useState([]);
@@ -104,8 +105,30 @@ export default function Restaurante() {
   ];
 
   return (
+
     <div className="min-h-screen bg-[#FFF9F9] text-[#1D1D1F] pb-24 font-sans selection:bg-red-100">
       
+            {/* INTEGRARE CRISP CHAT */}
+      {/* 2. Integrare Crisp Chat cu ID-ul nou */}
+      <Script
+        id="crisp-chat-int"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.$crisp=[];
+            window.CRISP_WEBSITE_ID="9f40773a-3be8-4fd7-adf2-8efb73c1953b";
+            (function(){
+              d=document;
+              s=d.createElement("script");
+              s.src="https://client.crisp.chat/l.js";
+              s.async=1;
+              d.getElementsByTagName("head")[0].appendChild(s);
+            })();
+          `,
+        }}
+      />
+
+
 {/* HEADER DINAMIC */}
 <header
   className="
@@ -355,7 +378,7 @@ export default function Restaurante() {
                 <h2 className="text-4xl md:text-6xl font-black text-white mb-8 leading-tight">
                   Restaurantul tău <br /> merită <span className="text-red-200 underline decoration-white/30">ce-i mai bun.</span>
                 </h2>
-                <button className="px-10 py-5 bg-white text-red-600 rounded-[2rem] font-black text-xs tracking-widest hover:shadow-2xl transition-all uppercase">
+                <button href="/partener-restaurant/" className="px-10 py-5 bg-white text-red-600 rounded-[2rem] font-black text-xs tracking-widest hover:shadow-2xl transition-all uppercase">
                    Devino Partener UCab
                 </button>
               </div>
