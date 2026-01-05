@@ -1,10 +1,10 @@
 // app/api/register/route.js
-export const runtime = "nodejs"; // ← forțează Node.js runtime, Service Role Key funcționează
+// write by BM26
 
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
-// Server-side client (cheie secretă)
+// Server-side client (secret key cloud DB)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
