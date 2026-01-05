@@ -106,44 +106,85 @@ export default function Restaurante() {
   return (
     <div className="min-h-screen bg-[#FFF9F9] text-[#1D1D1F] pb-24 font-sans selection:bg-red-100">
       
-      {/* HEADER DINAMIC */}
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-2xl border-b border-red-50 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="bg-gradient-to-br from-red-600 to-rose-400 p-2.5 rounded-2xl shadow-lg shadow-red-200">
-              <ShoppingBag className="text-white" size={22} />
-            </div>
-            <div>
-              <h1 className="text-2xl font-black tracking-tight leading-none text-gray-900">UCab <span className="text-red-600">Food</span></h1>
-              <div className="flex items-center gap-1 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1">
-                {isDetecting ? <Loader2 size={10} className="animate-spin text-red-500" /> : <MapPin size={10} className="text-red-500" />}
-                {zona} 
-              </div>
-            </div>
-          </div>
+{/* HEADER DINAMIC */}
+<header
+  className="
+    md:sticky md:top-0
+    z-40
+    bg-white/90 backdrop-blur-2xl
+    border-b border-red-50
+    px-6 py-4
+    md:shadow-sm
+  "
+>
+  <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
 
-          <div className="relative flex-1 max-w-lg group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-500 transition" size={18} />
-            <input
-              type="text"
-              placeholder={`Ce vrei să mănânci bun în ${zona.split(',')[0]}?`}
-              className="w-full bg-gray-50 border-2 border-transparent focus:bg-white focus:border-red-100 rounded-2xl py-3.5 pl-12 pr-4 outline-none transition-all font-medium text-sm shadow-inner"
-            />
-          </div>
+    {/* LOGO + LOCAȚIE */}
+    <div className="flex items-center gap-4 shrink-0">
+      <div className="bg-gradient-to-br from-red-600 to-rose-400 p-2.5 rounded-2xl shadow-lg shadow-red-200">
+        <ShoppingBag className="text-white" size={22} />
+      </div>
 
-          <div className="hidden lg:flex items-center gap-6">
-             <div className="text-right">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Status Livrări</p>
-                <p className="text-xs font-bold text-green-500 flex items-center gap-1 justify-end">
-                   <Zap size={10} fill="currentColor" /> 42 Curieri Activi
-                </p>
-             </div>
-             <div className="w-10 h-10 rounded-full bg-red-100 border border-red-200 flex items-center justify-center text-red-600">
-                <HeartPulse size={20} />
-             </div>
-          </div>
+      <div>
+        <h1 className="text-2xl font-black tracking-tight leading-none text-gray-900">
+          UCab <span className="text-red-600">Food</span>
+        </h1>
+
+        <div className="flex items-center gap-1 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1">
+          {isDetecting ? (
+            <Loader2 size={10} className="animate-spin text-red-500" />
+          ) : (
+            <MapPin size={10} className="text-red-500" />
+          )}
+          {zona}
         </div>
-      </header>
+      </div>
+    </div>
+
+    {/* SEARCH */}
+    <div className="relative flex-1 max-w-lg group">
+      <Search
+        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-500 transition"
+        size={18}
+      />
+      <input
+        type="text"
+        placeholder={`Ce vrei să mănânci bun în ${zona.split(",")[0]}?`}
+        className="
+          w-full
+          bg-gray-50
+          border-2 border-transparent
+          focus:bg-white focus:border-red-100
+          rounded-2xl
+          py-3.5 pl-12 pr-4
+          outline-none
+          transition-all
+          font-medium text-sm
+          shadow-inner
+        "
+      />
+    </div>
+
+    {/* STATUS (desktop only) */}
+    <div className="hidden lg:flex items-center gap-6 shrink-0">
+      <div className="text-right">
+        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+          Status Livrări
+        </p>
+        <p className="text-xs font-bold text-green-500 flex items-center gap-1 justify-end">
+          <Zap size={10} fill="currentColor" /> 42 Curieri Activi
+        </p>
+      </div>
+
+      <div className="w-10 h-10 rounded-full bg-red-100 border border-red-200 flex items-center justify-center text-red-600">
+        <HeartPulse size={20} />
+      </div>
+    </div>
+
+  </div>
+</header>
+
+
 
       <main className="max-w-7xl mx-auto px-6 mt-8">
         
