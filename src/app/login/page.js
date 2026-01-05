@@ -81,7 +81,7 @@ export default function LoginPage() {
         {/* MESAJ EROARE */}
         {error && (
           <div className="mb-8 p-4 border-l-4 border-red-600 bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 text-[10px] font-black uppercase tracking-widest animate-pulse">
-            Eroare Sistem // {error}
+            ERR  // {error}
           </div>
         )}
 
@@ -106,7 +106,7 @@ export default function LoginPage() {
           <div className="space-y-2">
             <div className="flex justify-between items-end">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
-                Cheie Acces
+                Parola acces
               </label>
     
             </div>
@@ -140,7 +140,7 @@ export default function LoginPage() {
           </div>
 
       <Link
-  href="/forgot"
+  href="/reset-password/"
   className="text-[13px] font-bold uppercase tracking-widest text-zinc-600 hover:text-red-600 transition-colors flex items-center gap-1"
 >
   Recuperare / recover <span className="text-sm">↗</span>
@@ -151,7 +151,7 @@ export default function LoginPage() {
           <div className="pt-6">
             {success ? (
               <div className="p-5 border-l-4 border-green-600 bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 text-[10px] font-black uppercase tracking-widest text-center animate-pulse">
-                Sistem // {success}
+                APP server // {success}
               </div>
             ) : (
               <button
