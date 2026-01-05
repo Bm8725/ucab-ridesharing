@@ -109,24 +109,7 @@ export default function Restaurante() {
     <div className="min-h-screen bg-[#FFF9F9] text-[#1D1D1F] pb-24 font-sans selection:bg-red-100">
       
             {/* INTEGRARE CRISP CHAT */}
-      {/* 2. Integrare Crisp Chat cu ID-ul nou */}
-      <Script
-        id="crisp-chat-int"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.$crisp=[];
-            window.CRISP_WEBSITE_ID="9f40773a-3be8-4fd7-adf2-8efb73c1953b";
-            (function(){
-              d=document;
-              s=d.createElement("script");
-              s.src="https://client.crisp.chat/l.js";
-              s.async=1;
-              d.getElementsByTagName("head")[0].appendChild(s);
-            })();
-          `,
-        }}
-      />
+
 
 
 {/* HEADER DINAMIC */}
