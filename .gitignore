@@ -23,7 +23,6 @@ yarn-error.log*
 out/
 build/
 .next-env.d.ts
-api/
 backend/
 
 # ==========================
