@@ -6,6 +6,7 @@ import Footer from "./footer/page";
 import CookiesBanner from "./cookies/cookies";
 import OracleChat from "./chat/chat";
 import SEO from "./seo/seo";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -99,6 +100,7 @@ openGraph: {
 
 export default function RootLayout({ children }) {
   return (
+    
     <html lang="ro">
       <head>
         <link rel="preload" as="image" href="/ucabro.svg" />
@@ -116,7 +118,8 @@ export default function RootLayout({ children }) {
 
         <Footer />
         <CookiesBanner />
-        <OracleChat />
+         {/* <OracleChat />*/}
+
       </body>
     </html>
   );
