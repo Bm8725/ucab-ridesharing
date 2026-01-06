@@ -167,7 +167,7 @@ export default function RequestFormPage() {
                     <input 
                       className={`${inputClass} pl-16`} 
                       type={step === 3 ? "email" : "text"}
-                      placeholder={step === 2 ? "Nume Prenume" : "adresa@email.ro"} 
+                      placeholder={step === 2 ? "Nume Prenume" : "your@email.com"} 
                       value={step === 2 ? formData.name : formData.email} 
                       onChange={(e) => setFormData({...formData, [step === 2 ? "name" : "email"]: e.target.value})} 
                     />
@@ -229,7 +229,7 @@ export default function RequestFormPage() {
                 disabled={loading}
                 className="px-10 md:px-14 py-5 bg-cyan-500 text-blue-950 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-[0_15px_30px_rgba(34,211,238,0.3)] hover:bg-white hover:scale-105 transition-all disabled:opacity-30 active:scale-95 flex items-center gap-3"
               >
-                {loading ? "Transmisie..." : step === 5 ? "Lansează Cererea" : "Autorizează Pasul"}
+                {loading ? "Transmisie..." : step === 5 ? "Finalizeaza" : "Inainte"}
                 {step < 5 && <FaChevronRight />}
               </button>
             </div>
