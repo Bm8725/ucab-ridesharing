@@ -2,7 +2,16 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Facebook, Instagram, MapPin, ArrowRight, ShieldCheck, Car, Smartphone, Globe, Sparkles } from "lucide-react";
+import { 
+  Facebook, 
+  Instagram, 
+  MapPin, 
+  Navigation2, 
+  ArrowUpRight, 
+  ShieldCheck, 
+  Zap, 
+  Globe 
+} from "lucide-react";
 
 export default function Footer() {
   const [location, setLocation] = useState("București, România");
@@ -10,7 +19,7 @@ export default function Footer() {
   useEffect(() => {
     const fetchIPLocation = async () => {
       try {
-        const res = await fetch("ipapi.co");
+        const res = await fetch("https://ipapi.co/json/");
         const data = await res.json();
         if (data.city && data.country_name) {
           setLocation(`${data.city}, ${data.country_name}`);
@@ -27,7 +36,7 @@ export default function Footer() {
           try {
             const { latitude, longitude } = position.coords;
             const res = await fetch(
-              `nominatim.openstreetmap.org{latitude}&lon=${longitude}`
+              `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
             );
             const data = await res.json();
             const city = data.address.city || data.address.town || data.address.village || data.address.county;
@@ -41,132 +50,130 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative bg-[#020202] text-white pt-24 pb-12 overflow-hidden border-t border-white/10">
-      {/* Background Glow Effect */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/10 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-900/10 blur-[120px] pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
+    <footer className="bg-[#050505] text-[#999] border-t border-white/5 pt-24 pb-12 font-sans tracking-tight">
+      <div className="max-w-7xl mx-auto px-6">
         
-        {/* DOWNLOAD SECTION - THE "WOW" ELEMENT */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-20">
-          <a
-            href="play.google.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative flex items-center p-8 rounded-[2.5rem] bg-gradient-to-br from-white/10 to-transparent border border-white/20 hover:border-blue-500/50 transition-all duration-500 overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative z-10 flex items-center gap-6">
-              <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.2)] group-hover:scale-110 transition-transform duration-500">
-                <img src="/ucabapp.png" alt="UCab" className="w-10 h-10" />
-              </div>
-              <div>
-                <h4 className="text-2xl font-black italic tracking-tight">UCab Ride</h4>
-                <p className="text-blue-400 text-sm font-bold flex items-center gap-1 uppercase tracking-tighter">
-                  Descarcă aplicația <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
-                </p>
-              </div>
-            </div>
-            {/* Glossy Overlay */}
-            <div className="absolute top-0 -left-full w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-[-20deg] group-hover:left-full transition-all duration-1000" />
-          </a>
-
-          <a
-            href="play.google.comfood"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative flex items-center p-8 rounded-[2.5rem] bg-gradient-to-br from-white/10 to-transparent border border-white/20 hover:border-red-500/50 transition-all duration-500 overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative z-10 flex items-center gap-6">
-              <div className="w-16 h-16 rounded-2xl bg-[#111] border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                <img src="/ucabfood.png" alt="Food" className="w-10 h-10" />
-              </div>
-              <div>
-                <h4 className="text-2xl font-black italic tracking-tight">UCab Food</h4>
-                <p className="text-red-400 text-sm font-bold flex items-center gap-1 uppercase tracking-tighter">
-                  Comandă acum <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
-                </p>
-              </div>
-            </div>
-            <div className="absolute top-0 -left-full w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-[-20deg] group-hover:left-full transition-all duration-1000" />
-          </a>
-        </div>
-
-        {/* CONTENT GRID */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-12 mb-20">
-          <div className="col-span-2 space-y-8">
-            <div>
-              <h3 className="text-4xl font-black italic tracking-tighter mb-4">UCAB<span className="text-blue-600">.</span>RO</h3>
-              <p className="text-gray-400 text-sm max-w-xs leading-relaxed">
-                Platforma care unește orașul. Tehnologie românească pentru standarde internaționale de transport.
-              </p>
-            </div>
-            <div 
+        {/* Top Header: Brand & App Dock */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-12 mb-20">
+          <div className="space-y-6">
+            <h3 className="text-white text-4xl font-black italic tracking-tighter">
+              UCab<span className="text-blue-600 font-normal">.ro</span>
+            </h3>
+            
+            {/* Widget Locație - Corporate UI */}
+            <button 
               onClick={handlePreciseLocation}
-              className="group flex items-center gap-4 p-4 rounded-3xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all"
+              className="group flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-blue-500/50 hover:bg-white/[0.06] transition-all active:scale-95"
             >
-              <div className="p-2 bg-blue-600 rounded-xl">
-                <MapPin className="w-5 h-5 text-white" />
+              <div className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-40"></span>
+                <Navigation2 className="relative inline-flex h-2 w-2 text-blue-500 fill-blue-500 rotate-45" />
               </div>
-              <div>
-                <p className="text-[10px] text-gray-500 uppercase font-bold leading-none mb-1">Locația Ta</p>
-                <p className="text-sm font-bold text-white tracking-tight">{location}</p>
+              <span className="text-xs font-bold text-gray-200 uppercase tracking-widest">
+                Activ în <span className="text-blue-500">{location}</span>
+              </span>
+            </button>
+          </div>
+
+          {/* Apps Download - Minimalist Style */}
+          <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+            <a
+              href="https://play.google.com/store/apps/details?id=com.ucab"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-[#0a0a0a] border border-white/10 hover:border-blue-500/50 hover:bg-white/[0.02] transition-all min-w-[240px]"
+            >
+              <div className="w-10 h-10 bg-black rounded-xl border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <img src="/ucabapp.png" alt="Ride" className="w-7 h-7 grayscale group-hover:grayscale-0 transition-all" />
               </div>
-            </div>
-          </div>
+              <div className="text-left">
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 leading-none mb-1">Călătorește</p>
+                <p className="text-sm font-bold text-white">UCab Ride</p>
+              </div>
+              <ArrowUpRight className="ml-auto w-4 h-4 opacity-20 group-hover:opacity-100 group-hover:text-blue-500 transition-all" />
+            </a>
 
-          <div className="space-y-6">
-            <h5 className="text-xs font-black uppercase tracking-widest text-blue-500">Companie</h5>
-            <ul className="space-y-3 text-sm font-semibold text-gray-400">
-              <li><Link href="/" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Acasă</Link></li>
-              <li><Link href="/about/" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Despre noi</Link></li>
-              <li><Link href="/404/" className="hover:text-white transition-colors hover:translate-x-1 inline-block flex items-center gap-2">Cariere <Sparkles className="w-3 h-3 text-yellow-500" /></Link></li>
-              <li><Link href="/404/" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Știri & Blog</Link></li>
-              <li><Link href="/investors/" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Investitori</Link></li>
-            </ul>
-          </div>
-
-          <div className="space-y-6">
-            <h5 className="text-xs font-black uppercase tracking-widest text-blue-500">Șoferi</h5>
-            <ul className="space-y-3 text-sm font-semibold text-gray-400">
-              <li><Link href="/driver/" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Înregistrează-te</Link></li>
-              <li><Link href="/cerinte_auto/" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Cerințe auto</Link></li>
-              <li><Link href="/implementare/" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Implementare</Link></li>
-              <li><Link href="/404/" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Dezvoltare</Link></li>
-            </ul>
-          </div>
-
-          <div className="space-y-6">
-            <h5 className="text-xs font-black uppercase tracking-widest text-blue-500">Resurse</h5>
-            <ul className="space-y-3 text-sm font-semibold text-gray-400">
-              <li><Link href="/resource/terms/" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Termeni & Condiții</Link></li>
-              <li><Link href="/resource/policy/" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Confidențialitate</Link></li>
-              <li><Link href="/resource/safe/" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Siguranță</Link></li>
-              <li><Link href="/resource/cadru-legal/" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Cadru legal</Link></li>
-              <li><Link href="/resource/contract/" className="hover:text-white transition-colors hover:translate-x-1 inline-block">Contract UCab</Link></li>
-            </ul>
+            <a
+              href="https://play.google.com/store/apps/details?id=com.ucabfood"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-[#0a0a0a] border border-white/10 hover:border-red-500/50 hover:bg-white/[0.02] transition-all min-w-[240px]"
+            >
+              <div className="w-10 h-10 bg-black rounded-xl border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <img src="/ucabfood.png" alt="Food" className="w-7 h-7 grayscale group-hover:grayscale-0 transition-all" />
+              </div>
+              <div className="text-left">
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 leading-none mb-1">Livrare</p>
+                <p className="text-sm font-bold text-white">UCab Food</p>
+              </div>
+              <ArrowUpRight className="ml-auto w-4 h-4 opacity-20 group-hover:opacity-100 group-hover:text-red-500 transition-all" />
+            </a>
           </div>
         </div>
 
-        {/* BOTTOM BAR */}
-        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-6">
-            <div className="flex gap-4">
-              <a href="/404/" className="text-gray-400 hover:text-white transition-transform hover:scale-125"><Facebook className="w-5 h-5" /></a>
-              <a href="#" className="text-gray-400 hover:text-white transition-transform hover:scale-125"><Instagram className="w-5 h-5" /></a>
-            </div>
-            <div className="h-4 w-px bg-white/20" />
-            <div className="flex gap-4">
-               <img src="/anpc.png" alt="ANPC" className="h-5 grayscale brightness-200 opacity-50 hover:opacity-100 transition-all cursor-pointer" />
-               <img src="/litigii.png" alt="Litigii" className="h-5 grayscale brightness-200 opacity-50 hover:opacity-100 transition-all cursor-pointer" />
-            </div>
+        {/* Links Grid: 4 Columns */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 border-t border-white/5 pt-16 mb-20">
+          <div className="space-y-6">
+            <h4 className="text-white text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-2">
+              <Zap className="w-3 h-3 fill-blue-600 text-blue-600" /> Companie
+            </h4>
+            <ul className="space-y-4 text-sm font-medium">
+              <li><Link href="/" className="hover:text-white transition-colors">Acasă</Link></li>
+              <li><Link href="/about/" className="hover:text-white transition-colors">Despre noi</Link></li>
+              <li><Link href="/404/" className="hover:text-white transition-colors flex items-center gap-2">Cariere <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500 text-[9px] font-bold tracking-normal uppercase">Hiring</span></Link></li>
+              <li><Link href="/404/" className="hover:text-white transition-colors">Știri & Blog</Link></li>
+              <li><Link href="/investors/" className="hover:text-white transition-colors">Investitori</Link></li>
+            </ul>
           </div>
 
-          <p className="text-[10px] font-bold tracking-[0.4em] text-gray-600 uppercase">
-            © {new Date().getFullYear()} UCab.ro • Toate drepturile rezervate
-          </p>
+          <div className="space-y-6">
+            <h4 className="text-white text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-2">
+              <ShieldCheck className="w-3 h-3 fill-blue-600 text-blue-600" /> Servicii
+            </h4>
+            <ul className="space-y-4 text-sm font-medium">
+              <li><Link href="/driver/" className="hover:text-white transition-colors">Înregistrează-te</Link></li>
+              <li><Link href="/cerinte_auto/" className="hover:text-white transition-colors">Cerințe auto</Link></li>
+              <li><Link href="/implementare/" className="hover:text-white transition-colors">Implementare</Link></li>
+              <li><Link href="/404/" className="hover:text-white transition-colors">Dezvoltare durabilă</Link></li>
+            </ul>
+          </div>
+
+          <div className="space-y-6">
+            <h4 className="text-white text-[11px] font-black uppercase tracking-[0.3em]">Legal</h4>
+            <ul className="space-y-4 text-sm font-medium">
+              <li><Link href="/resource/terms/" className="hover:text-white transition-colors">Termeni și Condiții</Link></li>
+              <li><Link href="/resource/policy/" className="hover:text-white transition-colors">Confidențialitate</Link></li>
+              <li><Link href="/resource/safe/" className="hover:text-white transition-colors">Siguranță & Protecție</Link></li>
+              <li><Link href="/resource/cadru-legal/" className="hover:text-white transition-colors">Cadru legal</Link></li>
+              <li><Link href="/resource/contract/" className="hover:text-white transition-colors font-bold text-gray-300">Contract UCab</Link></li>
+            </ul>
+          </div>
+
+          <div className="space-y-6">
+            <h4 className="text-white text-[11px] font-black uppercase tracking-[0.3em]">Misiune</h4>
+            <p className="text-xs leading-relaxed opacity-60">
+              Platformă modernă de ride-sharing pentru transport rapid și sigur în România. Creat pentru companii locale de încredere.
+            </p>
+            <div className="flex gap-4 border-t border-white/5 pt-6">
+              <a href="/404/" className="p-2 rounded-full bg-white/5 hover:bg-blue-600 hover:text-white transition-all"><Facebook className="w-4 h-4" /></a>
+              <a href="#" className="p-2 rounded-full bg-white/5 hover:bg-pink-600 hover:text-white transition-all"><Instagram className="w-4 h-4" /></a>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Bar: Badges & Copyright */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-8 pt-10 border-t border-white/5">
+          <div className="flex items-center gap-8 order-2 md:order-1">
+            <img src="/anpc.png" alt="ANPC" className="h-5 grayscale opacity-30 hover:opacity-100 transition-opacity cursor-pointer" />
+            <img src="/litigii.png" alt="Litigii" className="h-5 grayscale opacity-30 hover:opacity-100 transition-opacity cursor-pointer" />
+          </div>
+          
+          <div className="flex flex-col md:items-end gap-1 order-1 md:order-2">
+            <p className="text-[10px] font-black tracking-[0.3em] text-white/30 uppercase">
+              © {new Date().getFullYear()} UCab România • Tehnologie pentru toti
+            </p>
+
+          </div>
         </div>
       </div>
     </footer>
