@@ -57,7 +57,7 @@ export default function Footer() {
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-12 mb-20">
           <div className="space-y-6">
             <h3 className="text-white text-4xl font-black italic tracking-tighter">
-              UCab<span className="text-blue-600 font-normal">.ro</span>
+              UCab<span className="text-blue-600 font-normal"></span>
             </h3>
             
             {/* Widget Locație - Corporate UI */}
@@ -70,7 +70,7 @@ export default function Footer() {
                 <Navigation2 className="relative inline-flex h-2 w-2 text-blue-500 fill-blue-500 rotate-45" />
               </div>
               <span className="text-xs font-bold text-gray-200 uppercase tracking-widest">
-                Activ în <span className="text-blue-500">{location}</span>
+                 <span className="text-blue-500">{location}</span>
               </span>
             </button>
           </div>
@@ -121,7 +121,7 @@ export default function Footer() {
               <li><Link href="/" className="hover:text-white transition-colors">Acasă</Link></li>
               <li><Link href="/about/" className="hover:text-white transition-colors">Despre noi</Link></li>
               <li><Link href="/404/" className="hover:text-white transition-colors flex items-center gap-2">Cariere <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500 text-[9px] font-bold tracking-normal uppercase">Hiring</span></Link></li>
-              <li><Link href="/404/" className="hover:text-white transition-colors">Știri & Blog</Link></li>
+              <li><Link href="/resource/promotii/" className="hover:text-white transition-colors">Promotii</Link></li>
               <li><Link href="/investors/" className="hover:text-white transition-colors">Investitori</Link></li>
             </ul>
           </div>
@@ -131,7 +131,7 @@ export default function Footer() {
               <ShieldCheck className="w-3 h-3 fill-blue-600 text-blue-600" /> Servicii
             </h4>
             <ul className="space-y-4 text-sm font-medium">
-              <li><Link href="/driver/" className="hover:text-white transition-colors">Înregistrează-te</Link></li>
+              <li><Link href="/account/" className="hover:text-white transition-colors">Înregistrează-te</Link></li>
               <li><Link href="/cerinte_auto/" className="hover:text-white transition-colors">Cerințe auto</Link></li>
               <li><Link href="/implementare/" className="hover:text-white transition-colors">Implementare</Link></li>
               <li><Link href="/404/" className="hover:text-white transition-colors">Dezvoltare durabilă</Link></li>
@@ -170,7 +170,7 @@ export default function Footer() {
           
           <div className="flex flex-col md:items-end gap-1 order-1 md:order-2">
             <p className="text-[10px] font-black tracking-[0.3em] text-white/30 uppercase">
-              © {new Date().getFullYear()} UCab România • Tehnologie pentru toti
+              © {new Date().getFullYear()} UCab Romania • Tehnologies 
             </p>
 
           </div>
