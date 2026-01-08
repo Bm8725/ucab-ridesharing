@@ -23,6 +23,8 @@ const geistMono = Geist_Mono({
 export const metadata = {
   metadataBase: new URL("https://ucab.ro"),
 
+  
+
   title: {
     default:
       "UCAB.ro – Ridesharing local. Livrare locală și transport urban la comisioane mici. ",
@@ -96,6 +98,15 @@ openGraph: {
   },
 
   manifest: "/manifest.json",
+};
+
+
+// color 
+export const viewport = {
+  themeColor: "#000000", // brand yellow
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({ children }) {
