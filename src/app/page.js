@@ -399,9 +399,9 @@ const getCurrentLocation = () => {
   >
 <Link
   href="/food-ucab/"
-  className="px-8 md:px-10 py-3 md:py-4 bg-blue-500 hover:bg-blue-800 text-black text-lg font-bold rounded-2xl shadow-xl transition inline-block"
+  className="px-8 md:px-10 py-3 md:py-4 bg-red-500 hover:bg-red-800 text-black text-lg font-bold rounded-2xl shadow-xl transition inline-block"
 >
-  🍕 Mai multe detalii
+   Mai multe detalii
 </Link>
 
   </motion.div>
