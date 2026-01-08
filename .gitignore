@@ -30,7 +30,7 @@ backend/
 # ==========================
 src/backend/node_modules/
 src/backend/.env
-src/dashboard/
+#src/dashboard/
 # ==========================
 # Testing / coverage
 # ==========================
