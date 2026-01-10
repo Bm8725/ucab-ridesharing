@@ -134,7 +134,7 @@ export default function Footer() {
               <li><Link href="/account/" className="hover:text-white transition-colors">Înregistrează-te</Link></li>
               <li><Link href="/cerinte_auto/" className="hover:text-white transition-colors">Cerințe auto</Link></li>
               <li><Link href="/implementare/" className="hover:text-white transition-colors">Implementare</Link></li>
-              <li><Link href="/404/" className="hover:text-white transition-colors">Dezvoltare durabilă</Link></li>
+              <li><Link href="/resource/dezvoltare_durabila/" className="hover:text-white transition-colors">Dezvoltare durabilă</Link></li>
             </ul>
           </div>
 
