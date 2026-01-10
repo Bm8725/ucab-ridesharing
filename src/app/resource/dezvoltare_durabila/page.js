@@ -19,13 +19,13 @@ export default function SustainableWow() {
     {
       title: "Reforestare Activă",
       tag: "IMPACT REAL",
-      description: "Fiecare kilometru parcurs cu UCab alimentează programul nostru de reîmpădurire urbană.",
+      description: "Fiecare kilometru parcurs cu UCab insemna mai prietenos cu mediul inconjurator.",
       icon: <Trees size={40} strokeWidth={1.5} />,
       className: "md:col-span-2 md:row-span-2 bg-emerald-50/50",
       accent: "text-emerald-600"
     },
     {
-      title: "Secretul ARM a",
+      title: "Secretul ARM cpu",
       tag: "ULTRA-EFFICIENCY",
       description: "Infrastructură optimizată nativ pentru procesoare ARM, consumând cu 60% mai puțină energie per request.",
       icon: <Cpu size={28} />,
@@ -35,7 +35,7 @@ export default function SustainableWow() {
     {
       title: "Real-time Stack",
       tag: "POWERED BY SUPABASE",
-      description: "Latență de sub 10ms pentru dispatching mulțumită ecosistemului Supabase Edge.",
+      description: "Latență de sub 10ms pentru dispatching mulțumită ecosistemului Supabase Edge cloud",
       icon: <Database size={28} />,
       className: "md:col-span-1 bg-blue-50/50",
       accent: "text-blue-600"
@@ -43,7 +43,7 @@ export default function SustainableWow() {
     {
       title: "Algoritm Opti-Route",
       tag: "AI VERDE",
-      description: "Reducem emisiile de CO2 cu 40% prin AI-ul nostru de predicție a traficului.",
+      description: "Reducem emisiile de CO2 cu 40% prin sistemul nostru de predicție a traficului cu GIS",
       icon: <Orbit size={28} />,
       className: "md:col-span-2 bg-emerald-50/20",
       accent: "text-emerald-500"
@@ -92,7 +92,7 @@ export default function SustainableWow() {
             transition={{ delay: 0.3 }}
             className="mt-8 text-xl text-slate-500 font-light leading-relaxed max-w-xl"
           >
-            Am reconstruit stack-ul tehnologic de la zero. Folosim arhitectură <strong>ARM v9</strong> și <strong>Supabase</strong> pentru un impact minim asupra planetei și viteză maximă pentru tine.
+            Am construit stack-ul tehnologic de la zero. Folosim arhitectură <strong>ARM </strong> și <strong>Supabase</strong> cloud pentru un impact minim asupra mediului și viteză maximă pentru tine.
           </motion.p>
         </header>
 
@@ -149,7 +149,7 @@ export default function SustainableWow() {
                   <div className="bg-emerald-100 p-2 rounded-lg h-fit text-emerald-700"><ShieldCheck size={20}/></div>
                   <div>
                     <h4 className="font-bold">ARM-Based Computing</h4>
-                    <p className="text-slate-500 text-sm">Serverele noastre rulează pe procesoare Graviton (ARM), reducând amprenta de carbon a fiecărei tranzacții cu 60%.</p>
+                    <p className="text-slate-500 text-sm">Serverele noastre rulează pe procesoare ARM Cortex , reducând amprenta de carbon a fiecărei tranzacții cu 60%.</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
