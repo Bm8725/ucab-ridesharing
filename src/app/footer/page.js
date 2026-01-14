@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import packageJson from '../../../package.json';
+
 import { 
   Facebook, 
   Instagram, 
@@ -15,7 +17,7 @@ import {
 
 export default function Footer() {
   const [location, setLocation] = useState("București, România");
-
+ const version = require('../../../package.json').version;
   useEffect(() => {
     const fetchIPLocation = async () => {
       try {
@@ -169,8 +171,11 @@ export default function Footer() {
           </div>
           
           <div className="flex flex-col md:items-end gap-1 order-1 md:order-2">
-            <p className="text-[10px] font-black tracking-[0.3em] text-white/30 uppercase">
+            <p className="text-[10px] font-black tracking-[0.3em] text-white/70 uppercase">
               © {new Date().getFullYear()} UCab Romania • Tehnologies 
+                    <span className="ml-2 opacity-73 lowercase tracking-normal text-[10px]">
+                    V {version}
+                  </span>
             </p>
 
           </div>

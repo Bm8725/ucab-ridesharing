@@ -1,6 +1,6 @@
 {
   "name": "ucab-app",
-  "version": "0.1.13",
+  "version": "0.1.13082026",
   "private": true,
   "scripts": {
     "dev": "next dev",
