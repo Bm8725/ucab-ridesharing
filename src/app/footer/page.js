@@ -133,6 +133,8 @@ export default function Footer() {
               <ShieldCheck className="w-3 h-3 fill-blue-600 text-blue-600" /> Servicii
             </h4>
             <ul className="space-y-4 text-sm font-medium">
+              <li><Link href="/cursa/" className=" hover:text-blue-400 transition-colors font-bold text-blue-500">Cere o cursa </Link></li>
+              <li><Link href="/restaurante/" className="hover:text-red-400 transition-colors font-bold text-red-500">Comanda Mancare </Link></li>
               <li><Link href="/account/" className="hover:text-white transition-colors">Înregistrează-te</Link></li>
               <li><Link href="/cerinte_auto/" className="hover:text-white transition-colors">Cerințe auto</Link></li>
               <li><Link href="/implementare/" className="hover:text-white transition-colors">Implementare</Link></li>
