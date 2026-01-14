@@ -3,14 +3,14 @@ UCab.ro Project Manifest
 ==========================
 
 Proiect: UCab – Transport și Livrări Profesionale
-Versiune: 0.1.13
+Versiune web app: 0.1.13082026
 Data inițiere: Septembrie 2025
 Status: Dezvoltare / Pre-lansare
 
 initiatori:
-B Marius- app developer and dream Code, business technical integration ;
-B Florin- strategy manager rideshare driver and develope;
-n Razvan -strategy manager Food delivery and develope ;
+B Marius- app developer and dream Coder, business technical integration ;
+B Florin- strategy manager rideshare driver and business develope;
+N Razvan -strategy manager Food delivery and business develope ;
 
 
 Descriere:
