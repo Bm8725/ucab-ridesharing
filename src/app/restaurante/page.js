@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import {supabase} from "../../lib/supabaseConfig";
-
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, Star, Clock, MapPin, Flame, 
@@ -71,21 +71,27 @@ export default function Restaurante() {
       <header className="md:sticky md:top-0 z-40 bg-white/90 backdrop-blur-2xl border-b border-red-50 px-6 py-4 md:shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
           
-          {/* LOGO + LOCAȚIE */}
-          <div className="flex items-center gap-4 shrink-0">
-            <div className="bg-gradient-to-br from-red-600 to-rose-400 p-2.5 rounded-2xl shadow-lg shadow-red-200">
-              <ShoppingBag className="text-white" size={22} />
-            </div>
-            <div>
-              <h1 className="text-2xl font-black tracking-tight leading-none text-gray-900">
-                UCab <span className="text-red-600">Food</span>
-              </h1>
-              <div className="flex items-center gap-1 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1">
-                <MapPin size={10} className="text-red-500" />
-                {zona}
-              </div>
-            </div>
-          </div>
+{/* LOGO + LOCAȚIE */}
+<div className="flex items-center gap-4 shrink-0">
+  <div className="bg-gradient-to-br from-red-600 to-rose-400 p-2.5 rounded-2xl shadow-lg shadow-red-200 relative w-10 h-10">
+    <Image
+      src="/ucabfood1.png"
+      alt="UCab Food Logo"
+      fill
+      className="object-contain"
+    />
+  </div>
+  <div>
+    <h1 className="text-2xl font-black tracking-tight leading-none text-gray-900">
+      UCab <span className="text-red-600">Food</span>
+    </h1>
+    <div className="flex items-center gap-1 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1">
+      <MapPin size={10} className="text-red-500" />
+      {zona}
+    </div>
+  </div>
+</div>
+
 
           {/* SEARCH FUNCTIONAL */}
           <div className="relative flex-1 max-w-lg group">
@@ -102,9 +108,7 @@ export default function Restaurante() {
           <div className="hidden lg:flex items-center gap-6 shrink-0 text-right">
             <div>
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Status Livrări</p>
-              <p className="text-xs font-bold text-green-500 flex items-center gap-1 justify-end">
-                <Zap size={10} fill="currentColor" /> 42 Curieri Activi
-              </p>
+
             </div>
           </div>
         </div>
@@ -219,7 +223,9 @@ export default function Restaurante() {
           <div className="text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-red-100">
             <UtensilsCrossed size={48} className="mx-auto text-red-200 mb-4" />
             <h3 className="text-xl font-bold text-gray-900">Niciun restaurant găsit</h3>
+            <h3 className="text-xl font-bold text-gray-900">Not restaurand find</h3>
             <p className="text-gray-400">Încearcă altă categorie sau caută ceva diferit.</p>
+            <p className="text-gray-400">Try ather category or something else different.</p>
           </div>
         )}
       </main>
