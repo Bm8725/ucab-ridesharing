@@ -83,7 +83,7 @@ export default function Header() {
           {/* Desktop Menu */}
           <nav className="hidden md:flex space-x-8 font-medium items-center">
             {menuItems.map((item) => (
-              <a key={item.label} href={item.href} className="flex items-center gap-1 hover:text-blue-500 transition">
+              <a key={item.label} href={item.href} className="flex items-center gap-1 hover:text-blue-100 transition">
                 {item.icon} {item.label}
               </a>
             ))}
@@ -201,16 +201,17 @@ export default function Header() {
                 </a>
               </div>
 
-              {/* Sign In la baza meniului */}
-              <div className="mt-auto pt-10">
-                <a 
-                  href="/login" 
-                  onClick={() => setIsOpen(false)}
-                  className="w-full py-5 bg-blue-600 rounded-2xl text-white text-center font-bold text-2xl flex items-center justify-center gap-3 shadow-xl"
-                >
-                  <LogIn size={28} /> Sign In
-                </a>
-              </div>
+{/* Sign In la baza meniului */}
+<div className="mt-auto pt-6">
+  <a 
+    href="/login" 
+    onClick={() => setIsOpen(false)}
+    className="w-full py-3 bg-white border border-black text-black text-center font-bold text-lg flex items-center justify-center gap-2 hover:bg-black hover:text-white transition-all"
+  >
+    <LogIn size={20} /> Sign In
+  </a>
+</div>
+
             </div>
           </motion.div>
         )}
