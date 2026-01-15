@@ -175,7 +175,7 @@ export default function Footer() {
           <div className="flex flex-col md:items-end gap-1 order-1 md:order-2">
             <p className="text-[10px] font-black tracking-[0.3em] text-white/70 uppercase">
               © {new Date().getFullYear()} UCab Romania • Tehnologies 
-                    <span className="ml-2 opacity-73 lowercase tracking-normal text-[10px]">
+                    <span className="ml-2 opacity-73 lowercase tracking-normal text-[8px]">
                     V {version}
                   </span>
             </p>
