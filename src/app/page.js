@@ -1,3 +1,15 @@
+/**
+ * © 2026 UCAB.ro – Local Mobility & Food Delivery Solutions.
+ * Built with Next.js & Scalable Cloud Architecture powered by AWS.
+ * 
+ * @project   UCAB - Local Ride-Sharing & Food Delivery Platform
+ * @author    B. Marius (Lead Developer @ brainmap)
+ * @license   Proprietary - All intellectual property rights reserved by B. Marius.
+ * 
+ * "Connecting the community, one ride and one meal at a time."
+ */
+
+
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,7 +25,7 @@ export default function LandingPage() {
   const [error, setError] = useState(""); // <-- stare pentru afișarea erorii
 
 
-  
+
 const handleSearch = async () => {
   try {
     setResults([]);
