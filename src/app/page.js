@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { Images } from "lucide-react";
-
+import { supabase } from "@/lib/supabaseConfig";
 
 export default function LandingPage() {
   const [pickup, setPickup] = useState("");
@@ -12,24 +12,37 @@ export default function LandingPage() {
   const [results, setResults] = useState([]);
   const [error, setError] = useState(""); // <-- stare pentru afișarea erorii
 
-  const handleSearch = async () => {
-    if (!pickup || !destination) return;
 
-    try {
-      setResults([]);
-      setError(""); // resetăm eroarea la fiecare căutare
-      const res = await fetch(
-        `https://pai.ucab.ro/drivers?pickup=${encodeURIComponent(
-          pickup
-        )}&destination=${encodeURIComponent(destination)}`
-      );
-      if (!res.ok) throw new Error("Network response was not ok");
-      const data = await res.json();
-      setResults(data);
-    } catch (err) {
-      setError("Eroare la încărcarea șoferilor. Verifică serverul."); // <-- afișăm eroarea pe pagină
+  
+const handleSearch = async () => {
+  try {
+    setResults([]);
+    setError("");
+
+    const { data, error } = await supabase
+      .from("drivers")
+      .select("id, name, lat, lng")
+      .eq("is_active", true)
+      .limit(5);
+
+    if (error) {
+      console.error("Supabase error:", error);
+      throw error;
     }
-  };
+
+    if (!data || data.length === 0) {
+      setError("Nu există șoferi disponibili.");
+      return;
+    }
+
+    setResults(data);
+
+  } catch (err) {
+    console.error("Catch error:", err);
+    setError("Eroare la căutarea șoferilor.");
+  }
+};
+
 
   const sections = [
     {
