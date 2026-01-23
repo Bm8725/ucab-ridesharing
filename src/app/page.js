@@ -11,7 +11,7 @@
 
 
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -91,6 +91,29 @@ const getCurrentLocation = () => {
   });
 };
 
+  // --- LOGICA COUNTDOWN ---
+  const [timeLeft, setTimeLeft] = useState({ zile: 0, ore: 0, minute: 0, secunde: 0 });
+
+  useEffect(() => {
+    const targetDate = new Date("December 1, 2026 00:00:00").getTime();
+
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance > 0) {
+        setTimeLeft({
+          zile: Math.floor(distance / (1000 * 60 * 60 * 24)),
+          ore: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minute: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+          secunde: Math.floor((distance % (1000 * 60)) / 1000),
+        });
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+  // ------------------------
 
 
 
@@ -106,6 +129,27 @@ const getCurrentLocation = () => {
   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-blue-500/5 blur-[120px] rounded-full" />
 </div>
 
+
+
+         {/* AFISARE COUNTDOWN final */}
+        <div className="flex gap-4 mb-10 text-center">
+          {[
+            { label: "Zile", val: timeLeft.zile },
+            { label: "Ore", val: timeLeft.ore },
+            { label: "Min", val: timeLeft.minute },
+            { label: "Sec", val: timeLeft.secunde },
+          ].map((item, i) => (
+            <div key={i} className="flex flex-col p-3 bg-white/5 border border-white/10 rounded-2xl min-w-[75px] backdrop-blur-md">
+              <span className="text-2xl font-bold text-blue-400">
+                {String(item.val).padStart(2, "0")}
+              </span>
+              <span className="text-[10px] uppercase text-gray-400 tracking-widest">
+                {item.label}
+              </span>
+             
+            </div>
+          ))}
+        </div>
 
       <div className="relative z-10 w-full px-6 py-20 flex flex-col items-center">
 
@@ -233,7 +277,7 @@ const getCurrentLocation = () => {
           )}
         </AnimatePresence>
 
- 
+
 
 {/* SECTIONS */}
 <div className="flex flex-col gap-20 w-full max-w-6xl mt-12">
