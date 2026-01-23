@@ -277,8 +277,6 @@ const getCurrentLocation = () => {
           )}
         </AnimatePresence>
 
-
-
 {/* SECTIONS */}
 <div className="flex flex-col gap-20 w-full max-w-6xl mt-12">
   {sections.map((section, idx) => (
