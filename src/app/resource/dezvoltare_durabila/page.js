@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import Link from "next/link"; // 
 import { motion } from "framer-motion";
 import { 
@@ -15,6 +16,9 @@ import {
 } from "lucide-react";
 
 export default function SustainableWow() {
+
+    const [arch, setArch] = useState("loading");
+
   const cards = [
     {
       title: "Reforestare Activă",
@@ -25,17 +29,17 @@ export default function SustainableWow() {
       accent: "text-emerald-600"
     },
     {
-      title: "Secretul ARM cpu",
+      title: " WEB APP Vercel running ",
       tag: "ULTRA-EFFICIENCY",
-      description: "Infrastructură optimizată nativ pentru procesoare ARM, consumând cu 60% mai puțină energie per request.",
+      description: `Rulează pe arhitectură: ${arch?.toUpperCase?.() || "UNKNOWN"}`,
       icon: <Cpu size={28} />,
-      className: "md:col-span-1 bg-slate-900 text-white", // Card evidențiat dark
-      accent: "text-emerald-400"
+      className: "md:col-span-1 bg-slate-900 text-white",
+      accent: "text-blue-400"
     },
     {
       title: "Real-time Stack",
-      tag: "POWERED BY SUPABASE",
-      description: "Latență de sub 10ms pentru dispatching mulțumită ecosistemului Supabase Edge cloud",
+      tag: "POWERED BY SUPABASE  ARM Instance",
+      description: "Latență de sub 10ms pentru dispatching mulțumită ecosistemului Supabase Edge cloud ",
       icon: <Database size={28} />,
       className: "md:col-span-1 bg-blue-50/50",
       accent: "text-blue-600"
@@ -47,8 +51,18 @@ export default function SustainableWow() {
       icon: <Orbit size={28} />,
       className: "md:col-span-2 bg-emerald-50/20",
       accent: "text-emerald-500"
-    }
+    },
+
+
+
   ];
+  useEffect(() => {
+    fetch("/api/cpu")
+      .then(res => res.json())
+      .then(data => setArch(data.arch))
+      .catch(() => setArch("unknown"));
+  }, []);
+
 
   return (
     <div className="bg-white text-slate-900 min-h-screen font-sans overflow-x-hidden">
