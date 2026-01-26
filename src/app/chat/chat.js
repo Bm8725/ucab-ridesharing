@@ -157,6 +157,8 @@ export default function CorporateChat() {
               </div>
             </div>
 
+
+
             {/* Operator selection */}
             {!view && (
               <div className="p-4 flex flex-col gap-3">
