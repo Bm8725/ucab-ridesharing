@@ -175,6 +175,7 @@ export default function CorporateChat() {
               </div>
             )}
 
+
             {/* Chat View */}
             {view === 'chat' && (
               <div className="flex-1 flex flex-col p-4 gap-2 overflow-y-auto">
