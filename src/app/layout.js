@@ -100,7 +100,6 @@ openGraph: {
   manifest: "/manifest.json",
 };
 
-
 // color 
 export const viewport = {
   themeColor: "#000000", // brand yellow
