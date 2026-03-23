@@ -8,48 +8,60 @@ export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const [total, setTotal] = useState(0);
 
-  // Generăm un ID anonim dacă nu avem user logat
-  const getAnonId = () => {
-    let id = localStorage.getItem("anon_id");
-    if (!id) {
-      id = Math.random().toString(36).substring(7);
-      localStorage.setItem("anon_id", id);
-    }
-    return id;
-  };
-
   const fetchCart = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    const identifier = user ? user.id : getAnonId();
-
-    const { data } = await supabase
-      .from("cart")
-      .select("*")
-      .or(`user_id.eq.${user?.id || '00000000-0000-0000-0000-000000000000'},product_id.ilike.%${getAnonId()}%`); 
-      // Notă: Mai simplu, filtrăm după un câmp custom sau lăsăm RLS-ul să rezolve dacă e public.
-      
-    // VARIANTA SIMPLĂ PENTRU TEST:
-    const { data: allCart } = await supabase.from("cart").select("*");
-    setCart(allCart || []);
-    setTotal(allCart?.reduce((acc, item) => acc + (item.price * item.quantity), 0) || 0);
+    const { data: allCart, error } = await supabase.from("cart").select("*");
+    if (!error) {
+      setCart(allCart || []);
+      const totalPrice = allCart?.reduce((acc, item) => acc + (item.price * item.quantity), 0) || 0;
+      setTotal(totalPrice);
+    }
   };
 
   useEffect(() => { fetchCart(); }, []);
 
   const addToCart = async (product) => {
-    const { error } = await supabase.from("cart").insert({
-      product_id: product.id,
-      name: product.name,
-      price: product.price,
-      image_url: product.image_url,
-      quantity: 1
-    });
-    if (error) console.error(error);
+    // Verificăm dacă produsul există deja pentru a-i mări cantitatea
+    const existing = cart.find(item => item.product_id === product.id);
+    if (existing) {
+      await updateQuantity(existing.id, 1);
+    } else {
+      await supabase.from("cart").insert({
+        product_id: product.id,
+        name: product.name,
+        price: product.price,
+        image_url: product.image_url,
+        quantity: 1
+      });
+      fetchCart();
+    }
+  };
+
+  const updateQuantity = async (id, delta) => {
+    const item = cart.find(i => i.id === id);
+    if (!item) return;
+    const newQty = item.quantity + delta;
+
+    if (newQty <= 0) {
+      await removeFromCart(id);
+    } else {
+      await supabase.from("cart").update({ quantity: newQty }).eq("id", id);
+      fetchCart();
+    }
+  };
+
+  const removeFromCart = async (id) => {
+    await supabase.from("cart").delete().eq("id", id);
     fetchCart();
   };
 
+  const clearCart = async () => {
+    await supabase.from("cart").delete().neq("id", 0); // Șterge tot
+    setCart([]);
+    setTotal(0);
+  };
+
   return (
-    <CartContext.Provider value={{ cart, total, addToCart, fetchCart }}>
+    <CartContext.Provider value={{ cart, total, addToCart, updateQuantity, removeFromCart, clearCart, fetchCart }}>
       {children}
     </CartContext.Provider>
   );
