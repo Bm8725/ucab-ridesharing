@@ -1,232 +1,228 @@
 "use client";
-
 import { useState, useEffect } from "react";
-import {supabase} from "../../lib/supabaseConfig";
+import { supabase } from "../../lib/supabaseConfig";
+import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Search, Star, Clock, MapPin, Flame, 
-  UtensilsCrossed, ShoppingBag, Loader2, Zap, Trophy 
-} from "lucide-react";
+import { Search, Star, MapPin, Loader2, Flame, Navigation, Zap, Percent, ChevronRight } from "lucide-react";
 
 export default function Restaurante() {
   const [restaurante, setRestaurante] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState("Toate");
   const [searchTerm, setSearchTerm] = useState("");
-  const [zona, setZona] = useState("Târgoviște");
+  const [isDetecting, setIsDetecting] = useState(false);
+  
+  // PAGINATION STATES
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const ITEMS_PER_PAGE = 6;
 
-  // LOGICĂ FETCH SUPABASE (Legătura cu DB)
+  // 1. GEOLOCATION LOGIC (STAYED & FIXED)
+  const detectareLocatie = () => {
+    if (!("geolocation" in navigator)) return;
+    
+    setIsDetecting(true);
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      try {
+        const { latitude, longitude } = position.coords;
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org{latitude}&lon=${longitude}`
+        );
+        const data = await res.json();
+        const oras = data.address.city || data.address.town || data.address.village;
+        
+        if (oras) {
+          setSearchTerm(oras); 
+        }
+      } catch (e) {
+        console.error("Geolocation error:", e);
+      } finally {
+        setIsDetecting(false);
+      }
+    }, () => setIsDetecting(false));
+  };
+
+  useEffect(() => {
+    detectareLocatie();
+  }, []);
+
+  // 2. SUPABASE FETCH WITH SEARCH & PAGINATION (STAYED)
   useEffect(() => {
     async function getRestaurante() {
       setLoading(true);
-      
-      let query = supabase
-        .from('restaurants')
-        .select('id, name, address, category, rating, delivery_time, is_popular, image_url')
-        .eq('is_active', true);
+      try {
+        let from = page * ITEMS_PER_PAGE;
+        let to = from + ITEMS_PER_PAGE - 1;
 
-      // Filtrare după categoria selectată
-      if (activeCategory !== "Toate" && activeCategory !== "Promoții") {
-        query = query.eq('category', activeCategory);
+        let query = supabase
+          .from('restaurants')
+          .select('*', { count: 'exact' })
+          .eq('is_active', true)
+          .range(from, to);
+
+        if (searchTerm) {
+          query = query.or(`name.ilike.%${searchTerm}%,address.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%`);
+        }
+        
+        const { data, error, count } = await query.order('rating', { ascending: false });
+        
+        if (error) throw error;
+
+        // If page is 0, reset list. If > 0, append data.
+        setRestaurante(prev => page === 0 ? data : [...prev, ...data]);
+        setHasMore(count > (page + 1) * ITEMS_PER_PAGE);
+      } catch (e) { 
+        console.error(e); 
+      } finally { 
+        setLoading(false); 
       }
-
-      // Filtrare specială pentru Promoții (cele populare sau cu rating mare)
-      if (activeCategory === "Promoții") {
-        query = query.eq('is_popular', true);
-      }
-
-      // Filtrare după textul din Search
-      if (searchTerm) {
-        query = query.ilike('name', `%${searchTerm}%`);
-      }
-
-      const { data, error } = await query.order('rating', { ascending: false });
-
-      if (!error) {
-        setRestaurante(data);
-      } else {
-        console.error("Eroare Supabase:", error.message);
-      }
-      setLoading(false);
     }
 
-    getRestaurante();
-  }, [activeCategory, searchTerm]);
+    const timeoutId = setTimeout(() => getRestaurante(), 400);
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, page]);
 
-  const categorii = [
-    { name: "Toate", icon: <UtensilsCrossed size={16} /> },
-    { name: "Promoții", icon: <Flame size={16} className="text-red-500" /> },
-    { name: "Burger", emoji: "🍔" },
-    { name: "Pizza", emoji: "🍕" },
-    { name: "Sushi", emoji: "🍣" },
-    { name: "Italian", emoji: "🍝" },
-    { name: "Desert", emoji: "🍰" },
-  ];
+  // Reset page when search term changes
+  useEffect(() => {
+    setPage(0);
+  }, [searchTerm]);
 
   return (
-    <div className="min-h-screen bg-[#FFF9F9] text-[#1D1D1F] pb-24 font-sans selection:bg-red-100">
+    <div className="min-h-screen bg-[#FDFDFD] pb-24 font-sans text-gray-900">
       
-      {/* HEADER DINAMIC - DESIGN ORIGINAL */}
-      <header className="md:sticky md:top-0 z-40 bg-white/90 backdrop-blur-2xl border-b border-red-50 px-6 py-4 md:shadow-sm">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+      {/* HEADER (STAYED WITH LOGO) */}
+      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-gray-100 px-6 py-4 shadow-sm">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-4">
           
-{/* LOGO + LOCAȚIE */}
-<div className="flex items-center gap-4 shrink-0">
-  <div className="bg-gradient-to-br from-red-600 to-rose-400 p-2.5 rounded-2xl shadow-lg shadow-red-200 relative w-10 h-10">
-    <Image
-      src="/ucabfood1.png"
-      alt="UCab Food Logo"
-      fill
-      className="object-contain"
-    />
-  </div>
-  <div>
-    <h1 className="text-2xl font-black tracking-tight leading-none text-gray-900">
-      UCab <span className="text-red-600">Food</span>
-    </h1>
-    <div className="flex items-center gap-1 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1">
-      <MapPin size={10} className="text-red-500" />
-      {zona}
-    </div>
-  </div>
-</div>
-
-
-          {/* SEARCH FUNCTIONAL */}
-          <div className="relative flex-1 max-w-lg group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-500 transition" size={18} />
-            <input
-              type="text"
-              placeholder={`Ce vrei să mănânci bun în ${zona}?`}
+          <Link href="/restaurante" className="flex items-center gap-3 shrink-0 group">
+             <div className="relative w-10 h-10 overflow-hidden rounded-xl shadow-md border border-red-50">
+                <Image 
+                  src="/ucabfood1.png" 
+                  alt="UCab Food Logo" 
+                  fill 
+                  className="object-contain p-1"
+                />
+             </div>
+             <h1 className="text-xl font-black italic tracking-tighter uppercase">
+                UCAB<span className="text-red-600">FOOD</span>
+             </h1>
+          </Link>
+          
+          <div className="relative flex-1 w-full group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-600 transition-colors" size={18} />
+            <input 
+              type="text" 
+              placeholder="Search city, food or restaurant..." 
+              value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-gray-50 border-2 border-transparent focus:bg-white focus:border-red-100 rounded-2xl py-3.5 pl-12 pr-4 outline-none transition-all font-medium text-sm shadow-inner"
+              className="w-full bg-gray-50 border-2 border-transparent focus:bg-white focus:border-red-100 rounded-2xl py-3.5 pl-12 pr-12 outline-none text-sm font-bold transition-all shadow-inner" 
             />
-          </div>
-
-          {/* STATUS CURIERI */}
-          <div className="hidden lg:flex items-center gap-6 shrink-0 text-right">
-            <div>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Status Livrări</p>
-
-            </div>
+            <button 
+              onClick={detectareLocatie}
+              className={`absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-lg hover:bg-red-50 transition-colors ${isDetecting ? 'animate-pulse text-red-600' : 'text-gray-400'}`}
+            >
+              <Navigation size={18} fill={isDetecting ? "currentColor" : "none"} />
+            </button>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-6 mt-8">
         
-        {/* CAROUSEL PROMO */}
-        <section className="mb-12">
-           <div className="flex gap-4 overflow-x-auto scrollbar-none pb-4">
-              <div className="min-w-[300px] md:min-w-[450px] h-48 bg-gradient-to-r from-red-600 to-rose-500 rounded-[2.5rem] p-8 relative overflow-hidden flex-shrink-0 shadow-xl shadow-red-200">
-                   <div className="relative z-10 text-white">
-                      <p className="text-[10px] font-black tracking-[0.3em] uppercase opacity-80 mb-2">Oferta Săptămânii</p>
-                      <h3 className="text-2xl md:text-3xl font-black mb-4 leading-tight">Meniu Family <br/> la -30%</h3>
-                      <button className="bg-white text-red-600 px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg">Comandă Acum</button>
-                   </div>
-                   <Flame className="absolute right-[-20px] bottom-[-20px] w-48 h-48 text-white opacity-10 rotate-12" />
-              </div>
-           </div>
+        {/* NEW: PROMOTIONS & ADS SECTION */}
+        <section className="mb-12 overflow-x-auto no-scrollbar flex gap-6 pb-4">
+          <div className="min-w-[300px] md:min-w-[400px] bg-gradient-to-br from-red-600 to-rose-500 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-xl shadow-red-200 flex-shrink-0">
+             <div className="relative z-10">
+                <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Limited Offer</span>
+                <h3 className="text-2xl font-black mt-4 leading-tight">Free Delivery <br/> on your first order!</h3>
+                <p className="text-white/80 text-xs mt-2 font-bold uppercase tracking-tighter">Use code: WELCOME2024</p>
+             </div>
+             <Zap className="absolute right-[-20px] bottom-[-20px] w-40 h-40 opacity-10 rotate-12" />
+          </div>
+
+          <div className="min-w-[300px] md:min-w-[400px] bg-gray-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-xl flex-shrink-0">
+             <div className="relative z-10">
+                <span className="bg-red-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Flash Sale</span>
+                <h3 className="text-2xl font-black mt-4 leading-tight">Up to 50% OFF <br/> on selected burgers</h3>
+                <button className="bg-white text-black px-5 py-2 rounded-xl text-[10px] font-black uppercase mt-4">Order Now</button>
+             </div>
+             <Percent className="absolute right-[-10px] bottom-[-10px] w-32 h-32 text-red-600 opacity-20" />
+          </div>
         </section>
-        
-        {/* FILTRE CATEGORII */}
-        <div className="flex gap-3 overflow-x-auto scrollbar-none py-2 border-b border-red-50">
-          {categorii.map((cat, i) => (
-            <button
-              key={i}
-              onClick={() => setActiveCategory(cat.name)}
-              className={`flex items-center gap-3 px-6 py-3 rounded-2xl font-bold text-sm transition-all border-2 mb-4 ${
-                activeCategory === cat.name 
-                ? "bg-red-600 border-red-600 text-white shadow-xl shadow-red-100 scale-105" 
-                : "bg-white border-gray-100 text-gray-500 hover:border-red-200"
-              }`}
-            >
-              {cat.icon ? cat.icon : <span>{cat.emoji}</span>}
-              {cat.name}
-            </button>
-          ))}
+
+        {/* RESTAURANT LIST HEADER */}
+        <div className="flex items-end justify-between mb-8">
+           <div>
+              <h2 className="text-4xl font-black tracking-tighter text-gray-900">
+                {searchTerm ? `Restaurants in "${searchTerm}"` : "Explore nearby flavors"}
+              </h2>
+              <p className="text-gray-400 font-bold text-xs mt-2 uppercase tracking-widest">
+                {restaurante.length} venues available now
+              </p>
+           </div>
         </div>
 
-        {/* HEADER RESTAURANTE */}
-        <div className="mt-16 mb-8 flex items-center justify-between">
-          <h2 className="text-3xl font-black tracking-tighter text-gray-900">
-            {activeCategory === "Toate" ? `Top Alegeri în ${zona}` : `${activeCategory} în ${zona}`}
-          </h2>
-          <span className="flex items-center gap-1 text-xs font-bold text-red-500 bg-red-50 px-2 py-1 rounded-lg">
-            <Trophy size={12} /> {restaurante.length} Locații
-          </span>
-        </div>
-
-        {/* GRID RESTAURANTE SAU LOADING */}
-        {loading ? (
-          <div className="flex flex-col items-center py-24 gap-4">
-            <Loader2 className="animate-spin text-red-500" size={40} />
-            <p className="font-black text-gray-400 uppercase tracking-widest text-[10px]">UCab caută aromele tale...</p>
+        {/* RESTAURANT GRID */}
+        {loading && page === 0 ? (
+          <div className="flex flex-col items-center py-32 gap-4">
+            <Loader2 className="animate-spin text-red-600" size={48} strokeWidth={3} />
+            <p className="text-[10px] font-black text-gray-300 uppercase tracking-[0.3em]">Loading deliciousness...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <AnimatePresence mode="popLayout">
-              {restaurante.map((res) => (
-                <motion.div
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  key={res.id}
-                  className="bg-white rounded-[2.5rem] overflow-hidden shadow-lg border border-red-50 group hover:shadow-2xl transition-all duration-500"
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+              <AnimatePresence mode="popLayout">
+                {restaurante.map((res) => (
+                  <Link href={`/restaurante/${res.id}`} key={res.id}>
+                    <motion.div layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="group">
+                      <div className="relative h-60 w-full rounded-[2.5rem] overflow-hidden shadow-md group-hover:shadow-2xl transition-all duration-500 border border-gray-100">
+                        <img 
+                          src={res.image_url?.startsWith('http') ? res.image_url : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/restaurants/${res.image_url}`} 
+                          className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                          alt={res.name}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                        
+                        {res.is_popular && (
+                          <div className="absolute top-5 left-5 bg-red-600 text-white text-[10px] font-black px-4 py-2 rounded-full shadow-xl flex items-center gap-1.5 uppercase tracking-widest">
+                              <Flame size={12} fill="white" /> Popular
+                          </div>
+                        )}
+                        
+                        <div className="absolute bottom-5 left-5 right-5 flex justify-between items-center text-white">
+                          <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-2xl text-[10px] font-black uppercase border border-white/20">
+                            {res.delivery_time}
+                          </div>
+                          <div className="flex items-center gap-1 bg-white text-black px-3 py-1.5 rounded-xl text-xs font-black shadow-lg">
+                            <Star size={14} className="fill-yellow-400 text-yellow-400" /> {res.rating}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-6 px-3">
+                        <h3 className="font-black text-2xl text-gray-900 group-hover:text-red-600 transition-colors tracking-tight">{res.name}</h3>
+                        <p className="text-gray-400 text-sm font-bold uppercase tracking-tighter mt-1">{res.category} • {res.address}</p>
+                      </div>
+                    </motion.div>
+                  </Link>
+                ))}
+              </AnimatePresence>
+            </div>
+
+            {/* NEW: LOAD MORE PAGINATION */}
+            {hasMore && (
+              <div className="mt-16 flex justify-center">
+                <button 
+                  onClick={() => setPage(prev => prev + 1)}
+                  disabled={loading}
+                  className="bg-white border-2 border-gray-100 px-10 py-4 rounded-3xl font-black text-sm uppercase tracking-widest hover:border-red-500 hover:text-red-600 transition-all flex items-center gap-2 shadow-sm disabled:opacity-50"
                 >
-                  {/* IMAGINE RESTAURANT */}
-                  <div className="relative h-52 bg-gray-100 overflow-hidden">
-                    {res.is_popular && (
-                      <span className="absolute top-4 left-4 z-10 bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full flex items-center gap-1 shadow-lg shadow-red-500/30">
-                        <Flame size={10} /> POPULAR
-                      </span>
-                    )}
-                    <img 
-                      src={res.image_url || "images.unsplash.com"} 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                      alt={res.name} 
-                    />
-                  </div>
-
-                  {/* INFO RESTAURANT */}
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-xl font-bold tracking-tight text-gray-900">{res.name}</h3>
-                      <div className="flex items-center gap-1 bg-yellow-50 text-yellow-700 px-2 py-1 rounded-lg text-xs font-black">
-                        <Star size={12} fill="currentColor" /> {Number(res.rating).toFixed(1)}
-                      </div>
-                    </div>
-                    <p className="text-gray-500 text-sm mb-4 font-medium">{res.category} • {res.address}</p>
-                    
-                    {/* FOOTER CARD */}
-                    <div className="flex items-center justify-between border-t border-red-50 pt-4">
-                      <div className="flex items-center gap-4 text-xs font-black text-gray-400">
-                        <span className="flex items-center gap-1">
-                          <Clock size={14} className="text-red-500" /> {res.delivery_time}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-[10px] font-black text-green-600 uppercase tracking-tighter">
-                        <Zap size={12} fill="currentColor" /> Livrare UCab
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
-
-        {/* EMPTY STATE */}
-        {!loading && restaurante.length === 0 && (
-          <div className="text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-red-100">
-            <UtensilsCrossed size={48} className="mx-auto text-red-200 mb-4" />
-            <h3 className="text-xl font-bold text-gray-900">Niciun restaurant găsit</h3>
-            <h3 className="text-xl font-bold text-gray-900">Not restaurand find</h3>
-            <p className="text-gray-400">Încearcă altă categorie sau caută ceva diferit.</p>
-            <p className="text-gray-400">Try ather category or something else different.</p>
-          </div>
+                  {loading ? <Loader2 className="animate-spin" size={18} /> : "Load More Venues"}
+                  {!loading && <ChevronRight size={18} />}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>
