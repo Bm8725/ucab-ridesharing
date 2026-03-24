@@ -22,12 +22,7 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-export const viewport = {
-  themeColor: "#000000",
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-};
+
 
 export const metadata = {
   metadataBase: new URL("https://ucab.ro"),
