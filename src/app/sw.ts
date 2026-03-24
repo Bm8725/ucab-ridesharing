@@ -1,5 +1,5 @@
 import { defaultCache } from "@serwist/next/worker";
-import { Serwist } from "@serwist/core";
+import { Serwist } from "@serwist/sw"; // <--- SCHIMBĂ ÎNAPOI AICI
 import type { PrecacheEntry } from "@serwist/precaching";
 
 declare const self: ServiceWorkerGlobalScope & {
@@ -13,6 +13,5 @@ const serwist = new Serwist({
   navigationPreload: true,
   runtimeCaching: defaultCache,
 });
-
 
 serwist.addEventListeners();
