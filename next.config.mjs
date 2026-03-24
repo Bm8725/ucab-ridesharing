@@ -3,13 +3,9 @@ import withSerwistInit from "@serwist/next";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   trailingSlash: true,
-  // FORȚĂM DEZACTIVAREA TURBOPACK
-  experimental: {
-    turbo: {
-      rules: {},
-    },
-  },
-  // Această linie este critică pentru a opri eroarea de Webpack config
+  // Această linie forțează dezactivarea Turbopack în Next.js 16
+  turbopack: {}, 
+  // Forțăm configurarea Webpack pentru Serwist
   webpack: (config) => {
     return config;
   },
