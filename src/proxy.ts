@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Schimbă "middleware" în "proxy" aici:
-export function proxy(request: NextRequest) { 
+// ADAUGĂ "default" AICI:
+export default function proxy(request: NextRequest) { 
   const { pathname } = request.nextUrl;
 
   if (pathname === '/') {
