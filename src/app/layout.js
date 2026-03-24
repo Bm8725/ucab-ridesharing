@@ -7,6 +7,8 @@ import CookiesBanner from "./cookies/cookies";
 import OracleChat from "./chat/chat";
 import SEO from "./seo/seo";
 import Script from "next/script";
+import { Analytics } from '@vercel/analytics/next';
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -129,7 +131,7 @@ export default function RootLayout({ children }) {
         <Footer />
         <CookiesBanner />
          {/* <OracleChat />*/}
-
+        <Analytics/> 
       </body>
     </html>
   );

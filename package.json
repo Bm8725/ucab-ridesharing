@@ -13,6 +13,7 @@
     "@mediapipe/face_detection": "^0.4.1646425229",
     "@react-google-maps/api": "^2.20.7",
     "@supabase/supabase-js": "^2.89.0",
+    "@vercel/analytics": "^2.0.1",
     "framer-motion": "^12.23.24",
     "geolib": "^3.3.4",
     "js-cookie": "^3.0.5",
