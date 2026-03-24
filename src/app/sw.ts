@@ -1,6 +1,10 @@
 import { defaultCache } from "@serwist/next/worker";
-import { Serwist } from "@serwist/sw"; // <--- SCHIMBĂ ÎNAPOI AICI
+import { Serwist } from "@serwist/sw"; 
 import type { PrecacheEntry } from "@serwist/precaching";
+
+// Dacă eroarea persistă cu importul de sus, încearcă:
+// import { Serwist } from "@serwist/core"; 
+// DAR asigură-te că ai ambele pachete instalate.
 
 declare const self: ServiceWorkerGlobalScope & {
   __SW_MANIFEST: (PrecacheEntry | string)[] | undefined;
