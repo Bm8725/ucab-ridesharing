@@ -1,5 +1,6 @@
 import { defaultCache } from "@serwist/next/worker";
-import { type PrecacheEntry, Serwist } from "@serwist/sw";
+import { Serwist } from "@serwist/sw";
+import type { PrecacheEntry } from "@serwist/precaching"; // <--- S-a mutat aici
 
 declare const self: ServiceWorkerGlobalScope & {
   __SW_MANIFEST: (PrecacheEntry | string)[] | undefined;
@@ -10,7 +11,7 @@ const serwist = new Serwist({
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
-  runtimeCaching: defaultCache, // Folosește setările optimizate de Serwist
+  runtimeCaching: defaultCache,
 });
 
 serwist.addEventListeners();
