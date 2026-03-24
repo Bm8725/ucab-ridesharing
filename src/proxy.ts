@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// ADAUGĂ "default" AICI:
+// Atenție: export DEFAULT function PROXY
 export default function proxy(request: NextRequest) { 
   const { pathname } = request.nextUrl;
 
