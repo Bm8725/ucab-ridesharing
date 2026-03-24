@@ -14,4 +14,5 @@ const serwist = new Serwist({
   runtimeCaching: defaultCache,
 });
 
+
 serwist.addEventListeners();
