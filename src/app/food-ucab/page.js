@@ -29,7 +29,7 @@ export default function FoodDeliveryTerms() {
     },
     {
       title: "Licență Platformă",
-      description: "Acces full la ecosistemul UCab (App, Dashboard, Suport) pentru **19€/lună**.",
+      description: "Acces full la ecosistemul UCab (App, Dashboard, Suport) pentru **13€/lună**.",
       icon: <Euro className="w-6 h-6" />,
       tag: "Cost Fix"
     },
