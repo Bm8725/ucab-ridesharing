@@ -23,7 +23,7 @@ export default function FoodDeliveryTerms() {
   const conditions = [
     {
       title: "Comision Restaurante",
-      description: "Sistem de comisionare fix, fără surprize. Reținem maxim **16%** din valoare.",
+      description: "Sistem de comisionare fix, fără surprize. Reținem maxim **20%** din valoare fara alte costuri in afara de cele expuse",
       icon: <Percent className="w-6 h-6" />,
       tag: "Cel mai mic din piață"
     },
