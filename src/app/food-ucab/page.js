@@ -29,7 +29,7 @@ export default function FoodDeliveryTerms() {
     },
     {
       title: "Licență Platformă",
-      description: "Acces full la ecosistemul UCab (App, Dashboard, Suport) pentru **13€/lună**.",
+      description: "Acces full la ecosistemul UCab (App, Dashboard, Suport, cloud servers cost) pentru **13€/lună**.",
       icon: <Euro className="w-6 h-6" />,
       tag: "Cost Fix"
     },
@@ -90,7 +90,11 @@ export default function FoodDeliveryTerms() {
             animate={{ opacity: 1, scale: 1 }}
             className="hidden lg:block p-8 bg-slate-50 rounded-2xl border border-slate-100"
           >
-
+    <img 
+    src="/ucabfood.png" 
+    alt="UCAB Food" 
+    className="w-48 h-48 object-contain opacity-80 hover:opacity-100 transition-opacity duration-500"
+  />
           </motion.div>
         </div>
 

@@ -127,7 +127,7 @@ export default function RootLayout({ children }) {
 
         <Footer />
         <CookiesBanner />
-         {/* <OracleChat />*/}
+          <OracleChat />
         <Analytics/> 
       </body>
     </html>
