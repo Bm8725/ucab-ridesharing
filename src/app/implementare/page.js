@@ -18,7 +18,7 @@ export default function UcabTimelinePro() {
     {
       id: 1,
       title: "Setup Server & Aplicație",
-      cost: "99 – 199 €",
+      cost: "9 – 19 €",
       period: "[o singură dată]",
       desc: "Infrastructură backend dedicată și aplicații mobile personalizate pentru flota ta.",
       icon: <FaServer />,
@@ -27,7 +27,7 @@ export default function UcabTimelinePro() {
     {
       id: 2,
       title: "Licențe Software/API",
-      cost: "300 – 499 €",
+      cost: "30 – 49 €",
       period: "/an/vehicul",
       desc: "Acces complet la ecosistemul UCab, actualizări automate și suport tehnic B2B.",
       icon: <FaFileContract />,
