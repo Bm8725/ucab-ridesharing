@@ -127,7 +127,6 @@ export default function RootLayout({ children }) {
 
         <Footer />
         <CookiesBanner />
-    
         <Analytics/> 
       </body>
     </html>
