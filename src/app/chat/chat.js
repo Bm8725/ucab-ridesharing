@@ -37,21 +37,25 @@ export default function CorporateChat() {
   }, [messages, botTyping]);
 
   useEffect(() => {
-    wsRef.current = new WebSocket("wss://chat.doxer.ro/ws");
-    wsRef.current.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.operatorStatus) {
-          setOperatorStatus(prev => prev.map(op => ({
-            ...op,
-            online: data.operatorStatus.find(s => s.id === op.id)?.online ?? op.online
-          })));
-        }
-        if (data.message) {
-          setMessages(prev => [...prev, { type: 'operator', text: data.message }]);
-        }
-      } catch (err) { console.error("WS error:", err); }
+    const connectWS = () => {
+      wsRef.current = new WebSocket("wss://chat.doxer.ro/ws");
+      wsRef.current.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.operatorStatus) {
+            setOperatorStatus(prev => prev.map(op => ({
+              ...op,
+              online: data.operatorStatus.find(s => s.id === op.id)?.online ?? op.online
+            })));
+          }
+          if (data.message) {
+            setMessages(prev => [...prev, { type: 'operator', text: data.message }]);
+          }
+        } catch (err) { console.error(err); }
+      };
+      wsRef.current.onclose = () => setTimeout(connectWS, 3000);
     };
+    connectWS();
     return () => wsRef.current?.close();
   }, []);
 
@@ -59,8 +63,12 @@ export default function CorporateChat() {
     if (e) e.preventDefault();
     if (!input.trim()) return;
 
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type: "user", message: input, operatorId: selectedOperator?.id || null }));
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ 
+        type: "user", 
+        message: input, 
+        operatorId: selectedOperator?.id || null 
+      }));
     }
     setMessages(p => [...p, { type: "user", text: input }]);
     setInput("");
@@ -74,14 +82,14 @@ export default function CorporateChat() {
   const submitForm = async () => {
     setLoading(true);
     try {
-      const res = await fetch("https://api.doxer.ro/api/contact_request.php", {
+      const res = await fetch("https://api.doxer.ro", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       setFormStatus(res.ok ? "success" : "error");
       if (res.ok) setFormData({ name: "", email: "", message: "" });
-    } catch { setFormStatus("error"); }
+    } catch (err) { setFormStatus("error"); }
     setLoading(false);
   };
 
@@ -93,56 +101,46 @@ export default function CorporateChat() {
   return (
     <>
       <motion.div
-        whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
         onClick={() => setOpen(!open)}
-        className="fixed bottom-6 right-6 z-[9999] p-4 rounded-full shadow-2xl bg-black text-white cursor-pointer flex items-center justify-center border border-white/10"
+        className="fixed bottom-6 right-6 z-[9999] p-4 rounded-full shadow-2xl bg-black text-white cursor-pointer border border-white/10"
       >
-        <FaComments size={22} />
+        <FaComments size={24} />
       </motion.div>
 
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 50, x: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 50, x: 20 }}
-            className="fixed bottom-0 right-0 w-full h-[100dvh] sm:bottom-6 sm:right-6 sm:w-[380px] sm:h-[600px] bg-white border border-black/10 shadow-2xl z-[10000] flex flex-col sm:rounded-[2.5rem] overflow-hidden font-sans"
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.9 }}
+            className="fixed bottom-0 right-0 w-full h-[100dvh] sm:bottom-24 sm:right-6 sm:w-[380px] sm:h-[600px] bg-white sm:rounded-[2.5rem] shadow-2xl z-[10000] flex flex-col overflow-hidden border border-black/5 font-sans italic uppercase"
           >
-            {/* Header */}
-            <div className="bg-black p-6 text-white flex justify-between items-center italic uppercase">
+            <div className="bg-black p-6 text-white flex justify-between items-center">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10 italic">
-                  <FaUser size={18} />
-                </div>
+                <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10 italic"><FaUser size={18} /></div>
                 <div>
-                  <h3 className="font-black text-xs tracking-tight leading-none mb-1">{view === 'form' ? t.messageUs : t.chat}</h3>
-                  <p className="text-[10px] opacity-40 uppercase tracking-[0.2em] font-bold">{selectedOperator?.name || "Support"}</p>
+                  <h3 className="font-black text-xs tracking-widest leading-none mb-1">{view === 'form' ? t.formTitle : t.chat}</h3>
+                  <p className="text-[10px] opacity-40 font-bold">{selectedOperator?.name || "Online Support"}</p>
                 </div>
               </div>
-              <div className="flex gap-2 font-black italic">
-                <button onClick={() => setLanguage(l => l === "ro" ? "en" : "ro")} className="text-[10px] border border-white/20 px-2 py-1 rounded-lg uppercase">
-                  {language}
-                </button>
-                <button onClick={closeView} className="p-1 opacity-50 hover:opacity-100">
-                  <FaTimes size={20} />
-                </button>
+              <div className="flex gap-2">
+                <button onClick={() => setLanguage(l => l === "ro" ? "en" : "ro")} className="text-[10px] font-black border border-white/20 px-2 py-1 rounded-lg uppercase">{language}</button>
+                <button onClick={closeView} className="opacity-40 hover:opacity-100 transition-opacity"><FaTimes size={20} /></button>
               </div>
             </div>
 
-            {/* Zona Continut */}
-            <div className="flex-1 overflow-y-auto bg-slate-50 p-5 space-y-4 font-black italic uppercase">
+            <div className="flex-1 overflow-y-auto bg-slate-50 p-5 space-y-4 font-black">
               {!view && (
                 <div className="space-y-3">
-                  <p className="text-[10px] text-slate-400 tracking-widest mb-4 italic uppercase">{t.selectOperator}:</p>
+                  <p className="text-[10px] text-slate-400 tracking-[0.3em] mb-4">{t.selectOperator}</p>
                   {operatorStatus.map(op => (
-                    <button key={op.id} onClick={() => { setSelectedOperator(op); setView('chat'); }} className="w-full p-4 bg-white border border-black rounded-2xl hover:bg-black hover:text-white transition-all flex items-center justify-between shadow-sm">
-                      <span className="text-xs">{op.name}</span>
-                      <span className={`w-3 h-3 rounded-full ${op.online ? 'bg-green-500' : 'bg-yellow-400 flex items-center justify-center text-black text-[8px]'}`}>
-                        {!op.online && <FaQuestion />}
-                      </span>
+                    <button key={op.id} onClick={() => { setSelectedOperator(op); setView('chat'); }} className="w-full p-4 bg-white border border-slate-200 rounded-[1.2rem] hover:border-black transition-all flex items-center justify-between shadow-sm">
+                      <span className="text-xs text-slate-800">{op.name}</span>
+                      <div className={`w-3 h-3 rounded-full ${op.online ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-amber-400'}`} />
                     </button>
                   ))}
-                  <button onClick={() => setView('form')} className="w-full p-4 mt-2 bg-slate-200 border border-black rounded-2xl flex items-center justify-center gap-2 text-xs hover:bg-black hover:text-white transition-all shadow-md">
+                  <button onClick={() => setView('form')} className="w-full p-4 bg-black text-white rounded-[1.2rem] flex items-center justify-center gap-3 text-xs tracking-widest hover:bg-slate-800 mt-2 shadow-lg shadow-black/10">
                     <FaEnvelope /> {t.messageUs}
                   </button>
                 </div>
@@ -150,53 +148,46 @@ export default function CorporateChat() {
 
               {view === 'chat' && (
                 <div className="flex flex-col space-y-3">
-                  <button onClick={() => setView(null)} className="text-[10px] text-slate-400 hover:text-black uppercase tracking-widest mb-2 italic">← Înapoi</button>
+                  <button onClick={() => setView(null)} className="text-[10px] font-black text-slate-400 hover:text-black uppercase tracking-widest mb-2">← ÎNAPOI</button>
                   {messages.map((m, i) => (
-                    <div key={i} className={`max-w-[85%] p-3 text-xs shadow-sm font-bold ${m.type === 'user' ? 'self-end bg-black text-white rounded-2xl rounded-tr-none italic uppercase' : 'self-start bg-white border border-black text-black rounded-2xl rounded-tl-none'}`}>
+                    <div key={i} className={`max-w-[85%] p-3 text-xs shadow-sm font-bold ${m.type === 'user' ? 'self-end bg-black text-white rounded-2xl rounded-tr-none' : 'self-start bg-white border border-slate-200 text-slate-800 rounded-2xl rounded-tl-none'}`}>
                       {m.text}
                     </div>
                   ))}
-                  {botTyping && (
-                    <div className="self-start bg-white p-3 rounded-2xl border border-black flex gap-1 animate-pulse italic text-[9px] text-slate-400">
-                      BOT IS TYPING...
-                    </div>
-                  )}
+                  {botTyping && <div className="self-start bg-white p-3 rounded-2xl border border-slate-200 flex gap-1 animate-pulse italic text-[9px] text-slate-400">BOT IS TYPING...</div>}
                   <div ref={messagesEndRef} />
                 </div>
               )}
 
               {view === 'form' && (
-                <div className="flex flex-col gap-3 italic uppercase font-black">
-                  <button onClick={() => setView(null)} className="text-[10px] text-slate-400 mb-2">← Înapoi</button>
+                <div className="space-y-4">
+                  <button onClick={() => setView(null)} className="text-[10px] font-black text-slate-400 hover:text-black tracking-widest">← ÎNAPOI</button>
                   {formStatus === "success" ? (
                     <div className="text-center p-10 bg-white rounded-[2rem] border border-green-100 shadow-xl text-green-600 text-xs">
                        <FaCheck className="mx-auto mb-2" size={32}/> {t.success}
                     </div>
                   ) : (
-                    <>
-                      <input type="text" placeholder={t.name} value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="p-4 bg-white border border-black rounded-2xl outline-none text-[10px] font-black italic uppercase" />
-                      <input type="email" placeholder={t.email} value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="p-4 bg-white border border-black rounded-2xl outline-none text-[10px] font-black italic uppercase" />
-                      <textarea rows={4} placeholder={t.message} value={formData.message} onChange={(e) => setFormData({...formData, message: e.target.value})} className="p-4 bg-white border border-black rounded-2xl outline-none text-[10px] font-black italic uppercase resize-none" />
-                      <button onClick={submitForm} disabled={loading} className="w-full py-5 bg-black text-white rounded-2xl text-[10px] hover:bg-slate-800 disabled:opacity-50 transition-all font-black italic uppercase tracking-widest">
+                    <div className="space-y-3">
+                      <input type="text" placeholder={t.name} value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:border-black text-xs font-black italic uppercase" />
+                      <input type="email" placeholder={t.email} value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:border-black text-xs font-black italic uppercase" />
+                      <textarea rows={4} placeholder={t.message} value={formData.message} onChange={(e) => setFormData({...formData, message: e.target.value})} className="w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:border-black text-xs font-black resize-none italic uppercase" />
+                      <button onClick={submitForm} disabled={loading} className="w-full py-5 bg-black text-white rounded-2xl text-xs tracking-[0.3em] hover:bg-slate-800 transition-all disabled:opacity-50 shadow-xl shadow-black/20 font-black italic uppercase">
                         {loading ? t.sending : t.sendMessage}
                       </button>
-                    </>
+                    </div>
                   )}
                 </div>
               )}
             </div>
 
-            {/* Input Bar Chat - REPARAT */}
             {view === 'chat' && (
-              <form onSubmit={handleSend} className="p-5 bg-white border-t border-black/5 flex gap-2 items-center">
-                <input 
-                  value={input} 
-                  onChange={(e) => setInput(e.target.value)} 
-                  placeholder={t.placeholder} 
-                  className="flex-1 p-4 bg-slate-100 rounded-2xl outline-none text-[10px] font-black italic uppercase" 
+              <form onSubmit={handleSend} className="p-5 bg-white border-t border-slate-100 flex gap-3 items-center">
+                <input
+                  value={input} onChange={(e) => setInput(e.target.value)}
+                  placeholder={t.placeholder} className="flex-1 p-4 bg-slate-100 rounded-2xl outline-none text-xs font-black focus:bg-slate-200 transition-all italic uppercase"
                 />
                 <button type="submit" className="p-4 bg-black text-white rounded-2xl hover:bg-slate-800 active:scale-90 transition-all shadow-lg">
-                  <FaPaperPlane size={14} />
+                  <FaPaperPlane size={16} />
                 </button>
               </form>
             )}
