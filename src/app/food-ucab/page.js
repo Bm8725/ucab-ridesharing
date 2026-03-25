@@ -23,7 +23,7 @@ export default function FoodDeliveryTerms() {
   const conditions = [
     {
       title: "Comision Restaurante",
-      description: "Sistem de comisionare fix, fără surprize. Reținem maxim **10%** din valoare.",
+      description: "Sistem de comisionare fix, fără surprize. Reținem maxim **16%** din valoare.",
       icon: <Percent className="w-6 h-6" />,
       tag: "Cel mai mic din piață"
     },
@@ -90,8 +90,7 @@ export default function FoodDeliveryTerms() {
             animate={{ opacity: 1, scale: 1 }}
             className="hidden lg:block p-8 bg-slate-50 rounded-2xl border border-slate-100"
           >
-            <div className="text-4xl font-black text-red-600">10%</div>
-            <div className="text-xs uppercase font-bold text-slate-400 tracking-tighter">Comision Maxim</div>
+
           </motion.div>
         </div>
 
