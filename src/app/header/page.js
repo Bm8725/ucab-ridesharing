@@ -47,7 +47,7 @@ export default function Header() {
     },
     {
       label: "Devino restaurant partener",
-      desc: "Devino partener pe livrari de mancare la comisioane sub 10%.",
+      desc: "Devino partener pe livrari de mancare la comisioane avantajoase.",
       icon: <FaHamburger size={24} />,
       href: "/partener-restaurant/",
     },
