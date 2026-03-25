@@ -126,8 +126,7 @@ export default function RootLayout({ children }) {
         <main className="flex-1">{children}</main>
 
         <Footer />
-        <CookiesBanner />
-    
+        <CookiesBanner />  
         <Analytics/> 
       </body>
     </html>
