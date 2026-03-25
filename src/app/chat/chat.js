@@ -5,8 +5,8 @@ import { FaComments, FaEnvelope, FaUser, FaGlobe, FaCheck, FaTimes, FaQuestion }
 import { motion, AnimatePresence } from "framer-motion";
 
 const TEXT = {
-  ro: { chat: "Chat support UCab.ro", messageUs: "Lasă-ne un mesaj", placeholder: "Scrie un mesaj...", send: "Trimite", formTitle: "Lasă-ne un mesaj", name: "Nume", email: "Email", message: "Mesajul tău", sending: "Se trimite...", sendMessage: "Trimite mesajul", success: "Mesaj trimis cu succes!", error: "Eroare la trimitere!", botReply: "Mulțumim! Echipa va reveni curând.", selectOperator: "Selectează operatorul"},
-  en: { chat: "Chat support UCab.ro", messageUs: "Send us a message", placeholder: "Type a message...", send: "Send", formTitle: "Send us a message", name: "Name", email: "Email", message: "Your message", sending: "Sending...", sendMessage: "Send message", success: "Message sent successfully!", error: "Error sending message!", botReply: "Thank you! We'll get back soon.", selectOperator: "Select operator" }
+  ro: { chat: "Chat support UCab.ro", messageUs: "Lasă-ne un mesaj", placeholder: "Scrie un mesaj...", send: "Trimite", formTitle: "Lasă-ne un mesaj", name: "Nume", email: "Email", message: "Mesajul tău", sending: "Se trimite...", sendMessage: "Trimite mesajul", success: "Mesaj trimis cu succes!", error: "Eroare la trimitere!", botReply: "Mulțumim! Va rugam lasati un mesaj la sectiunea 'lasa-ne un mesaj'. Acesta este un mesaj generat automat. www.ucab.ro", selectOperator: "Selectează operatorul"},
+  en: { chat: "Chat support UCab.ro", messageUs: "Send us a message", placeholder: "Type a message...", send: "Send", formTitle: "Send us a message", name: "Name", email: "Email", message: "Your message", sending: "Sending...", sendMessage: "Send message", success: "Message sent successfully!", error: "Error sending message!", botReply: "Thank you! Please least an message to 'Send an message'. This message was generated automated. www.ucab.ro", selectOperator: "Select operator" }
 };
 
 const OPERATORS = [
@@ -184,7 +184,7 @@ export default function CorporateChat() {
                 {messages.map((m, i) => (
                   <div key={i} className={`p-3 border ${m.type === 'user' ? 'self-end bg-black text-white' : 'self-start bg-white border-black'}`}>{m.text}</div>
                 ))}
-                {botTyping && <div className="italic text-gray-600">Bot tastează...</div>}
+                {botTyping && <div className="italic text-gray-600">Bot typing...</div>}
                 <div ref={messagesEndRef} />
                 <div className="flex gap-2 mt-auto">
                   <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder={t.placeholder} className="flex-1 border border-black p-2" />
