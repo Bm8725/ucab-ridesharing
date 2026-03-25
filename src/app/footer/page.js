@@ -77,40 +77,7 @@ export default function Footer() {
             </button>
           </div>
 
-          {/* Apps Download - Minimalist Style */}
-          <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-            <a
-              href="https://play.google.com/store/apps/details?id=com.ucab"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-[#0a0a0a] border border-white/10 hover:border-blue-500/50 hover:bg-white/[0.02] transition-all min-w-[240px]"
-            >
-              <div className="w-10 h-10 bg-black rounded-xl border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <img src="/ucabapp.png" alt="Ride" className="w-7 h-7 grayscale group-hover:grayscale-0 transition-all" />
-              </div>
-              <div className="text-left">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 leading-none mb-1">Călătorește</p>
-                <p className="text-sm font-bold text-white">UCab Ride</p>
-              </div>
-              <ArrowUpRight className="ml-auto w-4 h-4 opacity-20 group-hover:opacity-100 group-hover:text-blue-500 transition-all" />
-            </a>
 
-            <a
-              href="https://play.google.com/store/apps/details?id=com.ucabfood"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-[#0a0a0a] border border-white/10 hover:border-red-500/50 hover:bg-white/[0.02] transition-all min-w-[240px]"
-            >
-              <div className="w-10 h-10 bg-black rounded-xl border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <img src="/ucabfood.png" alt="Food" className="w-7 h-7 grayscale group-hover:grayscale-0 transition-all" />
-              </div>
-              <div className="text-left">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 leading-none mb-1">Livrare</p>
-                <p className="text-sm font-bold text-white">UCab Food</p>
-              </div>
-              <ArrowUpRight className="ml-auto w-4 h-4 opacity-20 group-hover:opacity-100 group-hover:text-red-500 transition-all" />
-            </a>
-          </div>
         </div>
 
         {/* Links Grid: 4 Columns */}
