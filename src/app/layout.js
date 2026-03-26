@@ -4,11 +4,10 @@ import "./globals.css";
 import Header from "./header/page";
 import Footer from "./footer/page";
 import CookiesBanner from "./cookies/cookies";
-import OracleChat from "./chat/chat";
 import SEO from "./seo/seo";
 import Script from "next/script";
 import { Analytics } from '@vercel/analytics/next';
-
+import ClientChatPage from "./chat/page";  //chat real time 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -124,7 +123,7 @@ export default function RootLayout({ children }) {
         <Header />
 
         <main className="flex-1">{children}</main>
-
+       <ClientChatPage/>
         <Footer />
         <CookiesBanner />  
         <Analytics/> 
