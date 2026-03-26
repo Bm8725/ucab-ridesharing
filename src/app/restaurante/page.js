@@ -17,7 +17,7 @@ export default function Restaurante() {
   const [hasMore, setHasMore] = useState(true);
   const ITEMS_PER_PAGE = 6;
 
-  // FUNCȚIE PROGRAM (FIXATĂ PE COLOANELE TALE SQL: open_time, close_time)
+  // FUNCȚIE PROGRAM (FIXATĂ PE COLOANELE TALE SQL)
   const checkIfOpen = (openTime, closeTime) => {
     if (!openTime || !closeTime) return true;
     const acum = new Date();
@@ -32,7 +32,7 @@ export default function Restaurante() {
     return oraCurenta >= minuteOpen && oraCurenta <= minuteClose;
   };
 
-  // 1. GEOLOCATION LOGIC (URL REPARAT COMPLET)
+  // 1. GEOLOCATION LOGIC (URL REPARAT ȘI AUTO-COMPLETARE)
   const detectareLocatie = () => {
     if (!("geolocation" in navigator)) return;
     
@@ -40,7 +40,7 @@ export default function Restaurante() {
     navigator.geolocation.getCurrentPosition(async (position) => {
       try {
         const { latitude, longitude } = position.coords;
-        // URL CORECTAT PENTRU NOMINATIM
+        // URL CORECTAT COMPLET
         const res = await fetch(
           `https://nominatim.openstreetmap.org{latitude}&lon=${longitude}&addressdetails=1`
         );
@@ -49,6 +49,7 @@ export default function Restaurante() {
         const judet = data.address.county || "";
         
         if (oras) {
+          // SE COMPLETEAZĂ AUTOMAT ORAȘUL
           const locatieCautare = judet ? `${oras} ${judet}` : oras;
           setSearchTerm(locatieCautare); 
         }
@@ -60,6 +61,7 @@ export default function Restaurante() {
     }, () => setIsDetecting(false));
   };
 
+  // ACEST EFFECT LANSEAZĂ DETECTAREA AUTOMATĂ LA ÎNCĂRCARE
   useEffect(() => {
     detectareLocatie();
   }, []);
@@ -229,9 +231,9 @@ export default function Restaurante() {
                           <h3 className="text-xl font-black italic uppercase tracking-tighter group-hover:text-red-600 transition-colors">
                             {res.name}
                           </h3>
-                          {/* ADRESA AFISATA SUB TITLU */}
-                          <p className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mt-1 mb-2 flex items-center gap-1.5">
-                             <MapPin size={12} className="text-red-500" /> {res.address || 'Locație Centrală'}
+                          {/* ADRESA SUB TITLU */}
+                          <p className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mt-1 mb-2 line-clamp-1">
+                             <MapPin size={10} className="inline mr-1 text-red-500" /> {res.address || 'Locație Centrală'}
                           </p>
                           <div className="flex items-center gap-4 mt-2 text-gray-400 font-bold text-[10px] uppercase tracking-widest">
                              <span className="flex items-center gap-1 text-red-500 italic">
