@@ -213,7 +213,7 @@ function RestaurantContent() {
                   </span>
                 </div>
                 <div className="text-left">
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Coșul tău</p>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cart</p>
                   <p className="text-sm font-black italic uppercase">{cart.length} Feluri</p>
                 </div>
               </div>

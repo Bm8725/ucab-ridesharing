@@ -4,7 +4,7 @@ import { supabase } from "../../lib/supabaseConfig";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Star, MapPin, Loader2, Flame, Navigation, Zap, Percent, ChevronRight } from "lucide-react";
+import { Search, Star, MapPin, Loader2, Flame, Navigation, Zap, Percent, ChevronRight, Clock } from "lucide-react";
 
 export default function Restaurante() {
   const [restaurante, setRestaurante] = useState([]);
@@ -17,7 +17,22 @@ export default function Restaurante() {
   const [hasMore, setHasMore] = useState(true);
   const ITEMS_PER_PAGE = 6;
 
-  // 1. GEOLOCATION LOGIC (STAYED & FIXED)
+  // FUNCȚIE PROGRAM (FIXATĂ PE COLOANELE TALE SQL)
+  const checkIfOpen = (openTime, closeTime) => {
+    if (!openTime || !closeTime) return true;
+    const acum = new Date();
+    const oraCurenta = acum.getHours() * 60 + acum.getMinutes();
+    
+    const [hOpen, mOpen] = openTime.split(':').map(Number);
+    const [hClose, mClose] = closeTime.split(':').map(Number);
+    
+    const minuteOpen = hOpen * 60 + mOpen;
+    const minuteClose = hClose * 60 + mClose;
+    
+    return oraCurenta >= minuteOpen && oraCurenta <= minuteClose;
+  };
+
+  // 1. GEOLOCATION LOGIC (URL REPARAT COMPLET)
   const detectareLocatie = () => {
     if (!("geolocation" in navigator)) return;
     
@@ -25,14 +40,17 @@ export default function Restaurante() {
     navigator.geolocation.getCurrentPosition(async (position) => {
       try {
         const { latitude, longitude } = position.coords;
+        // URL CORECTAT PENTRU NOMINATIM
         const res = await fetch(
-          `https://nominatim.openstreetmap.org{latitude}&lon=${longitude}`
+          `https://nominatim.openstreetmap.org{latitude}&lon=${longitude}&addressdetails=1`
         );
         const data = await res.json();
         const oras = data.address.city || data.address.town || data.address.village;
+        const judet = data.address.county || "";
         
         if (oras) {
-          setSearchTerm(oras); 
+          const locatieCautare = judet ? `${oras} ${judet}` : oras;
+          setSearchTerm(locatieCautare); 
         }
       } catch (e) {
         console.error("Geolocation error:", e);
@@ -68,7 +86,6 @@ export default function Restaurante() {
         
         if (error) throw error;
 
-        // If page is 0, reset list. If > 0, append data.
         setRestaurante(prev => page === 0 ? data : [...prev, ...data]);
         setHasMore(count > (page + 1) * ITEMS_PER_PAGE);
       } catch (e) { 
@@ -82,7 +99,6 @@ export default function Restaurante() {
     return () => clearTimeout(timeoutId);
   }, [searchTerm, page]);
 
-  // Reset page when search term changes
   useEffect(() => {
     setPage(0);
   }, [searchTerm]);
@@ -129,7 +145,7 @@ export default function Restaurante() {
 
       <main className="max-w-7xl mx-auto px-6 mt-8">
         
-        {/* NEW: PROMOTIONS & ADS SECTION */}
+        {/* PROMOTIONS & ADS SECTION (STAYED) */}
         <section className="mb-12 overflow-x-auto no-scrollbar flex gap-6 pb-4">
           <div className="min-w-[300px] md:min-w-[400px] bg-gradient-to-br from-red-600 to-rose-500 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-xl shadow-red-200 flex-shrink-0">
              <div className="relative z-10">
@@ -150,7 +166,7 @@ export default function Restaurante() {
           </div>
         </section>
 
-        {/* RESTAURANT LIST HEADER */}
+        {/* RESTAURANT LIST HEADER (STAYED) */}
         <div className="flex items-end justify-between mb-8">
            <div>
               <h2 className="text-4xl font-black tracking-tighter text-gray-900">
@@ -172,54 +188,76 @@ export default function Restaurante() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
               <AnimatePresence mode="popLayout">
-                {restaurante.map((res) => (
-                  <Link href={`/restaurante/${res.id}`} key={res.id}>
-                    <motion.div layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="group">
-                      <div className="relative h-60 w-full rounded-[2.5rem] overflow-hidden shadow-md group-hover:shadow-2xl transition-all duration-500 border border-gray-100">
-                        <img 
-                          src={res.image_url?.startsWith('http') ? res.image_url : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/restaurants/${res.image_url}`} 
-                          className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                          alt={res.name}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-                        
-                        {res.is_popular && (
-                          <div className="absolute top-5 left-5 bg-red-600 text-white text-[10px] font-black px-4 py-2 rounded-full shadow-xl flex items-center gap-1.5 uppercase tracking-widest">
-                              <Flame size={12} fill="white" /> Popular
+                {restaurante.map((res) => {
+                  const isOpen = checkIfOpen(res.open_time, res.close_time);
+                  
+                  return (
+                    <Link href={`/restaurante/${res.id}`} key={res.id}>
+                      <motion.div 
+                        layout 
+                        initial={{ opacity: 0, scale: 0.9 }} 
+                        animate={{ opacity: 1, scale: 1 }} 
+                        className={`group relative ${!isOpen ? 'grayscale' : ''}`}
+                      >
+                        <div className="relative h-60 w-full rounded-[2.5rem] overflow-hidden shadow-md group-hover:shadow-2xl transition-all duration-500 border border-gray-100">
+                          <img 
+                            src={res.image_url?.startsWith('http') ? res.image_url : `https://images.unsplash.com`} 
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                            alt={res.name} 
+                          />
+                          
+                          {/* BADGE DESCHIS / INCHIS */}
+                          <div className="absolute top-5 left-5 flex gap-2">
+                             <div className={`px-4 py-1.5 rounded-2xl backdrop-blur-md flex items-center gap-2 border shadow-lg ${isOpen ? 'bg-emerald-500/90 border-emerald-400 text-white' : 'bg-gray-900/90 border-gray-700 text-white'}`}>
+                                <div className={`w-2 h-2 rounded-full ${isOpen ? 'bg-white animate-pulse' : 'bg-red-500'}`} />
+                                <span className="text-[10px] font-black uppercase tracking-widest">{isOpen ? 'open' : 'close'}</span>
+                             </div>
+                             <div className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-lg">
+                                <Star size={14} className="fill-yellow-400 text-yellow-400" />
+                                <span className="text-xs font-black">{res.rating || '4.5'}</span>
+                             </div>
                           </div>
-                        )}
-                        
-                        <div className="absolute bottom-5 left-5 right-5 flex justify-between items-center text-white">
-                          <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-2xl text-[10px] font-black uppercase border border-white/20">
-                            {res.delivery_time}
-                          </div>
-                          <div className="flex items-center gap-1 bg-white text-black px-3 py-1.5 rounded-xl text-xs font-black shadow-lg">
-                            <Star size={14} className="fill-yellow-400 text-yellow-400" /> {res.rating}
+
+                          {!isOpen && (
+                            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
+                               <p className="text-white font-black uppercase tracking-[0.2em] border-2 border-white/50 px-6 py-2 rounded-2xl">Open soon</p>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="mt-6 px-2">
+                          <h3 className="text-xl font-black italic uppercase tracking-tighter group-hover:text-red-600 transition-colors">
+                            {res.name}
+                          </h3>
+                          {/* ADRESA SI DETALII ADAUGATE SUB POZA/TITLU */}
+                          <p className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mt-1 mb-2 line-clamp-1">
+                            <MapPin size={10} className="inline mr-1 text-red-500" /> {res.address || 'Locație Centrală'}
+                          </p>
+                          <div className="flex items-center gap-4 mt-2 text-gray-400 font-bold text-[10px] uppercase tracking-widest">
+                             <span className="flex items-center gap-1 text-red-500 italic">
+                                <Clock size={12}/> {res.delivery_time || '20-30 min'}
+                             </span>
+                             <span>•</span>
+                             <span className="flex items-center gap-1">
+                                <Flame size={12} className="text-orange-500" /> {res.category}
+                             </span>
                           </div>
                         </div>
-                      </div>
-
-                      <div className="mt-6 px-3">
-                        <h3 className="font-black text-2xl text-gray-900 group-hover:text-red-600 transition-colors tracking-tight">{res.name}</h3>
-                        <p className="text-gray-400 text-sm font-bold uppercase tracking-tighter mt-1">{res.category} • {res.address}</p>
-                      </div>
-                    </motion.div>
-                  </Link>
-                ))}
+                      </motion.div>
+                    </Link>
+                  );
+                })}
               </AnimatePresence>
             </div>
-
-            {/* NEW: LOAD MORE PAGINATION */}
+            
             {hasMore && (
-              <div className="mt-16 flex justify-center">
-                <button 
+              <div className="flex justify-center mt-16">
+                 <button 
                   onClick={() => setPage(prev => prev + 1)}
-                  disabled={loading}
-                  className="bg-white border-2 border-gray-100 px-10 py-4 rounded-3xl font-black text-sm uppercase tracking-widest hover:border-red-500 hover:text-red-600 transition-all flex items-center gap-2 shadow-sm disabled:opacity-50"
-                >
-                  {loading ? <Loader2 className="animate-spin" size={18} /> : "Load More Venues"}
-                  {!loading && <ChevronRight size={18} />}
-                </button>
+                  className="bg-white border-2 border-gray-100 px-8 py-4 rounded-[2rem] text-xs font-black uppercase tracking-widest hover:border-red-600 hover:text-red-600 transition-all shadow-xl shadow-gray-100"
+                 >
+                   Load more restaurants
+                 </button>
               </div>
             )}
           </>
