@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabaseConfig";
 import { CartProvider, useCart } from "../../../context/CartContext"; 
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Plus, Minus, ShoppingBag, Loader2, Star, Clock, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Minus, ShoppingBag, Loader2, Star, Clock, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 
 // --- INTERNAL COMPONENT (UI & LOGIC) ---
 function RestaurantContent() {
@@ -15,6 +15,12 @@ function RestaurantContent() {
   const [restaurant, setRestaurant] = useState(null);
   const [menu, setMenu] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // LOGICĂ NOUĂ: State pentru descriere expandabilă
+  const [expandedItems, setExpandedItems] = useState({});
+  const toggleDescription = (itemId) => {
+    setExpandedItems(prev => ({ ...prev, [itemId]: !prev[itemId] }));
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -38,7 +44,7 @@ function RestaurantContent() {
   };
 
   // Helper funcție pentru a găsi produsul în coș
-  const getItemInCart = (itemId) => cart.find(item => item.product_id === itemId || item.id === itemId);
+  const getItemInCart = (itemId) => cart?.find(item => item.product_id === itemId || item.id === itemId);
 
   if (loading) return (
     <div className="h-screen flex flex-col items-center justify-center bg-[#FFF9F9] gap-4">
@@ -48,7 +54,7 @@ function RestaurantContent() {
   );
 
   return (
-    <div className="min-h-screen bg-[#FFF9F9] pb-40 font-sans">
+    <div className="min-h-screen bg-[#FFF9F9] pb-40 font-sans relative">
       {/* HEADER BANNER */}
       <div className="relative h-72 w-full">
         <button 
@@ -96,33 +102,58 @@ function RestaurantContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {menu.map((item) => {
             const cartItem = getItemInCart(item.id);
+            const isExpanded = expandedItems[item.id];
+            const isOutOfStock = item.is_available === false; // LOGICĂ STOC
             
             return (
               <motion.div 
                 key={item.id} 
                 layout
-                className="flex bg-white p-5 rounded-[2.5rem] shadow-sm border border-red-50 hover:shadow-xl transition-all group relative overflow-hidden"
+                className={`flex bg-white p-5 rounded-[2.5rem] shadow-sm border border-red-50 transition-all group relative overflow-hidden ${isOutOfStock ? 'opacity-60 grayscale-[0.5]' : 'hover:shadow-xl'}`}
               >
-                <div className="w-28 h-28 shrink-0 rounded-[1.8rem] overflow-hidden mr-5 border border-gray-50">
+                <div className="w-28 h-28 shrink-0 rounded-[1.8rem] overflow-hidden mr-5 border border-gray-50 relative">
                   <img 
                     src={getImageUrl(item.image_url, "menu_items")} 
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                     alt={item.name}
                   />
+                  {isOutOfStock && (
+                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                      <span className="bg-red-600 text-white text-[8px] font-black px-2 py-1 rounded-full uppercase">Epuizat</span>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="flex-1 flex flex-col justify-center">
-                  <h3 className="font-black text-lg text-gray-800 leading-tight uppercase italic">{item.name}</h3>
-                  <p className="text-gray-400 text-[10px] mt-1 line-clamp-2 font-bold uppercase tracking-tighter leading-snug">
-                    {item.description || 'Delicious freshly prepared dish.'}
-                  </p>
+                  <div className="flex justify-between items-start">
+                    <h3 className="font-black text-lg text-gray-800 leading-tight uppercase italic">{item.name}</h3>
+                    {/* LOGICĂ GRAMAJ */}
+                    {item.weight && <span className="text-[9px] font-black text-gray-300 italic uppercase">{item.weight}g</span>}
+                  </div>
+                  
+                  {/* LOGICĂ DESCRIERE HIDE/CLOSE */}
+                  <div className="relative mt-1">
+                    <p className={`text-gray-400 text-[10px] font-bold uppercase tracking-tighter leading-snug ${!isExpanded ? 'line-clamp-2' : ''}`}>
+                      {item.description || 'Delicious freshly prepared dish.'}
+                    </p>
+                    {item.description?.length > 40 && (
+                      <button 
+                        onClick={() => toggleDescription(item.id)}
+                        className="text-red-500 text-[8px] font-black uppercase mt-1 flex items-center gap-1"
+                      >
+                        {isExpanded ? <>[ Close <ChevronUp size={10}/> ]</> : <>[ More <ChevronDown size={10}/> ]</>}
+                      </button>
+                    )}
+                  </div>
                   
                   <div className="flex items-center justify-between mt-4">
                      <span className="font-black text-red-600 text-lg italic uppercase">{item.price} <span className="text-xs">RON</span></span>
                      
                      <div className="flex items-center">
                         <AnimatePresence mode="wait">
-                          {!cartItem ? (
+                          {isOutOfStock ? (
+                            <div className="p-3 bg-gray-100 rounded-2xl text-gray-300"><Plus size={20} /></div>
+                          ) : !cartItem ? (
                             <motion.button 
                               initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
                               onClick={() => addToCart({ ...item, restaurant_name: restaurant?.name })}
@@ -148,7 +179,7 @@ function RestaurantContent() {
                                 onClick={() => updateQuantity(cartItem.id, 1)}
                                 className="w-8 h-8 flex items-center justify-center bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors"
                               >
-                                <Plus size={14} strokeWidth={3}/>
+                                <Plus size={14}/>
                               </button>
                             </motion.div>
                           )}
@@ -162,35 +193,34 @@ function RestaurantContent() {
         </div>
       </div>
 
-      {/* FLOAT BUTTON CART */}
+      {/* FLOATING CART CU BADGE NR UNITĂȚI */}
       <AnimatePresence>
-        {cart.length > 0 && (
+        {total > 0 && (
           <motion.div 
-            initial={{ y: 100, x: "-50%", opacity: 0 }}
-            animate={{ y: 0, x: "-50%", opacity: 1 }}
-            exit={{ y: 100, x: "-50%", opacity: 0 }}
-            className="fixed bottom-10 left-1/2 z-50 w-[92%] max-w-md"
+            initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}
+            className="fixed bottom-10 left-0 right-0 z-50 px-6 flex justify-center"
           >
             <button 
-              onClick={() => router.push("/checkout")}
-              className="w-full bg-gray-950 text-white px-8 py-6 rounded-[2.5rem] font-black flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:scale-[1.02] active:scale-95 transition-all border border-gray-800"
+              onClick={() => router.push('/checkout')}
+              className="bg-gray-900 text-white flex items-center gap-6 p-5 rounded-[2.5rem] shadow-2xl hover:scale-[1.02] active:scale-95 transition-all"
             >
-              <div className="flex items-center gap-4">
-                <div className="bg-red-600 p-3 rounded-2xl relative shadow-lg shadow-red-500/20">
-                  <ShoppingBag size={22} />
-                  <span className="absolute -top-2 -right-2 bg-white text-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-gray-950 font-black">
-                    {cart.reduce((sum, i) => sum + i.quantity, 0)}
+              <div className="flex items-center gap-3 relative">
+                <div className="bg-red-600 p-3 rounded-2xl relative">
+                  <ShoppingBag size={20} />
+                  {/* BADGE NR UNITĂȚI MIC SUS */}
+                  <span className="absolute -top-2 -right-2 bg-white text-red-600 text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-gray-900">
+                    {cart.reduce((acc, curr) => acc + curr.quantity, 0)}
                   </span>
                 </div>
                 <div className="text-left">
-                  <p className="text-[9px] text-red-500 uppercase font-black tracking-widest mb-0.5">Go to Checkout</p>
-                  <p className="text-xs font-bold text-gray-400 uppercase italic">From {restaurant?.name}</p>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Coșul tău</p>
+                  <p className="text-sm font-black italic uppercase">{cart.length} Feluri</p>
                 </div>
               </div>
-              
+              <div className="h-10 w-[1px] bg-gray-800" />
               <div className="text-right">
-                <p className="text-[9px] text-gray-500 uppercase font-black tracking-widest mb-0.5 italic">Total Pay</p>
-                <p className="text-2xl tracking-tighter text-white italic">{total.toFixed(2)} <span className="text-xs">RON</span></p>
+                <p className="text-[10px] font-black text-red-500 uppercase tracking-widest">Total</p>
+                <p className="text-xl font-black italic">{total} RON</p>
               </div>
             </button>
           </motion.div>
@@ -200,8 +230,8 @@ function RestaurantContent() {
   );
 }
 
-// --- EXPORT WITH CONTEXT WRAPPER ---
-export default function PaginaRestaurantWrapper() {
+// ASIGURĂM CONTEXTUL CART PENTRU TOATĂ PAGINA
+export default function RestaurantPage() {
   return (
     <CartProvider>
       <RestaurantContent />
