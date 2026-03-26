@@ -177,6 +177,7 @@ export default function Restaurante() {
               </p>
            </div>
         </div>
+        
 
         {/* RESTAURANT GRID */}
         {loading && page === 0 ? (
