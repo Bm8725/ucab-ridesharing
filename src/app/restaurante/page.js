@@ -17,7 +17,7 @@ export default function Restaurante() {
   const [hasMore, setHasMore] = useState(true);
   const ITEMS_PER_PAGE = 6;
 
-  // FUNCȚIE PROGRAM (FIXATĂ PE COLOANELE TALE SQL)
+  // FUNCȚIE PROGRAM (FIXATĂ PE COLOANELE TALE SQL: open_time, close_time)
   const checkIfOpen = (openTime, closeTime) => {
     if (!openTime || !closeTime) return true;
     const acum = new Date();
@@ -32,7 +32,7 @@ export default function Restaurante() {
     return oraCurenta >= minuteOpen && oraCurenta <= minuteClose;
   };
 
-  // 1. GEOLOCATION LOGIC (URL REPARAT ȘI AUTO-COMPLETARE)
+  // 1. GEOLOCATION LOGIC (URL REPARAT COMPLET)
   const detectareLocatie = () => {
     if (!("geolocation" in navigator)) return;
     
@@ -40,7 +40,7 @@ export default function Restaurante() {
     navigator.geolocation.getCurrentPosition(async (position) => {
       try {
         const { latitude, longitude } = position.coords;
-        // URL CORECTAT COMPLET
+        // URL CORECTAT PENTRU NOMINATIM
         const res = await fetch(
           `https://nominatim.openstreetmap.org{latitude}&lon=${longitude}&addressdetails=1`
         );
@@ -49,7 +49,6 @@ export default function Restaurante() {
         const judet = data.address.county || "";
         
         if (oras) {
-          // SE COMPLETEAZĂ AUTOMAT ORAȘUL
           const locatieCautare = judet ? `${oras} ${judet}` : oras;
           setSearchTerm(locatieCautare); 
         }
@@ -61,7 +60,6 @@ export default function Restaurante() {
     }, () => setIsDetecting(false));
   };
 
-  // ACEST EFFECT LANSEAZĂ DETECTAREA AUTOMATĂ LA ÎNCĂRCARE
   useEffect(() => {
     detectareLocatie();
   }, []);
@@ -153,7 +151,7 @@ export default function Restaurante() {
              <div className="relative z-10">
                 <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Limited Offer</span>
                 <h3 className="text-2xl font-black mt-4 leading-tight">Free Delivery <br/> on your first order!</h3>
-                <p className="text-white/80 text-xs mt-2 font-bold uppercase tracking-tighter">Use code: WELCOME2024</p>
+                <p className="text-white/80 text-xs mt-2 font-bold uppercase tracking-tighter">Use code: WELCOMEUCABFOOD</p>
              </div>
              <Zap className="absolute right-[-20px] bottom-[-20px] w-40 h-40 opacity-10 rotate-12" />
           </div>
@@ -212,7 +210,7 @@ export default function Restaurante() {
                           <div className="absolute top-5 left-5 flex gap-2">
                              <div className={`px-4 py-1.5 rounded-2xl backdrop-blur-md flex items-center gap-2 border shadow-lg ${isOpen ? 'bg-emerald-500/90 border-emerald-400 text-white' : 'bg-gray-900/90 border-gray-700 text-white'}`}>
                                 <div className={`w-2 h-2 rounded-full ${isOpen ? 'bg-white animate-pulse' : 'bg-red-500'}`} />
-                                <span className="text-[10px] font-black uppercase tracking-widest">{isOpen ? 'Deschis' : 'Închis'}</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest">{isOpen ? 'Open' : 'Close'}</span>
                              </div>
                              <div className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-lg">
                                 <Star size={14} className="fill-yellow-400 text-yellow-400" />
@@ -222,7 +220,7 @@ export default function Restaurante() {
 
                           {!isOpen && (
                             <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
-                               <p className="text-white font-black uppercase tracking-[0.2em] border-2 border-white/50 px-6 py-2 rounded-2xl">Revenim curând</p>
+                               <p className="text-white font-black uppercase tracking-[0.2em] border-2 border-white/50 px-6 py-2 rounded-2xl">Open soon</p>
                             </div>
                           )}
                         </div>
@@ -231,9 +229,9 @@ export default function Restaurante() {
                           <h3 className="text-xl font-black italic uppercase tracking-tighter group-hover:text-red-600 transition-colors">
                             {res.name}
                           </h3>
-                          {/* ADRESA SUB TITLU */}
-                          <p className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mt-1 mb-2 line-clamp-1">
-                             <MapPin size={10} className="inline mr-1 text-red-500" /> {res.address || 'Locație Centrală'}
+                          {/* ADRESA AFISATA SUB TITLU */}
+                          <p className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mt-1 mb-2 flex items-center gap-1.5">
+                             <MapPin size={12} className="text-red-500" /> {res.address || 'Locație Centrală'}
                           </p>
                           <div className="flex items-center gap-4 mt-2 text-gray-400 font-bold text-[10px] uppercase tracking-widest">
                              <span className="flex items-center gap-1 text-red-500 italic">
