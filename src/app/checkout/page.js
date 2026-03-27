@@ -39,39 +39,43 @@ function CheckoutContent() {
     }, () => setLocating(false), { enableHighAccuracy: true });
   };
 
-  const handleOrder = async (e) => {
-    e.preventDefault();
-    if (cart.length === 0 || status === "loading") return;
-    setStatus("loading");
+const handleOrder = async (e) => {
+  e.preventDefault();
+  if (cart.length === 0 || status === "loading") return;
+  setStatus("loading");
 
-    const orderPayload = {
-      items: cart, // Supabase coloana 'items' trebuie să fie tip JSONB
-      total_amount: parseFloat(total),
-      restaurant_name: restaurantName,
-      customer_name: form.name,
-      customer_phone: form.phone,
-      delivery_address: form.address,
-      notes: form.notes,
-      status: "pending",
-      created_at: new Date()
-    };
+  // REPARARE: Luăm ID-ul restaurantului din primul produs din coș
+  const resId = cart[0]?.restaurant_id || cart[0]?.id_restaurant;
 
-    console.log("Sending Order Payload:", orderPayload);
-
-    const { data, error } = await supabase.from("orders").insert([orderPayload]);
-
-    if (error) {
-      console.error("SUPABASE ERROR:", error.message);
-      console.error("ERROR DETAILS:", error.details);
-      setStatus("error");
-      setTimeout(() => setStatus("idle"), 3000);
-    } else {
-      console.log("Order Success:", data);
-      setStatus("success");
-      await clearCart();
-      setTimeout(() => router.push("/restaurante"), 4000);
-    }
+  const orderPayload = {
+    restaurant_id: resId, // <--- ASTA LIPSEA! Acum aplicația de preluare o va vedea
+    items: cart, 
+    total_amount: parseFloat(total),
+    restaurant_name: restaurantName,
+    customer_name: form.name,
+    customer_phone: form.phone,
+    delivery_address: form.address,
+    notes: form.notes,
+    status: "pending",
+    created_at: new Date()
   };
+
+  console.log("Sending Order Payload:", orderPayload);
+
+  const { data, error } = await supabase.from("orders").insert([orderPayload]);
+
+  if (error) {
+    console.error("SUPABASE ERROR:", error.message);
+    setStatus("error");
+    setTimeout(() => setStatus("idle"), 3000);
+  } else {
+    console.log("Order Success:", data);
+    setStatus("success");
+    await clearCart();
+    setTimeout(() => router.push("/restaurante"), 4000);
+  }
+};
+
 
   if (!isHydrated) return null;
 

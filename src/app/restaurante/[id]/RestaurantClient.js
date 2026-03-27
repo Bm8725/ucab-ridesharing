@@ -226,6 +226,10 @@ const handleShare = async () => {
         </div>
       </div>
 
+
+
+
+
       {/* FLOATING CART CU BADGE NR UNITĂȚI */}
       <AnimatePresence>
         {total > 0 && (
