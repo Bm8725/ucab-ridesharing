@@ -20,17 +20,22 @@ export function CartProvider({ children }) {
   useEffect(() => { fetchCart(); }, []);
 
   const addToCart = async (product) => {
-    // Verificăm dacă produsul există deja pentru a-i mări cantitatea
+    // Verificăm dacă produsul există deja în coș
     const existing = cart.find(item => item.product_id === product.id);
+    
     if (existing) {
       await updateQuantity(existing.id, 1);
     } else {
+      // REPARARE: Adăugăm restaurant_id și restaurant_name în insert
       await supabase.from("cart").insert({
         product_id: product.id,
         name: product.name,
         price: product.price,
         image_url: product.image_url,
-        quantity: 1
+        quantity: 1,
+        // ACESTEA SUNT LINIILE CARE ÎȚI LIPSESC:
+        restaurant_id: product.restaurant_id, 
+        restaurant_name: product.restaurant_name
       });
       fetchCart();
     }

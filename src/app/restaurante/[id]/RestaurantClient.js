@@ -187,13 +187,23 @@ const handleShare = async () => {
                           {isOutOfStock ? (
                             <div className="p-3 bg-gray-100 rounded-2xl text-gray-300"><Plus size={20} /></div>
                           ) : !cartItem ? (
-                            <motion.button 
-                              initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
-                              onClick={() => addToCart({ ...item, restaurant_name: restaurant?.name })}
-                              className="bg-red-600 text-white p-3 rounded-2xl hover:bg-black shadow-lg shadow-red-100 transition-all active:scale-90"
-                            >
-                              <Plus size={20} strokeWidth={3} />
-                            </motion.button>
+                        <motion.button 
+                          initial={{ scale: 0 }} 
+                          animate={{ scale: 1 }} 
+                          exit={{ scale: 0 }}
+                          onClick={() => {
+                            console.log("ID Restaurant din URL:", id); // Vezi în consolă dacă e UUID-ul aici
+                            addToCart({ 
+                              ...item, 
+                              restaurant_id: id, 
+                              restaurant_name: restaurant?.name 
+                            });
+                          }}
+                          className="bg-red-600 text-white p-3 rounded-2xl hover:bg-black shadow-lg shadow-red-100 transition-all active:scale-90"
+                        >
+                          <Plus size={20} strokeWidth={3} />
+                        </motion.button>
+
                           ) : (
                             <motion.div 
                               initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
