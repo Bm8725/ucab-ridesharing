@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabaseConfig";
 import { CartProvider, useCart } from "../../../context/CartContext"; 
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Plus, Minus, ShoppingBag, Loader2, Star, Clock, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Plus, Minus, ShoppingBag, Loader2, Star, Clock, Trash2, ChevronDown, ChevronUp, Share2  } from "lucide-react";
 
 // --- INTERNAL COMPONENT (UI & LOGIC) ---
 function RestaurantContent() {
@@ -43,6 +43,27 @@ function RestaurantContent() {
     return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}`;
   };
 
+/**handler share */
+const handleShare = async () => {
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: restaurant?.name,
+        text: `Uite ce meniu fain au cei de la ${restaurant?.name}!`,
+        url: window.location.href,
+      });
+    } catch (err) {
+      console.log("Share cancelled");
+    }
+  } else {
+    // Fallback: Copiază link-ul dacă browserul nu suportă share (ex: pe PC)
+    navigator.clipboard.writeText(window.location.href);
+    alert("Link copiat în clipboard!");
+  }
+};
+
+
+
   // Helper funcție pentru a găsi produsul în coș
   const getItemInCart = (itemId) => cart?.find(item => item.product_id === itemId || item.id === itemId);
 
@@ -65,10 +86,22 @@ function RestaurantContent() {
         </button>
         <img src={getImageUrl(restaurant?.image_url)} className="w-full h-full object-cover" alt="Banner" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#FFF9F9] via-black/20 to-transparent" />
+        <button 
+  onClick={handleShare} // Aici chemăm funcția de mai sus
+  className="absolute top-6 right-6 z-30 bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-xl hover:scale-110 transition-all active:scale-90 text-red-600"
+>
+  <Share2 size={20}/>
+</button>
+
       </div>
+
+  
+
 
       <div className="max-w-5xl mx-auto px-6 -mt-20 relative z-20">
         {/* RESTAURANT INFO CARD */}
+
+        
         <div className="bg-white rounded-[2.5rem] p-8 shadow-2xl shadow-red-100 border border-red-50">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
