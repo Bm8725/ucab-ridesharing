@@ -1,3 +1,8 @@
+/* 
+restaurante component /[id]/page.js 
+
+*/
+
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabaseConfig";
