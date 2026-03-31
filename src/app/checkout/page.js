@@ -1,3 +1,4 @@
+/* checkout/page.jsx */
 "use client";
 import { useRouter } from "next/navigation";
 import { useCart, CartProvider } from "../../context/CartContext";
@@ -6,7 +7,7 @@ import { supabase } from "../../lib/supabaseConfig";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ChevronLeft, Trash2, Plus, Minus, Store, 
-  ShoppingBag, Loader2, Navigation, CheckCircle2
+  ShoppingBag, Loader2, MapPin, CheckCircle2
 } from "lucide-react";
 
 function CheckoutContent() {
@@ -17,9 +18,37 @@ function CheckoutContent() {
   const [isHydrated, setIsHydrated] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", address: "", notes: "" });
 
-  const restaurantName = cart.length > 0 ? (cart[0].restaurant_name || "Official Partner") : "Restaurant";
+  // 1. CONDIȚIE ACCOUNT: Verificăm dacă e logat și tragem datele de profil
+  useEffect(() => {
+    setIsHydrated(true);
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        router.push("/account"); // DACĂ NU E LOGAT -> REDIRECȚIONARE
+        return;
+      }
 
-  useEffect(() => { setIsHydrated(true); }, []);
+      // Tragem datele din tabelul riders pentru auto-fill
+      const { data: profile } = await supabase
+        .from("riders")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (profile) {
+        setForm(prev => ({
+          ...prev,
+          name: profile.name || "",
+          phone: profile.phone || "",
+          address: profile.address || ""
+        }));
+      }
+    };
+    checkUser();
+  }, [router]);
+
+  const restaurantName = cart?.length > 0 ? (cart[0].restaurant_name || "Official Partner") : "Restaurant";
 
   const detectLocation = () => {
     if (!navigator.geolocation) return alert("Geolocation not supported");
@@ -27,55 +56,54 @@ function CheckoutContent() {
     navigator.geolocation.getCurrentPosition(async (pos) => {
       try {
         const { latitude, longitude } = pos.coords;
-        // URL corectat cu /reverse
-        const res = await fetch(`https://nominatim.openstreetmap.org{latitude}&lon=${longitude}&format=json`);
+        // REPARAT: URL corect pentru Nominatim
+        const res = await fetch(`https://openstreetmap.org{latitude}&lon=${longitude}`);
         const data = await res.json();
         if (data && data.display_name) {
           const cleanAddr = data.display_name.split(',').slice(0, 5).join(',');
           setForm(prev => ({ ...prev, address: cleanAddr }));
         }
-      } catch (e) { console.error("Location Fetch Error:", e); }
+      } catch (e) { console.error("Location Error:", e); }
       finally { setLocating(false); }
     }, () => setLocating(false), { enableHighAccuracy: true });
   };
 
-const handleOrder = async (e) => {
-  e.preventDefault();
-  if (cart.length === 0 || status === "loading") return;
-  setStatus("loading");
+  const handleOrder = async (e) => {
+    e.preventDefault();
+    if (cart.length === 0 || status === "loading") return;
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return router.push("/account");
 
-  // REPARARE: Luăm ID-ul restaurantului din primul produs din coș
-  const resId = cart[0]?.restaurant_id || cart[0]?.id_restaurant;
+    setStatus("loading");
+    const resId = cart[0]?.restaurant_id || cart[0]?.id_restaurant;
 
-  const orderPayload = {
-    restaurant_id: resId, // <--- ASTA LIPSEA! Acum aplicația de preluare o va vedea
-    items: cart, 
-    total_amount: parseFloat(total),
-    restaurant_name: restaurantName,
-    customer_name: form.name,
-    customer_phone: form.phone,
-    delivery_address: form.address,
-    notes: form.notes,
-    status: "pending",
-    created_at: new Date()
+    const orderPayload = {
+      user_id: user.id, // Legăm comanda de ID-ul utilizatorului
+      restaurant_id: resId,
+      items: cart, 
+      total_amount: parseFloat(total),
+      restaurant_name: restaurantName,
+      customer_name: form.name,
+      customer_phone: form.phone,
+      delivery_address: form.address,
+      notes: form.notes,
+      status: "pending",
+      created_at: new Date()
+    };
+
+    const { error } = await supabase.from("orders").insert([orderPayload]);
+
+    if (error) {
+      console.error("SUPABASE ERROR:", error.message);
+      setStatus("error");
+      setTimeout(() => setStatus("idle"), 3000);
+    } else {
+      setStatus("success");
+      await clearCart();
+      setTimeout(() => router.push("/restaurante"), 4000);
+    }
   };
-
-  console.log("Sending Order Payload:", orderPayload);
-
-  const { data, error } = await supabase.from("orders").insert([orderPayload]);
-
-  if (error) {
-    console.error("SUPABASE ERROR:", error.message);
-    setStatus("error");
-    setTimeout(() => setStatus("idle"), 3000);
-  } else {
-    console.log("Order Success:", data);
-    setStatus("success");
-    await clearCart();
-    setTimeout(() => router.push("/restaurante"), 4000);
-  }
-};
-
 
   if (!isHydrated) return null;
 
@@ -149,21 +177,13 @@ const handleOrder = async (e) => {
             <input type="tel" placeholder="Phone Number" required className="w-full p-6 border rounded-[2rem] font-bold outline-none focus:ring-4 ring-red-50 border-gray-100 shadow-sm" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
             <div className="relative">
               <textarea placeholder="Exact Delivery Address" required className="w-full p-6 border rounded-[2.5rem] font-bold h-40 pr-20 outline-none focus:ring-4 ring-red-50 border-gray-100 shadow-sm resize-none" value={form.address} onChange={e => setForm({...form, address: e.target.value})} />
-              <button type="button" onClick={detectLocation} className="absolute right-4 top-4 p-4 bg-red-600 text-white rounded-3xl hover:bg-black shadow-xl transition-all active:scale-90">
-                {locating ? <Loader2 className="animate-spin" size={22} /> : <Navigation size={22} />}
+              <button type="button" onClick={detectLocation} className="absolute right-4 top-4 p-4 bg-red-600 text-white rounded-3xl shadow-xl">
+                 {locating ? <Loader2 size={20} className="animate-spin" /> : <MapPin size={20} />}
               </button>
             </div>
-            <input type="text" placeholder="Notes (Floor, Gate Code...)" className="w-full p-6 border rounded-[2rem] font-bold outline-none focus:ring-4 ring-red-50 border-gray-100 shadow-sm" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} />
-            
-            <div className="bg-black rounded-[3.5rem] p-10 text-white shadow-2xl mt-12 relative overflow-hidden group">
-              <div className="flex justify-between items-center mb-8">
-                <span className="text-xs font-black uppercase tracking-[0.3em] opacity-40 italic">Total to pay</span>
-                <span className="text-3xl font-black italic text-red-500">{total.toFixed(2)} RON</span>
-              </div>
-              <button type="submit" disabled={status === "loading"} className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-800 py-7 rounded-[2rem] font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-red-500/20">
-                {status === "loading" ? <Loader2 className="animate-spin" size={24} /> : status === "error" ? "CHECK CONSOLE (RLS?)" : "Confirm & Place Order"}
-              </button>
-            </div>
+            <button type="submit" disabled={status === "loading"} className="w-full bg-black text-white p-8 rounded-[2.5rem] font-black uppercase italic tracking-widest shadow-2xl flex items-center justify-center gap-4 hover:bg-red-600 transition-colors disabled:bg-gray-200 mt-8">
+                {status === "loading" ? <Loader2 className="animate-spin" /> : `Place Order • ${total} RON`}
+            </button>
           </form>
         </section>
       </main>
@@ -171,6 +191,11 @@ const handleOrder = async (e) => {
   );
 }
 
+// FIX: Exportăm cu CartProvider ca să nu mai dea eroarea de "destructure cart"
 export default function CheckoutPage() {
-  return (<CartProvider><CheckoutContent /></CartProvider>);
+  return (
+    <CartProvider>
+      <CheckoutContent />
+    </CartProvider>
+  );
 }
