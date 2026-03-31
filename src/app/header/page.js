@@ -122,8 +122,8 @@ export default function Header() {
               <FaCoins size={20} /> investors
             </a>
 
-            <a href="/login/" className="px-4 py-2 border border-white rounded-full hover:bg-white hover:text-black transition flex items-center gap-1 font-bold">
-              <LogIn size={18} /> Sign In
+            <a href="/myaccount/" className="px-4 py-2 border border-white rounded-full hover:bg-white hover:text-black transition flex items-center gap-1 font-bold">
+              <LogIn size={18} /> my account
             </a>
           </nav>
 
@@ -204,11 +204,11 @@ export default function Header() {
 {/* Sign In la baza meniului */}
 <div className="mt-auto pt-6">
   <a 
-    href="/login" 
+    href="/myaccount" 
     onClick={() => setIsOpen(false)}
     className="w-full py-3 bg-white border border-black text-black text-center font-bold text-lg flex items-center justify-center gap-2 hover:bg-black hover:text-white transition-all"
   >
-    <LogIn size={20} /> Sign In
+    <LogIn size={20} /> my account
   </a>
 </div>
 
