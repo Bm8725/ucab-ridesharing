@@ -1,303 +1,284 @@
-/* app web app december 2025 BM V 0.1.13 */
-
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  GoogleMap,
-  Marker,
-  DirectionsRenderer,
-  Autocomplete,
-  useJsApiLoader,
-} from "@react-google-maps/api";
-import {
-  FaMapMarkerAlt,
-  FaFlagCheckered,
-  FaChevronDown,
-  FaChevronUp,
-} from "react-icons/fa";
+import Map, { Marker, Source, Layer, NavigationControl } from "react-map-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import { supabase } from "../../lib/supabaseConfig";
+import { useRouter } from "next/navigation";
+import { 
+  Navigation, MapPin, Flag, Zap, Clock, 
+  ChevronDown, ChevronUp, LocateFixed, Car, 
+  ShieldCheck, CreditCard, Loader2, ArrowLeft 
+} from "lucide-react";
 
 /* ================= CONFIG ================= */
-const libraries = ["places"];
-const containerStyle = { width: "100%", height: "100%" };
-const defaultCenter = { lat: 44.92756, lng: 25.4609 };
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
 const carOptions = {
-  standard: { label: "Standard", rate: 0.5 },
-  comfort: { label: "Comfort", rate: 0.8 },
-  electric: { label: "Electric", rate: 0.7 },
+  standard: { label: "uCAB Basic", rate: 1.5, time: "3 min" },
+  comfort: { label: "uCAB Comfort", rate: 2.2, time: "5 min" },
+  electric: { label: "uCAB Eco", rate: 1.9, time: "4 min" },
 };
 
 export default function RideSharePage() {
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
-    libraries,
+  const router = useRouter();
+  const mapRef = useRef(null);
+
+  // AUTH & USER
+  const [user, setUser] = useState(null);
+  const [loadingAuth, setLoadingAuth] = useState(true);
+
+  // MAP STATES
+  const [viewState, setViewState] = useState({
+    latitude: 44.4396,
+    longitude: 26.0963,
+    zoom: 13,
+    pitch: 45,
   });
 
-  const mapRef = useRef(null);
-  const pickupRef = useRef(null);
-  const destinationRef = useRef(null);
-
-  const [center, setCenter] = useState(defaultCenter);
-  const [pickup, setPickup] = useState(null);
+  // RIDE STATES
+  const [pickup, setPickup] = useState(null); // {lat, lng}
   const [destination, setDestination] = useState(null);
   const [pickupText, setPickupText] = useState("");
   const [destinationText, setDestinationText] = useState("");
-  const [directions, setDirections] = useState(null);
-  const [distance, setDistance] = useState(null);
-  const [time, setTime] = useState(null);
+  const [routeData, setRouteData] = useState(null);
   const [driverPos, setDriverPos] = useState(null);
-  const [rideStatus, setRideStatus] = useState("pending");
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [rideStatus, setRideStatus] = useState("idle"); // idle, ready, searching, active
   const [selectedCar, setSelectedCar] = useState("standard");
   const [sheetMinimized, setSheetMinimized] = useState(false);
   const [rideId, setRideId] = useState(null);
 
-  /* ================= CURRENT LOCATION ================= */
-  const useCurrentLocation = async () => {
+  /* ================= 1. AUTH CHECK ================= */
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push("/login");
+      } else {
+        setUser(session.user);
+        setLoadingAuth(false);
+      }
+    };
+    checkUser();
+  }, [router]);
+
+  /* ================= 2. CURRENT LOCATION ================= */
+  const useCurrentLocation = () => {
     if (!navigator.geolocation) return;
-
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const coords = {
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-      };
-
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
       setPickup(coords);
-      setCenter(coords);
-
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.lat}&lon=${coords.lng}`
-      );
-      const data = await res.json();
-
-      setPickupText(data.display_name || "Current location");
+      setViewState((prev) => ({ ...prev, ...coords, zoom: 15 }));
+      setPickupText("Locația ta actuală");
     });
   };
 
-  /* ================= ROUTE CALC ================= */
-  const calculateRoute = () => {
-    if (!pickup || !destination) {
-      setMessage("Completează plecarea și destinația.");
-      return;
-    }
+  /* ================= 3. ROUTE CALC (MAPBOX) ================= */
+  const getRoute = async () => {
+    if (!pickup || !destination) return;
+    
+const query = await fetch(
+  `https://mapbox.com{pickup.lng},${pickup.lat};${destination.lng},${destination.lat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
+);
 
-    const service = new window.google.maps.DirectionsService();
-    service.route(
-      {
-        origin: pickup,
-        destination: destination,
-        travelMode: window.google.maps.TravelMode.DRIVING,
-      },
-      (result, status) => {
-        if (status === "OK") {
-          setDirections(result);
-          const leg = result.routes[0].legs[0];
-          setDistance(leg.distance.value / 1000);
-          setTime(leg.duration.text);
-          setMessage("");
-        } else {
-          setMessage("Eroare calcul rută.");
-        }
-      }
-    );
+    const data = await query.json();
+    
+    if (data.routes && data.routes[0]) {
+      const route = data.routes[0];
+      setRouteData({
+        geometry: route.geometry,
+        distance: route.distance / 1000,
+        duration: Math.floor(route.duration / 60),
+      });
+      setRideStatus("ready");
+    }
   };
 
-  const cost = distance
-    ? (distance * carOptions[selectedCar].rate).toFixed(2)
+  useEffect(() => {
+    if (pickup && destination) getRoute();
+  }, [pickup, destination]);
+
+  const cost = routeData
+    ? (routeData.distance * carOptions[selectedCar].rate).toFixed(2)
     : "0.00";
 
-    
-  /* ================= CONFIRM RIDE (API) ================= */
+  /* ================= 4. CONFIRM RIDE ================= */
   const confirmRide = async () => {
-    if (!directions) return;
-    setLoading(true);
-
-    // 1. Creare ride
-    const rideRes = await fetch("/api/rides", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        pickup,
-        destination,
-        distance,
-        time,
-        carType: selectedCar,
-      }),
-    });
-
-    const rideData = await rideRes.json();
-    setRideId(rideData.ride.rideId);
-
-    // 2. Creare driver pentru ride
-    const driverRes = await fetch("/api/drivers", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        rideId: rideData.ride.rideId,
-        position: pickup,
-        status: "assigned",
-      }),
-    });
-
-    const driverData = await driverRes.json();
-    setDriverPos(driverData.driver.position);
-    setRideStatus(driverData.driver.status);
-    setMessage("Cursă confirmată. Șofer în drum spre tine.");
-    setLoading(false);
+    setRideStatus("searching");
+    // Aici vine logica ta de API / Supabase insert
+    // Exemplu: const { data } = await supabase.from('orders').insert(...)
+    
+    setTimeout(() => {
+        setRideStatus("active");
+        setRideId("RIDE-123");
+    }, 3000);
   };
 
-  /* ================= TRACK DRIVER LIVE ================= */
-  useEffect(() => {
-    if (!rideId || rideStatus === "completed") return;
-
-    const interval = setInterval(async () => {
-      const res = await fetch(`/api/drivers/${rideId}`);
-      if (res.status === 200) {
-        const data = await res.json();
-        setDriverPos(data.driver.position);
-        setRideStatus(data.driver.status);
-      }
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [rideId, rideStatus]);
-
-  if (!isLoaded) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        Loading Google Maps...
-      </div>
-    );
-  }
+  if (loadingAuth) return <div className="h-screen flex items-center justify-center bg-black text-white italic font-black uppercase tracking-widest">uCAB Loading...</div>;
 
   return (
-    <div className="h-screen w-screen relative">
-      {/* MAP */}
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={center}
-        zoom={14}
-        onLoad={(map) => (mapRef.current = map)}
+    <div className="h-screen w-full relative bg-white overflow-hidden">
+      
+      {/* 1. MAP ENGINE */}
+      <Map
+        {...viewState}
+        onMove={(evt) => setViewState(evt.viewState)}
+        mapStyle="mapbox://styles/mapbox/light-v11"
+        mapboxAccessToken={MAPBOX_TOKEN}
+        style={{ width: "100%", height: "100%" }}
       >
-        {pickup && <Marker position={pickup} />}
-        {destination && <Marker position={destination} />}
-        {driverPos && <Marker position={driverPos} />}
-        {directions && <DirectionsRenderer directions={directions} />}
-      </GoogleMap>
+        <NavigationControl position="bottom-right" />
+        {pickup && <Marker longitude={pickup.lng} latitude={pickup.lat} color="#2563eb" />}
+        {destination && <Marker longitude={destination.lng} latitude={destination.lat} color="#000000" />}
+        
+        {routeData && (
+          <Source id="route" type="geojson" data={{ type: 'Feature', geometry: routeData.geometry }}>
+            <Layer
+              id="route-line"
+              type="line"
+              paint={{ 'line-color': '#2563eb', 'line-width': 4, 'line-opacity': 0.8 }}
+            />
+          </Source>
+        )}
+      </Map>
 
-      {/* BOTTOM SHEET */}
+      {/* 2. TOP NAV (Uber Style) */}
+      <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center pointer-events-none">
+        <button 
+          onClick={() => router.back()} 
+          className="pointer-events-auto bg-white p-3 rounded-2xl shadow-xl hover:scale-105 transition-transform"
+        >
+          <ArrowLeft size={20} />
+        </button>
+        <div className="bg-black text-white px-5 py-2 rounded-2xl shadow-2xl flex items-center gap-2">
+          <Zap size={16} fill="currentColor" className="text-blue-500" />
+          <span className="text-xs font-black tracking-tighter uppercase italic">uCAB Online</span>
+        </div>
+      </div>
+
+      {/* 3. BOTTOM SHEET (uCAB Style) */}
       <AnimatePresence>
         <motion.div
           initial={{ y: "100%" }}
-          animate={{ y: sheetMinimized ? "25%" : 0 }}
-          exit={{ y: "100%" }}
-          transition={{ type: "spring", stiffness: 120 }}
-          className="fixed bottom-0 w-full bg-white rounded-t-3xl shadow-xl z-50"
+          animate={{ y: sheetMinimized ? "80%" : 0 }}
+          transition={{ type: "spring", stiffness: 100, damping: 20 }}
+          className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[3rem] shadow-[0_-20px_50px_rgba(0,0,0,0.1)] z-50 max-w-2xl mx-auto"
         >
-          {/* HEADER */}
-          <div
-            className="flex justify-between items-center px-4 py-3 cursor-pointer"
+          {/* DRAG HANDLE */}
+          <div 
+            className="w-full py-4 flex flex-col items-center cursor-pointer"
             onClick={() => setSheetMinimized(!sheetMinimized)}
           >
-            <h2 className="font-bold text-lg flex-1 text-center">Cursă UCab</h2>
-            {sheetMinimized ? <FaChevronUp /> : <FaChevronDown />}
+            <div className="w-12 h-1.5 bg-slate-100 rounded-full mb-2"></div>
+            <h2 className="font-black text-xs uppercase tracking-[0.2em] text-slate-400">
+               {rideStatus === "active" ? "Cursă în desfășurare" : "Comandă uCAB"}
+            </h2>
           </div>
 
-          {!sheetMinimized && (
-            <div className="px-4 pb-4">
-              {/* PLECARE */}
-              <div className="mb-3">
-                <div
-                  onClick={useCurrentLocation}
-                  className="mb-2 flex items-center gap-2 px-3 py-2
-                             rounded-xl bg-gray-100 hover:bg-gray-200
-                             cursor-pointer text-sm font-medium"
-                >
-                  📍 Use current location
-                </div>
-
-                <div className="flex gap-2 items-center">
-                  <FaMapMarkerAlt />
-                  <Autocomplete
-                    onLoad={(ref) => (pickupRef.current = ref)}
-                    onPlaceChanged={() => {
-                      const p = pickupRef.current.getPlace();
-                      if (p?.geometry) {
-                        setPickup({
-                          lat: p.geometry.location.lat(),
-                          lng: p.geometry.location.lng(),
-                        });
-                        setPickupText(p.formatted_address);
-                      }
-                    }}
-                  >
-                    <input
+          <div className="px-8 pb-10">
+            {rideStatus === "idle" || rideStatus === "ready" ? (
+              <div className="space-y-6">
+                {/* INPUTS */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl">
+                    <Navigation size={18} className="text-blue-600" />
+                    <input 
+                      className="bg-transparent outline-none text-sm font-bold w-full"
+                      placeholder="Locație plecare"
                       value={pickupText}
                       onChange={(e) => setPickupText(e.target.value)}
-                      placeholder="Plecare"
-                      className="w-full border rounded-xl px-3 py-2"
                     />
-                  </Autocomplete>
+                    <button onClick={useCurrentLocation} className="p-2 text-blue-600"><LocateFixed size={18}/></button>
+                  </div>
+                  <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border-2 border-transparent focus-within:border-black transition-all">
+                    <Flag size={18} className="text-slate-400" />
+                    <input 
+                      className="bg-transparent outline-none text-sm font-bold w-full"
+                      placeholder="Unde mergem?"
+                      value={destinationText}
+                      onChange={(e) => setDestinationText(e.target.value)}
+                      onBlur={() => setDestination({ lat: 44.44, lng: 26.12 })} // Exemplu hardcoded pt test
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* DESTINATIE */}
-              <div className="flex gap-2 items-center mb-3">
-                <FaFlagCheckered />
-                <Autocomplete
-                  onLoad={(ref) => (destinationRef.current = ref)}
-                  onPlaceChanged={() => {
-                    const p = destinationRef.current.getPlace();
-                    if (p?.geometry) {
-                      setDestination({
-                        lat: p.geometry.location.lat(),
-                        lng: p.geometry.location.lng(),
-                      });
-                      setDestinationText(p.formatted_address);
-                    }
-                  }}
+                {/* VEHICLE SELECTION */}
+                {rideStatus === "ready" && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+                    {Object.entries(carOptions).map(([key, car]) => (
+                      <button
+                        key={key}
+                        onClick={() => setSelectedCar(key)}
+                        className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all border-2 ${
+                          selectedCar === key ? 'border-black bg-slate-50' : 'border-transparent bg-slate-50/50 hover:bg-slate-50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-4 text-left">
+                           <div className={`p-3 rounded-xl ${selectedCar === key ? 'bg-black text-white' : 'bg-white text-slate-400 shadow-sm'}`}>
+                             <Car size={20} />
+                           </div>
+                           <div>
+                              <p className="font-black text-sm uppercase italic">{car.label}</p>
+                              <p className="text-[10px] font-bold text-slate-400 uppercase">{car.time} • {routeData.duration} min ride</p>
+                           </div>
+                        </div>
+                        <p className="font-black text-lg tracking-tighter">{(routeData.distance * car.rate).toFixed(2)} <small className="text-[10px] font-normal">RON</small></p>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+
+                {/* ACTION BUTTON */}
+                <button 
+                  disabled={rideStatus !== "ready"}
+                  onClick={confirmRide}
+                  className="w-full bg-black text-white py-5 rounded-3xl font-black uppercase tracking-[0.2em] shadow-xl disabled:opacity-20 transition-all hover:bg-zinc-800"
                 >
-                  <input
-                    value={destinationText}
-                    onChange={(e) => setDestinationText(e.target.value)}
-                    placeholder="Destinație"
-                    className="w-full border rounded-xl px-3 py-2"
-                  />
-                </Autocomplete>
+                  Confirmă {carOptions[selectedCar].label}
+                </button>
               </div>
-
-              <button
-                onClick={calculateRoute}
-                className="w-full bg-black text-white py-2 rounded-xl"
-              >
-                Calculează ruta
-              </button>
-
-              {directions && (
-                <div className="mt-3">
-                  <p>Distanță: {distance?.toFixed(2)} km</p>
-                  <p>Timp: {time}</p>
-                  <p className="font-bold">Cost: {cost} RON</p>
-                  <button
-                    onClick={confirmRide}
-                    className="w-full bg-blue-600 text-white py-2 rounded-xl mt-2"
-                    disabled={loading}
-                  >
-                    {loading ? "Se confirmă..." : "Confirmă cursa"}
-                  </button>
+            ) : rideStatus === "searching" ? (
+              <div className="py-12 flex flex-col items-center text-center gap-6">
+                 <div className="relative">
+                    <Loader2 size={64} className="animate-spin text-blue-600" />
+                    <Zap size={24} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" fill="currentColor" />
+                 </div>
+                 <div>
+                    <h3 className="text-2xl font-black italic uppercase tracking-tighter">Se caută uCAB...</h3>
+                    <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-2">Te conectăm cu cel mai apropiat partener</p>
+                 </div>
+              </div>
+            ) : (
+              <div className="py-6 space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-slate-400">
+                      <User size={32} />
+                    </div>
+                    <div>
+                      <p className="font-black text-lg uppercase italic leading-none">Mihai D.</p>
+                      <p className="text-xs font-bold text-blue-600 mt-1 uppercase">Dacia Logan • B 123 CAB</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-black tracking-tighter italic leading-none">4.9 ★</p>
+                  </div>
                 </div>
-              )}
-
-              {message && (
-                <p className="text-center text-sm text-blue-600 mt-2">{message}</p>
-              )}
-            </div>
-          )}
+                <button className="w-full py-4 border-2 border-red-500/20 text-red-500 rounded-2xl font-black uppercase tracking-widest text-[10px]">Anulează Cursa</button>
+              </div>
+            )}
+          </div>
         </motion.div>
       </AnimatePresence>
+
+      {/* FLOAT BUTTON LOCATION */}
+      <button 
+        onClick={useCurrentLocation}
+        className="absolute bottom-[35%] right-6 bg-white p-4 rounded-2xl shadow-2xl text-black hover:bg-slate-50 border border-slate-100 transition-all z-20"
+      >
+        <LocateFixed size={24} />
+      </button>
     </div>
   );
 }

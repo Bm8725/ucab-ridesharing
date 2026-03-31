@@ -278,7 +278,7 @@ export default function MyAccount() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Rides</p>
+                <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Orders</p>
                 <p className="text-3xl font-black italic tracking-tighter">{orders.length}</p>
               </div>
             </div>
@@ -288,14 +288,14 @@ export default function MyAccount() {
           <section className="lg:col-span-8 space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2">
               <h2 className="text-xl font-black tracking-tight uppercase italic flex items-center gap-3">
-                <div className="w-8 h-[2px] bg-black"></div> Recent Rides
+                <div className="w-8 h-[2px] bg-black"></div> Recent orders
               </h2>
               
               <div className="relative group">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-black transition-colors" size={18} />
                 <input 
                   type="text" 
-                  placeholder="Search rides..." 
+                  placeholder="Search orders..." 
                   className="bg-gray-100 border-none rounded-full pl-12 pr-8 py-3 text-xs font-bold outline-none w-full md:w-80 focus:ring-4 ring-black/5 focus:bg-white transition-all border border-transparent focus:border-black/10 shadow-sm"
                   onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                 />
