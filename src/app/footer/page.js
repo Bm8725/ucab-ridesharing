@@ -88,6 +88,7 @@ export default function Footer() {
             </h4>
             <ul className="space-y-4 text-sm font-medium">
               <li><Link href="/" className="hover:text-white transition-colors">Acasă</Link></li>
+              <li><Link href="/myaccount/" className="hover:text-white transition-colors">My account</Link></li>
               <li><Link href="/about/" className="hover:text-white transition-colors">Despre noi</Link></li>
               <li><Link href="/404/" className="hover:text-white transition-colors flex items-center gap-2">Cariere <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500 text-[9px] font-bold tracking-normal uppercase">Hiring</span></Link></li>
               <li><Link href="/resource/promotii/" className="hover:text-white transition-colors">Promotii</Link></li>

@@ -2,12 +2,14 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseConfig";
+import { useRouter } from "next/navigation";
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const [total, setTotal] = useState(0);
+  const router = useRouter();
 
   // Funcție helper pentru a lua ID-ul utilizatorului logat
   const getUserId = async () => {
@@ -23,7 +25,6 @@ export function CartProvider({ children }) {
       return;
     }
 
-    // Luăm doar produsele care aparțin acestui utilizator
     const { data: allCart, error } = await supabase
       .from("cart")
       .select("*")
@@ -36,7 +37,6 @@ export function CartProvider({ children }) {
     }
   };
 
-  // Reîncărcăm coșul la montare și când se schimbă starea de login
   useEffect(() => {
     fetchCart();
     
@@ -49,7 +49,12 @@ export function CartProvider({ children }) {
 
   const addToCart = async (product) => {
     const userId = await getUserId();
-    if (!userId) return alert("Trebuie să fii logat pentru a adăuga în coș!");
+    
+    if (!userId) {
+      console.log("%c Hey! Trebuie să fii logat ca să pui bunătăți în coș. 😉", "color: #ff0000; font-weight: bold; font-size: 14px;");
+      router.push("/login"); // Îl trimitem elegant la login
+      return;
+    }
 
     const existing = cart.find(item => item.product_id === product.id);
     
@@ -64,7 +69,7 @@ export function CartProvider({ children }) {
         quantity: 1,
         restaurant_id: product.restaurant_id, 
         restaurant_name: product.restaurant_name,
-        user_id: userId // OBLIGATORIU: salvăm ID-ul utilizatorului
+        user_id: userId 
       });
       fetchCart();
     }
@@ -84,7 +89,7 @@ export function CartProvider({ children }) {
         .from("cart")
         .update({ quantity: newQty })
         .eq("id", id)
-        .eq("user_id", userId); // Verificare extra
+        .eq("user_id", userId); 
       fetchCart();
     }
   };
