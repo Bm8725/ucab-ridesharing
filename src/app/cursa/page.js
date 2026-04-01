@@ -250,7 +250,7 @@ export default function RidePage() {
               <div className="bg-slate-50 p-4 rounded-2xl flex items-center gap-3">
                 <div className="w-2.5 h-2.5 rounded-full bg-blue-600 shrink-0" />
                 <span className="text-[11px] font-bold text-slate-400 truncate flex-1">
-                  {gpsLoading ? "Se detectează..." : pickupText}
+                  {gpsLoading ? "Detecting..." : pickupText}
                 </span>
                 <button onClick={initGPS} className="shrink-0">
                   {gpsLoading
@@ -286,7 +286,7 @@ export default function RidePage() {
               >
                 {orderStatus === "loading"
                   ? <Loader2 size={18} className="animate-spin" />
-                  : <>Comandă Cursa • {pret} Lei <ChevronRight size={14} /></>
+                  : <>Comanda cursa • {pret} Lei <ChevronRight size={14} /></>
                 }
               </button>
             )}
