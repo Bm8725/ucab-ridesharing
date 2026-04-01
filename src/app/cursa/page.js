@@ -152,7 +152,15 @@ export default function RidePage() {
   const distantaKm = routeData ? (routeData.distance / 1000).toFixed(1) : null;
   const timpMin    = routeData ? Math.ceil(routeData.duration / 60) : null;
   const pret       = routeData ? (routeData.distance / 1000 * 2.5).toFixed(2) : null;
-  const userName   = user?.user_metadata?.full_name || user?.email?.split("@")[0];
+const [userName, setUserName] = useState("");
+
+useEffect(() => {
+  if (user) {
+    supabase.from("riders").select("name").eq("id", user.id).single()
+      .then(({ data }) => setUserName(data?.name || user.user_metadata?.full_name || "Client"));
+  }
+}, [user]);
+
 
   // ── SUCCESS SCREEN ────────────────────────────────────────────────────────
   if (orderStatus === "success") return (
