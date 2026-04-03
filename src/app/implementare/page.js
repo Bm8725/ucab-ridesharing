@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
-import { FaServer, FaFileContract, FaMoneyCheckAlt, FaArrowDown } from "react-icons/fa";
+import { FaServer, FaFileContract, FaMoneyCheckAlt, FaArrowDown, FaMobileAlt, FaDownload } from "react-icons/fa";
 import { useRef } from "react";
 
 export default function UcabTimelinePro() {
@@ -42,6 +42,17 @@ export default function UcabTimelinePro() {
       icon: <FaMoneyCheckAlt />,
       color: "#8b5cf6",
     },
+    // NOUA SECȚIUNE PENTRU ADMIN APP
+    {
+      id: 4,
+      title: "UCab Admin App",
+      cost: "FREE",
+      period: "pentru parteneri",
+      desc: "Control total asupra flotei tale direct de pe mobil. Monitorizează cursele in timp real pe platforma ANDROID",
+      icon: <FaMobileAlt />,
+      color: "#f59e0b",
+      downloadUrl: "https://github.com/Bm8725/ucab-ridesharing/releases/download/V/ucab_admin.apk.apk", // 
+    },
   ];
 
   return (
@@ -71,17 +82,16 @@ export default function UcabTimelinePro() {
           Business Model <br /> & Costuri ucab app
         </motion.h1>
 
-        {/* Descriere model SaaS B2B - TEXT ACTUALIZAT */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           className="p-8 md:p-12 bg-white/5 backdrop-blur-md border border-white/10 rounded-[3rem] text-zinc-400 leading-relaxed text-lg shadow-inner text-left md:text-center"
         >
           <p className="mb-6">
-            UCab funcționează pe un model <span className="text-white font-bold tracking-widest uppercase">SAAS (Software as a Service)</span> orientat către <span className="text-white font-bold">B2B</span>, oferind infrastructură și aplicații companiilor de transport și livrare. Spre deosebire de Uber sau Bolt, UCab nu intermediază direct clienții finali, dar ne rezervăm dreptul de a sugera soluția optimă.
+            UCab funcționează pe un model <span className="text-white font-bold tracking-widest uppercase">SAAS (Software as a Service)</span> orientat către <span className="text-white font-bold">B2B</span>, oferind infrastructură și aplicații companiilor de transport și livrare.
           </p>
           <p>
-            Companiile licențiază software-ul și folosesc aplicațiile pentru gestionarea flotei, monitorizarea comenzilor și raportare detaliată, plătind costuri inițiale, abonamente și comisioane mici per tranzacție.
+            Companiile licențiază software-ul și folosesc aplicațiile pentru gestionarea flotei, monitorizarea comenzilor și raportare detaliată.
           </p>
           <div className="flex justify-center items-center gap-2 text-green-400 font-bold uppercase text-xs tracking-[0.3em] mt-8">
             <span>Scroll pentru detalii costuri</span>
@@ -93,7 +103,6 @@ export default function UcabTimelinePro() {
       {/* Timeline Container */}
       <div className="max-w-5xl mx-auto relative">
         
-        {/* Linia de progres - Responsive (stânga pe mobile, centru pe desktop) */}
         <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2 bg-white/5 overflow-hidden">
           <motion.div 
             style={{ scaleY: pathLength, opacity: opacityLine }}
@@ -104,7 +113,6 @@ export default function UcabTimelinePro() {
         {costSections.map((section, index) => (
           <div key={section.id} className={`relative flex items-center mb-24 md:mb-40 pl-12 md:pl-0 ${index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}>
             
-            {/* Punctul de conexiune (Bula) */}
             <motion.div 
               initial={{ scale: 0 }}
               whileInView={{ scale: 1 }}
@@ -114,7 +122,6 @@ export default function UcabTimelinePro() {
                <div className="w-full h-full bg-green-500 rounded-full animate-pulse" />
             </motion.div>
 
-            {/* Cardul */}
             <motion.div 
               initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50, y: 20 }}
               whileInView={{ opacity: 1, x: 0, y: 0 }}
@@ -125,7 +132,6 @@ export default function UcabTimelinePro() {
               <div className="relative p-[1px] rounded-[2.5rem] bg-gradient-to-br from-white/10 to-transparent group-hover:from-white/20 transition-all duration-500">
                 <div className="bg-[#0f172a]/90 backdrop-blur-3xl p-6 md:p-10 rounded-[2.4rem] border border-white/5 relative overflow-hidden">
                   
-                  {/* Icon cu glow */}
                   <div className="mb-6 relative inline-block">
                     <div 
                       className="absolute inset-0 blur-xl opacity-20 group-hover:opacity-40 transition-opacity"
@@ -145,11 +151,27 @@ export default function UcabTimelinePro() {
                     <span className="text-zinc-500 font-bold uppercase text-[9px] tracking-widest">{section.period}</span>
                   </div>
 
-                  <p className="text-zinc-400 font-medium text-sm md:text-base leading-relaxed">
+                  <p className="text-zinc-400 font-medium text-sm md:text-base leading-relaxed mb-6">
                     {section.desc}
                   </p>
+{/* AFOREȘE BUTON DOWNLOAD DACĂ EXISTĂ URL */}
+{section.downloadUrl && (
+  <motion.a
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    href={section.downloadUrl}
+    // download forțează descărcarea și sugerează numele fișierului
+    download="ucab_admin_v.0.13.020426.apk" 
+    target="_blank"
+    rel="noopener noreferrer"
+    className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-4 rounded-2xl font-bold uppercase text-[10px] md:text-xs tracking-widest shadow-xl shadow-blue-900/20 hover:shadow-blue-500/40 transition-all cursor-pointer border border-white/10"
+  >
+    <FaDownload className="text-sm" /> 
+    <span>Download v.0.13.020426.apk</span>
+  </motion.a>
+)}
 
-                  {/* Număr decorativ fundal */}
+
                   <span className="absolute top-6 right-8 text-white/5 text-7xl font-black italic -z-10 select-none">
                     0{section.id}
                   </span>
@@ -173,8 +195,6 @@ export default function UcabTimelinePro() {
           Solicită Parteneriat
         </a>
       </motion.div>
-
     </div>
   );
 }
-

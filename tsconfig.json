@@ -35,7 +35,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
-, "src/app/page.js", "src/(public)/layout.js"  ],
+, "src/app/page.js", "src/(public)/layout.js", "src/app/myaccount/page.js", "src/midleware.js"  ],
   "exclude": [
     "node_modules"
   ]
