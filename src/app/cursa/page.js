@@ -1,3 +1,5 @@
+
+/** /cursa/page.js */
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
@@ -116,37 +118,67 @@ export default function RidePage() {
   }, [pickup, destination]);
 
   // ── COMANDĂ ───────────────────────────────────────────────────────────────
-  const handleOrder = async () => {
-    if (!routeData || !user || orderStatus === "loading") return;
-    setOrderStatus("loading");
+ const handleOrder = async () => {
+  if (!routeData || !user || orderStatus === "loading") return;
+  setOrderStatus("loading");
 
-    const pret = parseFloat((routeData.distance / 1000 * 2.5).toFixed(2));
-    const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Client";
+  const distKm   = parseFloat((routeData.distance / 1000).toFixed(2));
+  const durMin   = Math.ceil(routeData.duration / 60);
+  const pret     = parseFloat((distKm * 2.5).toFixed(2));
+  const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Client";
 
-    const { error } = await supabase.from("orders").insert([{
-      user_id: user.id,
-      items: [],                          // ride → items gol
-      total_amount: pret,
-      status: "pending",
-      delivery_address: destText,         // destinație
-      notes: pickupText,                  // pickup salvat în notes
-      customer_name: userName,
-      customer_phone: null,
-      restaurant_name: "uCAB Ride",       // diferențiator față de food orders
-      restaurant_id: null,
-      payment_method: "cash",
-    }]);
+  const { error } = await supabase.from("orders").insert([{
+    // ── identificare ──────────────────────────────
+    user_id:          user.id,
+    type:             "ride",
+    status:           "pending",
 
-    if (error) {
-      console.error("Supabase error:", error.message);
-      setOrderStatus("error");
-      setTimeout(() => setOrderStatus("idle"), 3000);
-    } else {
-      setOrderStatus("success");
-      clearDest();
-      setTimeout(() => setOrderStatus("idle"), 4000);
-    }
-  };
+    // ── client ────────────────────────────────────
+    customer_name:    userName,
+    customer_phone:   null,
+    notes:            null,
+
+    // ── locații ───────────────────────────────────
+    delivery_address: destText,
+    pickup_lat:       pickup.lat,
+    pickup_lng:       pickup.lng,
+    dropoff_lat:      destination.lat,
+    dropoff_lng:      destination.lng,
+
+    // ── rută ──────────────────────────────────────
+    distance_km:      distKm,
+    duration_minutes: durMin,
+    route:            routeData.geometry ?? null,
+
+    // ── financiar ─────────────────────────────────
+    total_amount:     pret,
+    delivery_fee:     0,
+    tip_amount:       0,
+    discount_amount:  0,
+    payment_method:   "cash",
+    surge_multiplier: 1.0,
+
+    // ── ride specific ─────────────────────────────
+    passenger_count:  1,
+    vehicle_type:     "standard",
+    shared:           false,
+
+    // ── food fields goale (ride nu le folosește) ──
+    items:            [],
+    restaurant_id:    null,
+    restaurant_name:  null,
+  }]);
+
+  if (error) {
+    console.error("Supabase error:", error.message);
+    setOrderStatus("error");
+    setTimeout(() => setOrderStatus("idle"), 3000);
+  } else {
+    setOrderStatus("success");
+    clearDest();
+    setTimeout(() => setOrderStatus("idle"), 4000);
+  }
+};
 
   // ── Calcule ───────────────────────────────────────────────────────────────
   const distantaKm = routeData ? (routeData.distance / 1000).toFixed(1) : null;
