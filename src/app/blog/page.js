@@ -55,16 +55,31 @@ export default function UcabBlog() {
   };
 
   const handleShareAction = async (msg, type) => {
-    const url = `${window.location.origin}/blog?id=${msg.id}`;
-    if (type === 'copy') {
-      await navigator.clipboard.writeText(url);
-      setCopiedId(msg.id);
-      setTimeout(() => setCopiedId(null), 2000);
-    } else {
-      window.open(type === 'whatsapp' ? `https://whatsapp.com{encodeURIComponent(url)}` : `https://facebook.com{encodeURIComponent(url)}`, '_blank');
+    // Ne asigurăm că URL-ul este curat
+    const shareUrl = `${window.location.origin}/blog?id=${msg.id}`;
+    const shareText = `Vezi acest articol pe UCAB.ro: ${msg.content.split('\n')[0]}`;
+
+    try {
+      if (type === 'whatsapp') {
+        window.open(`https://whatsapp.com{encodeURIComponent(shareText + " " + shareUrl)}`, '_blank');
+      } else if (type === 'copy') {
+        await navigator.clipboard.writeText(shareUrl);
+        setCopiedId(msg.id);
+        setTimeout(() => setCopiedId(null), 2000);
+      } else if (type === 'native' && navigator.share) {
+        // Aceasta deschide meniul de share de pe telefon (WhatsApp, FB, etc)
+        await navigator.share({
+          title: 'UCAB.ro Business',
+          text: shareText,
+          url: shareUrl,
+        });
+      }
+    } catch (err) {
+      console.error("Share error:", err);
     }
     setActiveShareId(null);
   };
+
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white"><Loader2 className="animate-spin text-slate-900" size={30} /></div>;
 
