@@ -89,7 +89,7 @@ export default function UcabBlogComplete() {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div onClick={() => router.push('/')} className="cursor-pointer">
             <h1 className="text-xl font-bold tracking-tight">UCAB<span className="text-slate-400">.ro</span></h1>
-            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-blue-600 leading-none">Business Admin</p>
+            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-blue-600 leading-none">news ucab.ro</p>
           </div>
           {user ? (
              <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
@@ -116,7 +116,7 @@ export default function UcabBlogComplete() {
                        <button key={cat} type="button" onClick={() => setCategory(cat)} className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${category === cat ? 'bg-black text-white shadow-lg' : 'text-slate-400'}`}>{cat}</button>
                      ))}
                   </div>
-                  <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Scrie ceva relevant pentru SEO (ex: Livrare rapidă în București)..." className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl outline-none text-sm min-h-[150px] focus:bg-white focus:border-slate-400 transition-all" />
+                  <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Scrie ceva relevant respectand politica noastra....Va multumim!" className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl outline-none text-sm min-h-[150px] focus:bg-white focus:border-slate-400 transition-all" />
                   <button type="submit" disabled={sending || !newMessage.trim()} className="w-full py-4 bg-slate-900 text-white font-black text-[10px] rounded-xl flex items-center justify-center gap-2 hover:bg-black transition-all">
                     {sending ? <Loader2 className="animate-spin" size={16}/> : "PUBLICĂ ARTICOL"}
                   </button>
