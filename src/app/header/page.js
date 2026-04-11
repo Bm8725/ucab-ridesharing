@@ -1,12 +1,13 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Profiler } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { 
   Home, Car, LogIn, Pizza, Badge, ChevronDown, X, Menu, 
   ArrowRight, Bell, Zap, Star, ShieldCheck, User, Sparkles 
 } from "lucide-react"; 
 import Link from "next/link";
-import { FaCoins, FaHamburger } from "react-icons/fa";
+import { FaAndroid, FaCoins, FaHamburger } from "react-icons/fa";
+import React from 'react';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,10 +33,10 @@ export default function Header() {
   }, [isOpen]);
 
   const services = [
-    { label: "Cere o cursă", desc: "Șoferi verificați la orice oră. Călătorește cu UCab", icon: <Car size={24} />, href: "/cursa/", color: "text-blue-500", bgColor: "bg-blue-500/10" },
+    { label: "Cere o cursă", desc: "Șoferi verificați la orice oră. Călătorește cu UCab", icon: <Car size={24} />, href: "/cursa/", color: "text-black", bgColor: "bg-blue-black" },
     { label: "Comandă Mâncare", desc: "Mâncare caldă de la restaurantele tale preferate.", icon: <Pizza size={24} />, href: "/restaurante/", color: "text-orange-500", bgColor: "bg-orange-500/10" },
     { label: "Partener Restaurant", desc: "Crește-ți afacerea și profitul cu UCab.", icon: <FaHamburger size={24} />, href: "/partener-restaurant/", color: "text-red-500", bgColor: "bg-red-500/10" },
-    { label: "Devino șofer", desc: "Câștigă bani în timpul tău liber.", icon: <Car size={24} />, href: "/driver/", color: "text-green-500", bgColor: "bg-green-500/10" },
+    { label: "Devino șofer", desc: "Câștigă bani în timpul tău liber.", icon: <Car size={24} />, href: "/driver/", color: "text-blue-500", bgColor: "bg-blue-500/10" },
     { label: "Promoții", desc: "Oferte exclusive și vouchere UCab.", icon: <Badge size={24} />, href: "/resource/promotii/", color: "text-purple-500", bgColor: "bg-purple-500/10" },
   ];
 
@@ -99,16 +100,6 @@ export default function Header() {
                       ))}
                     </div>
 
-                    <div className="col-span-4 bg-gradient-to-br from-blue-600 to-blue-900 rounded-[2.5rem] p-6 flex flex-col justify-between relative overflow-hidden group/featured">
-                       <Sparkles className="absolute top-4 right-4 text-white/20 group-hover/featured:rotate-90 transition-transform duration-700" />
-                       <div className="relative z-10">
-                          <h4 className="text-xl font-black uppercase leading-tight italic">Descoperă<br/>UCab Prime</h4>
-                          <p className="text-[10px] text-white/70 mt-3 font-bold uppercase tracking-widest">Beneficii exclusive la fiecare cursă.</p>
-                       </div>
-                       <Link href="/resource/promotii/" className="mt-8 bg-white text-black py-3 px-6 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform text-center shadow-lg">
-                          Vezi Promoții
-                       </Link>
-                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -166,7 +157,7 @@ export default function Header() {
                           <div className={`${s.bgColor} ${s.color} p-3 rounded-2xl`}>{s.icon}</div>
                           <div className="flex flex-col">
                             <span className="font-black uppercase text-[13px] tracking-widest leading-none">{s.label}</span>
-                            <span className="text-[10px] text-black/40 font-bold mt-1 uppercase tracking-tight">Vezi detalii</span>
+                            <span className="text-[10px] text-black/40 font-bold mt-1 uppercase tracking-tight"> {s.desc}</span>
                           </div>
                         </div>
                         <ArrowRight size={18} className="text-black/10" />
@@ -192,11 +183,11 @@ export default function Header() {
               >
                 <div className="flex items-center gap-4 text-white">
                   <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-inner">
-                    <ShieldCheck size={26} />
+                    <User size={26} />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[10px] text-white/50 font-black uppercase leading-none tracking-tighter">Setări profil</span>
-                    <span className="font-black uppercase text-base tracking-tight">My Account</span>
+                    <span className="text-[10px] text-white/50 font-black  leading-none tracking-tighter">Settings profile</span>
+                    <span className="font-black  text-base tracking-tight">My Account</span>
                   </div>
                 </div>
                 <div className="bg-white/10 p-2.5 rounded-full text-white">
