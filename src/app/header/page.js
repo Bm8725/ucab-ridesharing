@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect, Profiler } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { 
-  Home, Car, LogIn, Pizza, Badge, ChevronDown, X, Menu, 
-  ArrowRight, Bell, Zap, Star, ShieldCheck, User, Sparkles 
-} from "lucide-react"; 
+import {
+  Home, Car, LogIn, Pizza, Badge, ChevronDown, X, Menu,
+  ArrowRight, Bell, Zap, Star, ShieldCheck, User, Sparkles,
+  Grid3x3, ChevronUp
+} from "lucide-react";
 import Link from "next/link";
 import { FaAndroid, FaCoins, FaHamburger } from "react-icons/fa";
 import React from 'react';
@@ -15,6 +16,10 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+
+  // ── NOU: ce drop-up e activ în tab-bar-ul mobil de jos ──
+  // null = niciunul deschis; altfel id-ul tab-ului ("services" | "account")
+  const [activeMobileSheet, setActiveMobileSheet] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,8 +34,8 @@ export default function Header() {
   }, [lastScrollY]);
 
   useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "unset";
-  }, [isOpen]);
+    document.body.style.overflow = (isOpen || activeMobileSheet) ? "hidden" : "unset";
+  }, [isOpen, activeMobileSheet]);
 
   const services = [
     { label: "Cere o cursă", desc: "Șoferi verificați la orice oră. Călătorește cu UCab", icon: <Car size={24} />, href: "/cursa/", color: "text-black", bgColor: "bg-blue-black" },
@@ -40,9 +45,30 @@ export default function Header() {
     { label: "Promoții", desc: "Oferte exclusive și vouchere UCab.", icon: <Badge size={24} />, href: "/resource/promotii/", color: "text-purple-500", bgColor: "bg-purple-500/10" },
   ];
 
+  // ── NOU: definiția tab-urilor din bara de jos, mobil ──
+  const accountLinks = [
+    { label: "My Account", desc: "Vezi și editează profilul tău", icon: <User size={22} />, href: "/myaccount/", color: "text-blue-600", bgColor: "bg-blue-600/10" },
+    { label: "Notificări", desc: "Alerte, oferte și actualizări curse", icon: <Bell size={22} />, href: "/notificari/", color: "text-amber-500", bgColor: "bg-amber-500/10" },
+    { label: "Investors", desc: "Informații pentru investitori UCab", icon: <FaCoins size={22} />, href: "/investors/", color: "text-amber-600", bgColor: "bg-amber-500/10" },
+  ];
+
+  const mobileTabs = [
+    { id: "home", label: "Acasă", icon: <Home size={22} />, href: "/" },
+    { id: "services", label: "Servicii", icon: <Grid3x3 size={22} />, sheet: services },
+    { id: "ride", label: "Cursă", icon: <Car size={26} />, href: "/cursa/", primary: true },
+    { id: "notifications", label: "Alerte", icon: <Bell size={22} />, href: "/notificari/" },
+    { id: "account", label: "Cont", icon: <User size={22} />, sheet: accountLinks },
+  ];
+
+  const toggleMobileSheet = (id: string) => {
+    setActiveMobileSheet((prev) => (prev === id ? null : id));
+  };
+
+  const activeTabData = mobileTabs.find((t) => t.id === activeMobileSheet);
+
   return (
     <>
-      <header 
+      <header
         className={`fixed top-0 w-full z-[100] transition-all duration-500 ${
           isVisible ? "translate-y-0" : "-translate-y-full"
         } ${isOpen ? "text-black bg-[#FDFCFB]" : "text-white bg-black"} ${
@@ -50,11 +76,11 @@ export default function Header() {
         }`}
       >
         <div className="container mx-auto px-6 flex justify-between items-center">
-          
+
           {/* Logo */}
           <Link href="/" className="shrink-0 group relative" onClick={() => setIsOpen(false)}>
             <h1 className="text-2xl font-bold flex items-center gap-2">
-              <motion.div 
+              <motion.div
                 whileHover={{ rotate: 360, scale: 1.1 }}
                 className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white text-lg shadow-[0_0_20px_rgba(37,99,235,0.6)] font-black italic"
               >
@@ -66,7 +92,7 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-2">
-            <div 
+            <div
               className="relative px-2 py-4"
               onMouseEnter={() => setSubmenuOpen(true)}
               onMouseLeave={() => setSubmenuOpen(false)}
@@ -74,12 +100,12 @@ export default function Header() {
               <button className="px-5 py-2 rounded-full text-[13px] font-black uppercase tracking-[0.15em] flex items-center gap-1.5 hover:bg-white/5 transition-all outline-none">
                 Servicii <ChevronDown size={14} className={`transition-transform duration-500 ${submenuOpen ? "rotate-180" : ""}`} />
               </button>
-              
+
               <AnimatePresence>
                 {submenuOpen && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 15, scale: 0.98 }} 
-                    animate={{ opacity: 1, y: 0, scale: 1 }} 
+                  <motion.div
+                    initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 15, scale: 0.98 }}
                     className="absolute top-[85%] left-1/2 -translate-x-1/2 w-[750px] bg-black/95 backdrop-blur-3xl border border-white/10 rounded-[3rem] shadow-[0_40px_80px_rgba(0,0,0,0.7)] p-8 grid grid-cols-12 gap-8 mt-4 overflow-hidden"
                   >
@@ -117,13 +143,13 @@ export default function Header() {
               <Bell size={20} />
               <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-blue-600 rounded-full border-2 border-black" />
             </button>
-            
+
             <Link href="/myaccount/" className="hidden lg:flex relative px-8 py-3.5 bg-white text-black rounded-full font-black text-[11px] uppercase tracking-[0.2em] transition-transform active:scale-95">
               <span>my Account</span>
             </Link>
 
-            <button 
-              className={`lg:hidden p-3 rounded-2xl border active:scale-90 transition-all ${isOpen ? "bg-black text-white border-black" : "bg-white/5 border-white/10 text-white"}`} 
+            <button
+              className={`lg:hidden p-3 rounded-2xl border active:scale-90 transition-all ${isOpen ? "bg-black text-white border-black" : "bg-white/5 border-white/10 text-white"}`}
               onClick={() => setIsOpen(!isOpen)}
             >
               {isOpen ? <X size={26} /> : <Menu size={26} />}
@@ -132,7 +158,7 @@ export default function Header() {
         </div>
       </header>
 
-      {/* MOBILE MENU - PREMIUM WHITE APP STYLE */}
+      {/* MOBILE MENU - PREMIUM WHITE APP STYLE (rămâne neschimbat — accesat din hamburger) */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -143,8 +169,8 @@ export default function Header() {
             className="fixed inset-0 bg-[#FDFCFB] text-black z-[90] lg:hidden flex flex-col pt-28"
           >
             <div className="flex-1 overflow-y-auto px-6 space-y-10 pb-32">
-              
- 
+
+
 
               {/* Services Grid (App Style) */}
               <div className="space-y-4">
@@ -176,8 +202,8 @@ export default function Header() {
 
             {/* MY ACCOUNT - STICKY BOTTOM */}
             <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-[#FDFCFB] via-[#FDFCFB] to-transparent pt-10">
-              <Link 
-                href="/myaccount/" 
+              <Link
+                href="/myaccount/"
                 onClick={() => setIsOpen(false)}
                 className="flex items-center justify-between bg-black p-6 rounded-[2.5rem] shadow-2xl active:scale-95 transition-transform"
               >
@@ -199,6 +225,144 @@ export default function Header() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ════════════════════════════════════════════════════════════════
+          NOU: TAB-BAR FIX JOS, DOAR MOBIL — gen aplicație nativă
+          Fiecare tab cu "sheet" deschide propriul drop-up cu opțiuni,
+          ridicat direct din spatele bării, nu un meniu generic unic.
+         ════════════════════════════════════════════════════════════════ */}
+
+      {/* backdrop pentru drop-up-urile din tab-bar */}
+      <AnimatePresence>
+        {activeMobileSheet && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setActiveMobileSheet(null)}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[95] lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* drop-up cu opțiunile tab-ului activ */}
+      <AnimatePresence>
+        {activeTabData?.sheet && (
+          <motion.div
+            initial={{ y: "100%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: "100%", opacity: 0 }}
+            transition={{ type: "spring", damping: 28, stiffness: 280 }}
+            className="fixed bottom-[88px] left-0 w-full z-[96] lg:hidden px-3"
+          >
+            <div className="bg-[#FDFCFB] text-black rounded-[2rem] shadow-[0_-20px_60px_rgba(0,0,0,0.35)] border border-black/5 p-3 max-h-[60vh] overflow-y-auto">
+              <div className="flex items-center justify-between px-3 pt-2 pb-3">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-black/30">{activeTabData.label}</h3>
+                <button
+                  onClick={() => setActiveMobileSheet(null)}
+                  className="w-7 h-7 rounded-full bg-black/5 flex items-center justify-center active:scale-90 transition-transform"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {activeTabData.sheet.map((item, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.04 }}
+                  >
+                    <Link
+                      href={item.href}
+                      onClick={() => setActiveMobileSheet(null)}
+                      className="flex items-center gap-4 p-3.5 rounded-[1.4rem] active:bg-black/[0.04] transition-all"
+                    >
+                      <div className={`${item.bgColor} ${item.color} p-2.5 rounded-xl flex-shrink-0`}>{item.icon}</div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-black uppercase text-[12px] tracking-wide leading-none truncate">{item.label}</span>
+                        <span className="text-[10px] text-black/40 font-semibold mt-1 leading-tight truncate">{item.desc}</span>
+                      </div>
+                      <ArrowRight size={15} className="ml-auto text-black/15 flex-shrink-0" />
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* bara fixă jos */}
+      <nav
+        className="fixed bottom-0 left-0 w-full z-[97] lg:hidden bg-black/90 backdrop-blur-2xl border-t border-white/10"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <div className="grid grid-cols-5 items-end px-1 pt-2 pb-1.5">
+          {mobileTabs.map((tab) => {
+            const isActive = activeMobileSheet === tab.id;
+
+            // tab-ul central "Cursă" e ridicat și accentuat — acțiunea principală
+            if (tab.primary) {
+              return (
+                <Link
+                  key={tab.id}
+                  href={tab.href!}
+                  className="flex flex-col items-center justify-center gap-1 relative -mt-7"
+                >
+                  <motion.div
+                    whileTap={{ scale: 0.92 }}
+                    className="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-[0_8px_24px_rgba(37,99,235,0.5)] border-4 border-black"
+                  >
+                    {tab.icon}
+                  </motion.div>
+                  <span className="text-[9px] font-black uppercase tracking-wider text-blue-500 mt-0.5">{tab.label}</span>
+                </Link>
+              );
+            }
+
+            const content = (
+              <>
+                <div className={`transition-colors ${isActive ? "text-blue-500" : "text-white/50"}`}>
+                  {tab.icon}
+                </div>
+                <span className={`text-[9px] font-black uppercase tracking-wider transition-colors ${isActive ? "text-blue-500" : "text-white/40"}`}>
+                  {tab.label}
+                </span>
+                {tab.sheet && (
+                  <ChevronUp
+                    size={10}
+                    className={`absolute top-1 right-[22%] transition-transform duration-300 ${isActive ? "rotate-180 text-blue-500" : "text-white/20"}`}
+                  />
+                )}
+              </>
+            );
+
+            if (tab.sheet) {
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => toggleMobileSheet(tab.id)}
+                  className="flex flex-col items-center justify-center gap-1 py-1.5 relative active:scale-95 transition-transform"
+                >
+                  {content}
+                </button>
+              );
+            }
+
+            return (
+              <Link
+                key={tab.id}
+                href={tab.href!}
+                onClick={() => setActiveMobileSheet(null)}
+                className="flex flex-col items-center justify-center gap-1 py-1.5 relative active:scale-95 transition-transform"
+              >
+                {content}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
     </>
   );
 }
